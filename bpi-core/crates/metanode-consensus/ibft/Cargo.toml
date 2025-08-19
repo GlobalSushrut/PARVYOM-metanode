@@ -1,0 +1,25 @@
+[package]
+name = "bpi-ibft"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Core dependencies
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+futures = { workspace = true }
+
+# Internal dependencies
+bpi-enc = { path = "../../metanode-security/bpi-enc" }
+bpi-merkle = { path = "../../metanode-core/merkle" }
+bpi-blsagg = { path = "../../blsagg" }
+bpi-vrf = { path = "../../metanode-core/vrf" }
+bpi-poh = { path = "../../metanode-core/poh" }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio-test = "0.4"

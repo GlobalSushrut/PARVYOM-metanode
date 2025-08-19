@@ -1,0 +1,75 @@
+# Pravyom Local Testnet Configuration
+# Version: 1.0.0
+
+[server]
+name = "Pravyom Local Testnet"
+version = "1.0.0"
+mode = "dev"
+bind_address = "0.0.0.0"
+rpc_port = 8545
+ws_port = 8546
+api_port = 3000
+dashboard_port = 8080
+
+[network]
+network = "testnet"
+p2p_port = 30303
+discovery_enabled = true
+max_peers = 50
+bootstrap_nodes = []
+
+[database]
+postgres_url = "postgresql://testnet:testnet@localhost/testnet"
+redis_url = "redis://localhost:6379"
+connection_pool_size = 10
+
+[registry]
+enabled = true
+authority_level = "dev"
+node_registration = true
+identity_verification = false
+kyc_required = false
+aml_compliance = false
+
+[services]
+# Core services
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+bridge_service = true
+
+# Bridge services
+community_bridge = true
+bpi_bridge = true
+enterprise_bridge = true
+
+[bridge]
+# Community node coordination
+community_nodes_max = 100
+community_registration = true
+
+# BPI integration
+bpi_enabled = true
+banking_integration = true
+
+# Enterprise features
+enterprise_enabled = true
+compliance_reporting = false
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+validators = ["0x7df9a875a174b3bc565e6424a0050ebc1b2d1d82"]
+
+[mining]
+enabled = true
+threads = 2
+difficulty = "0x1"
+
+[logging]
+level = "info"
+file = "/home/umesh/metanode/examples/live-testnet/logs/testnet.log"
+
+[storage]
+data_dir = "/home/umesh/metanode/examples/live-testnet/data"

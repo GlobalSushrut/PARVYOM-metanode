@@ -1,0 +1,18 @@
+[package]
+name = "bpi-merkle"
+version = "0.1.0"
+edition = "2021"
+description = "Binary Merkle tree implementation for BPI Mesh"
+
+[dependencies]
+bpi-enc = { path = "../../metanode-security/bpi-enc" }
+blake3 = { workspace = true }
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { workspace = true, features = ["derive"] }
+
+[dev-dependencies]
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+# Benchmarks will be added in Stage 3

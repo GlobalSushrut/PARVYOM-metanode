@@ -1,0 +1,26 @@
+[package]
+name = "bpi-leader-selection"
+version = "0.1.0"
+edition = "2021"
+description = "VRF-based leader selection for BPI Mesh consensus"
+
+[dependencies]
+# Core dependencies
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# BPI Mesh dependencies
+bpi-enc = { path = "../enc" }
+bpi-vrf = { path = "../vrf" }
+bpi-validator-set = { path = "../bpi-validator-set" }
+bpi-blsagg = { path = "../blsagg" }
+
+# Cryptographic dependencies
+rand = "0.8"
+sha3 = "0.10"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+proptest = "1.0"

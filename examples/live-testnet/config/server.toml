@@ -1,0 +1,32 @@
+[network]
+chain_id = 1337
+network_id = "pravyom-testnet"
+listen_address = "0.0.0.0:30303"
+rpc_address = "0.0.0.0:8545"
+ws_address = "0.0.0.0:8546"
+max_peers = 50
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+epoch_length = 30000
+
+[mining]
+enabled = true
+coinbase = "0x7df9a875a174b3bc565e6424a0050ebc1b2d1d82"
+gas_limit = 8000000
+
+[storage]
+data_dir = "/home/umesh/metanode/examples/live-testnet/data"
+logs_dir = "/home/umesh/metanode/examples/live-testnet/logs"
+
+[api]
+http_enabled = true
+ws_enabled = true
+cors_origins = ["*"]
+http_modules = ["eth", "net", "web3", "personal", "admin"]
+ws_modules = ["eth", "net", "web3"]
+
+[logging]
+level = "info"
+file = "/home/umesh/metanode/examples/live-testnet/logs/server.log"

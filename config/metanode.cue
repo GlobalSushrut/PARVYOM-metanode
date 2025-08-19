@@ -1,0 +1,96 @@
+package metanode
+
+// Main Metanode configuration - generated from CUE schemas
+config: {
+	system: {
+		version:        "0.1.0"
+		environment:    "development"
+		log_level:      "info"
+		metrics_port:   9090
+		dashboard_port: 8080
+		data_dir:       "/var/lib/metanode"
+	}
+	
+	http_cage: {
+		enabled:            true
+		port:               8443
+		audit_enabled:      true
+		split_origin_audit: true
+		quantum_crypto:     true
+	}
+	
+	docklock: {
+		enabled:                true
+		socket_path:            "/var/run/docklock.sock"
+		deterministic_execution: true
+		witness_recording:      true
+		cue_validation:         true
+		receipt_generation:     true
+	}
+	
+	enc_cluster: {
+		enabled:             true
+		node_count:          3
+		consensus_scheduler: true
+		p2p_port:           30303
+		control_plane_port: 6443
+		service_mesh:       true
+	}
+	
+	bpci: {
+		enabled:               true
+		rpc_port:             8545
+		p2p_port:             30304
+		consensus_algorithm:   "IBFT"
+		cross_chain_bridge:   true
+		enterprise_api:       true
+		compliance_monitoring: true
+	}
+	
+	court_node: {
+		enabled:           true
+		governance_port:   9000
+		yaml_contracts:    true
+		dispute_resolution: true
+		voting_mechanism:  "quadratic"
+	}
+	
+	relay_storage: {
+		enabled:             true
+		storage_path:        "/var/lib/metanode/storage"
+		ipfs_compatible:     true
+		multi_tier_caching:  true
+		replication_factor:  3
+	}
+	
+	bank_mesh: {
+		enabled:                true
+		economic_engine:        true
+		autonomous_scaling:     true
+		cross_chain_settlement: true
+		token_economics: {
+			base_token:           "META"
+			staking_rewards:      0.05
+			transaction_fees:     0.001
+			governance_threshold: 1000
+		}
+	}
+	
+	bpi_consensus: {
+		enabled:              true
+		consensus_mechanism:  "PoH+VRF+BLS"
+		proof_of_history:     true
+		vrf_leader_selection: true
+		bls_aggregation:      true
+		finality_proofs:      true
+	}
+	
+	security_core: {
+		enabled:                      true
+		quantum_resistant:            true
+		ai_threat_detection:          true
+		multi_jurisdiction_compliance: true
+		audit_trails:                 true
+		security_score_target:        9.5
+	}
+}

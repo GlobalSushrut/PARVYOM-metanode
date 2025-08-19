@@ -1,0 +1,29 @@
+[package]
+name = "bpi-slashing"
+version = "0.1.0"
+edition = "2021"
+description = "Safety slashing proofs for BPI Mesh consensus"
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+blake3 = "1.5"
+chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+
+# BPI dependencies
+bpi-enc = { path = "../enc" }
+bpi-consensus = { path = "../bpi-consensus" }
+bpi-headers = { path = "../bpi-headers" }
+bpi-validator-set = { path = "../bpi-validator-set" }
+bpi-blsagg = { path = "../blsagg" }
+bpi-vrf = { path = "../vrf" }
+bpi-anchor = { path = "../anchor" }
+bpi-lc = { path = "../lc" }
+
+[dev-dependencies]
+proptest = "1.0"

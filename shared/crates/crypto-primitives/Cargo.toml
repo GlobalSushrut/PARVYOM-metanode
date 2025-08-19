@@ -1,0 +1,19 @@
+[package]
+name = "crypto-primitives"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Basic cryptographic functions shared between BPI Core and BPCI Enterprise"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+ring.workspace = true
+ed25519-dalek.workspace = true
+sha2.workspace = true
+blake3.workspace = true
+hmac.workspace = true
+rand.workspace = true
+hex = "0.4"

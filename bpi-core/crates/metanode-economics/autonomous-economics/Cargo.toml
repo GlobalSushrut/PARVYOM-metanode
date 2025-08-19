@@ -1,0 +1,38 @@
+[package]
+name = "autonomous-economics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+anyhow = "1.0"
+thiserror = "1.0"
+prometheus = "0.13"
+rust_decimal = { version = "1.0", features = ["serde"] }
+ahash = "0.8"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+hex = "0.4"
+
+# Cross-chain and DeFi dependencies
+ethers = { version = "2.0", features = ["ws", "rustls"] }
+secp256k1 = { version = "0.28", features = ["rand", "recovery"] }
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+futures = "0.3"
+tokio-tungstenite = { version = "0.20", features = ["rustls-tls-webpki-roots"] }
+
+# Mathematical and statistical libraries
+nalgebra = "0.32"
+statrs = "0.16"
+rand = "0.8"
+sha2 = "0.10"
+
+# Internal dependencies
+billing-meter = { path = "../billing-meter" }
+
+[dev-dependencies]
+tokio-test = "0.4"

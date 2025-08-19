@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="BPI Operations Dashboard - Military-grade blockchain infrastructure management" />
+		
+		<!-- Security Headers (will be enhanced by Rust gateway) -->
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'">
+		
+		<!-- Preload critical fonts for performance -->
+		<link rel="preload" href="%sveltekit.assets%/fonts/inter-variable.woff2" as="font" type="font/woff2" crossorigin>
+		<link rel="preload" href="%sveltekit.assets%/fonts/jetbrains-mono-variable.woff2" as="font" type="font/woff2" crossorigin>
+		
+		<!-- Critical CSS will be inlined here -->
+		%sveltekit.head%
+		
+		<title>BPI Operations Dashboard</title>
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-gray-900 text-white antialiased">
+		<div style="display: contents">%sveltekit.body%</div>
+		
+		<!-- Service Worker for offline functionality -->
+		<script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js');
+			}
+		</script>
+	</body>
+</html>

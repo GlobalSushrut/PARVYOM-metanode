@@ -1,0 +1,14 @@
+[package]
+name = "bpi-blsagg"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bpi-enc = { path = "../metanode-security/bpi-enc" }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+
+[dev-dependencies]
+proptest = { workspace = true }
+criterion = { workspace = true }

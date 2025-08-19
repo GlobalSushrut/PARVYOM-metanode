@@ -1,0 +1,35 @@
+[package]
+name = "metanode-consensus"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Consolidated consensus algorithms and block production for BPI Core"
+
+[features]
+default = ["ibft", "bpi-consensus", "leader-selection"]
+ibft = []
+bpi-consensus = []
+leader-selection = []
+block-proposal = []
+validator-set = []
+slashing = []
+headers = []
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+sha2.workspace = true
+ed25519-dalek.workspace = true
+
+# Shared components
+crypto-primitives = { path = "../../../shared/crates/crypto-primitives" }
+networking = { path = "../../../shared/crates/networking" }
+storage = { path = "../../../shared/crates/storage" }
+protocols = { path = "../../../shared/crates/protocols" }

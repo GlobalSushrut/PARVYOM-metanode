@@ -1,0 +1,45 @@
+//! Integration test modules for real Metanode components
+//! Real Metanode integration tests - NO MOCK FUNCTIONS
+
+pub mod batch_01_consensus_core;
+pub mod batch_02_economics_core;
+pub mod batch_03_security_core;
+pub mod batch_04_storage_core;
+pub mod batch_05_networking_core;
+pub mod batch_06_mempool_transaction;
+pub mod batch_07_crosschain_interop;
+pub mod batch_08_advanced_consensus;
+pub mod batch_09_consensus_scalability;
+pub mod batch_10_consensus_finality;
+pub mod batch_11_consensus_performance;
+pub mod batch_12_consensus_governance;
+pub mod batch_13_economics_core_advanced;
+pub mod batch_14_fee_market_dynamics;
+pub mod batch_15_staking_rewards;
+pub mod batch_16_economic_incentives;
+pub mod batch_17_resource_pricing;
+pub mod batch_18_payment_processing;
+pub mod batch_19_economic_attack_resistance;
+pub mod batch_20_token_economics_validation;
+pub mod batch_21_inflation_deflation_mechanisms;
+pub mod batch_22_economic_governance_proposals;
+pub mod batch_23_advanced_cryptographic_operations;
+pub mod batch_24_key_management_rotation;
+pub mod batch_25_security_audit_mechanisms;
+pub mod batch_26_attack_prevention_systems;
+pub mod batch_27_cryptographic_proof_verification;
+pub mod batch_28_zero_knowledge_proof_systems;
+pub mod batch_29_multi_signature_schemes;
+pub mod batch_30_threshold_cryptography;
+pub mod batch_31_secure_communication_protocols;
+pub mod batch_32_identity_access_management;
+pub mod batch_33_security_policy_enforcement;
+pub mod batch_34_vulnerability_assessment;
+pub mod batch_35_advanced_database_operations;
+pub mod batch_36_state_tree_management;
+pub mod batch_37_data_integrity_verification;
+pub mod batch_43_advanced_p2p_communication;
+pub mod batch_51_advanced_transaction_validation;
+pub mod batch_57_light_client_synchronization;
+pub mod batch_62_cross_chain_interoperability;
+pub mod batch_68_enterprise_features;

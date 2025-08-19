@@ -1,0 +1,18 @@
+[network]
+name = "pravyom-testnet"
+chain_id = 1337
+rpc_port = 8545
+ws_port = 8546
+p2p_port = 30303
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+validators = ["0x7df9a875a174b3bc565e6424a0050ebc1b2d1d82"]
+
+[mining]
+enabled = true
+coinbase = "0x7df9a875a174b3bc565e6424a0050ebc1b2d1d82"
+
+[deployment]
+mode = "dev"

@@ -1,0 +1,44 @@
+[package]
+name = "ai-security"
+version = "0.1.0"
+edition = "2021"
+description = "AI-Powered Security for autonomous economic systems"
+authors = ["Metanode Team"]
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+
+# Machine Learning and Statistics
+ndarray = "0.15"
+linfa = "0.7"
+linfa-clustering = "0.7"
+linfa-linear = "0.7"
+smartcore = "0.3"
+statrs = "0.16"
+
+# Async and concurrency
+futures = "0.3"
+async-trait = "0.1"
+
+# Cryptography and security
+ring = "0.17"
+rand = "0.8"
+sha2 = "0.10"
+
+# Data structures and utilities
+dashmap = "5.0"
+lru = "0.12"
+rust_decimal = { version = "1.0", features = ["serde-with-str"] }
+
+# Internal dependencies
+billing-meter = { path = "../billing-meter" }
+
+[dev-dependencies]
+tokio-test = "0.4"

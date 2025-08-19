@@ -1,0 +1,37 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"verbatimModuleSyntax": true,
+		"moduleResolution": "bundler",
+		"target": "ES2020",
+		"module": "ESNext",
+		"lib": ["ES2020", "DOM", "DOM.Iterable", "WebWorker"],
+		"types": ["svelte", "vite/client"],
+		"baseUrl": ".",
+		"rootDirs": [".", ".svelte-kit/types"],
+		"paths": {
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"],
+			"$app/*": [".svelte-kit/runtime/app/*"],
+			"$env/*": [".svelte-kit/ambient.d.ts"]
+		}
+	},
+	"include": [
+		"ambient.d.ts",
+		"src/**/*.d.ts", 
+		"src/**/*.ts", 
+		"src/**/*.js", 
+		"src/**/*.svelte",
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/types/**/$types.d.ts"
+	],
+	"exclude": ["node_modules/**", "build/**"]
+}

@@ -1,0 +1,31 @@
+[package]
+name = "metanode-economics"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Consolidated economic systems and governance for BPI Core"
+
+[features]
+default = ["autonomous-economics", "billing-meter", "governance"]
+autonomous-economics = []
+billing-meter = []
+governance = []
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+sha2.workspace = true
+ed25519-dalek.workspace = true
+
+# Shared components
+crypto-primitives = { path = "../../../shared/crates/crypto-primitives" }
+networking = { path = "../../../shared/crates/networking" }
+storage = { path = "../../../shared/crates/storage" }
+protocols = { path = "../../../shared/crates/protocols" }

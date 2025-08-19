@@ -1,0 +1,38 @@
+[package]
+name = "metanode-stamped-wallets"
+version = "0.1.0"
+edition = "2021"
+description = "Bank-stamped and government-stamped wallet implementations for Metanode"
+authors = ["Metanode Team"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Core dependencies
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Cryptographic dependencies
+ed25519-dalek = { version = "2.0", features = ["serde"] }
+secp256k1 = { version = "0.28", features = ["rand", "serde"] }
+blake3 = "1.5"
+rand = "0.8"
+
+# Economic and decimal math
+rust_decimal = { version = "1.32", features = ["serde"] }
+
+# Encoding and serialization
+bpi-enc = { path = "../metanode-security/bpi-enc" }
+
+# Basic utilities for compliance (simplified for core banking functionality)
+regex = "1.10"
+
+# HTTP client for regulatory APIs (optional for future banking integration)
+reqwest = { version = "0.11", features = ["json"], optional = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

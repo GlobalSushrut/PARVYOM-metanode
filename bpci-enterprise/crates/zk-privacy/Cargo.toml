@@ -1,0 +1,47 @@
+[package]
+name = "zk-privacy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# ZK-SNARK libraries
+ark-std = "0.4"
+ark-ff = "0.4"
+ark-ec = "0.4"
+ark-poly = "0.4"
+ark-serialize = "0.4"
+ark-relations = "0.4"
+ark-r1cs-std = "0.4"
+ark-groth16 = "0.4"
+ark-bn254 = "0.4"
+ark-crypto-primitives = "0.4"
+
+# Async runtime and concurrency
+tokio = { version = "1.0", features = ["full"] }
+futures = "0.3"
+
+# Serialization and data structures
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_cbor = "0.11"
+
+# Cryptography
+sha2 = "0.10"
+rand = "0.8"
+ring = "0.17"
+
+# Data structures and utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+dashmap = "5.0"
+
+# Numeric types
+rust_decimal = { version = "1.0", features = ["serde-float"] }
+
+# Internal dependencies
+billing-meter = { path = "../billing-meter" }
+
+[dev-dependencies]
+tokio-test = "0.4"

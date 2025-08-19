@@ -1,0 +1,28 @@
+[package]
+name = "court-notary-registry"
+version = "0.1.0"
+edition = "2021"
+description = "Decentralized Court Notary Registry for legal document verification and dispute resolution"
+authors = ["Metanode Team"]
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+ed25519-dalek = "2.0"
+rand = "0.8"
+
+# Internal dependencies will be added as needed
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[[bin]]
+name = "cnr-cli"
+path = "src/bin/cnr_cli.rs"

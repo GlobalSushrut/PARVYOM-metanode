@@ -1,0 +1,79 @@
+# Pravyom Local Testnet Configuration - Complete Infrastructure
+
+# Deployment mode (required)
+mode = "Development"
+
+[bpci]
+enabled = true
+server_port = 8080
+rpc_port = 8545
+ws_port = 8546
+
+[network]
+mode = "Development"
+network = "localnet"
+rpc_endpoint = "http://localhost:8545"
+ws_endpoint = "ws://localhost:8546"
+testnet_rpc = "http://localhost:8545"
+local_blockchain = true
+connect_only = false
+chain_id = 1337
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+validators = ["0x742d35Cc6634C0532925a3b8D8C9C8C8C8C8C8C8"]
+
+[mining]
+enabled = true
+miner_address = "0x742d35Cc6634C0532925a3b8D8C9C8C8C8C8C8C8"
+gas_limit = 8000000
+
+[node]
+node_type = "full"
+data_dir = "/home/umesh/metanode/examples/live-testnet/data"
+log_level = "info"
+full_node = true
+light_client = false
+
+[connection]
+allowed_networks = ["localhost", "testnet"]
+forbidden_networks = ["mainnet"]
+remote_only = false
+
+[services]
+wallet_service = true
+mining_service = true
+registry_service = true
+notary_service = true
+governance_service = true
+rpc_service = true
+api_service = true
+
+[api]
+enabled = true
+port = 8080
+cors_origins = ["http://localhost:3000", "http://localhost:8080"]
+
+# Docklock Configuration
+[docklock]
+enabled = true
+port = 9090
+data_dir = "/home/umesh/metanode/examples/live-testnet/docklock"
+enc_cluster_enabled = true
+
+# ENC Cluster Configuration  
+[enc_cluster]
+enabled = true
+scheduler_port = 9091
+service_mesh_port = 9092
+control_plane_port = 9093
+
+# BPI Configuration
+[bpi]
+enabled = true
+port = 9094
+installer_mode = "dev"
+registry_integration = true
+rpc_service = true
+api_service = true
