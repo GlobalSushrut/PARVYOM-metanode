@@ -1,0 +1,26 @@
+[package]
+name = "bpi-poh"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Core dependencies
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+
+# Crypto dependencies
+blake3 = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+
+# Time handling
+tokio = { workspace = true }
+
+# Internal dependencies
+bpi-enc = { path = "../../metanode-security/bpi-enc" }
+bpi-vrf = { path = "../vrf" }
+bpi-merkle = { path = "../merkle" }
+
+[dev-dependencies]
+proptest = { workspace = true }

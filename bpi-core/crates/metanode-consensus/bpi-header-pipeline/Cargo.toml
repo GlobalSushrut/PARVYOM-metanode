@@ -1,0 +1,33 @@
+[package]
+name = "bpi-header-pipeline"
+version = "0.1.0"
+edition = "2021"
+description = "Header pipeline with 3-node devnet for BPI Mesh consensus"
+
+[dependencies]
+# External crates
+anyhow = "1.0"
+bincode = "1.3"
+chrono = { version = "0.4", features = ["serde"] }
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+
+# Internal crates
+bpi-enc = { path = "../enc" }
+bpi-headers = { path = "../bpi-headers" }
+bpi-validator-set = { path = "../bpi-validator-set" }
+bpi-leader-selection = { path = "../bpi-leader-selection" }
+bpi-consensus = { path = "../bpi-consensus" }
+bpi-slashing = { path = "../bpi-slashing" }
+bpi-blsagg = { path = "../blsagg" }
+bpi-vrf = { path = "../vrf" }
+bpi-bpci = { path = "../bpci" }
+bpi-ibft = { path = "../ibft" }
+bpi-poh = { path = "../poh" }
+
+[dev-dependencies]
+proptest = "1.0"
+tokio-test = "0.4"

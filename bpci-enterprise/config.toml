@@ -1,0 +1,32 @@
+# BPCI Enterprise Configuration
+# Default configuration for testnet deployment
+
+[network]
+mode = "Community"
+network = "testnet"
+rpc_endpoint = "https://testnet.bpci.network"
+testnet_rpc = "https://testnet.bpci.network"
+local_blockchain = false
+connect_only = true
+
+[node]
+node_type = "community"
+data_dir = "./data"
+log_level = "info"
+full_node = false
+light_client = true
+
+[connection]
+allowed_networks = ["testnet", "mainnet"]
+forbidden_networks = ["localhost", "localnet"]
+remote_only = true
+
+[services]
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+registry_service = true
+rpc_service = false
+api_service = true
+web_service = true

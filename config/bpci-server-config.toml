@@ -1,0 +1,89 @@
+# BPCI Server Configuration - REAL CORE INFRASTRUCTURE
+# Uses actual pravyom-enterprise binary with real registry, governance, mining modules
+
+[network]
+name = "bpci-server"
+mode = "community-bridge"
+server_id = "bpci-server-001"
+listen_addr = "0.0.0.0:9545"
+rpc_port = 9545
+p2p_port = 30304
+# Real P2P networking from shared/crates/networking
+network_impl = "real_p2p"
+use_real_crypto = true
+
+[bridge]
+enterprise_bpi_endpoint = "http://localhost:8545"
+enterprise_bpi_rpc = "http://localhost:8546"
+bridge_mode = "community-to-enterprise"
+sync_interval = 5000  # 5 seconds
+# Real bridge implementation - connects to actual bpi-core
+bridge_impl = "real_bridge"
+use_real_bpi_connection = true
+
+[community]
+registration_enabled = true
+governance_enabled = true
+voting_enabled = true
+notary_mining_enabled = true
+poe_validation_enabled = true
+# Real community features from bpci-enterprise modules
+registry_impl = "real_registry"
+governance_impl = "real_governance"
+mining_impl = "real_mining"
+notary_impl = "real_notary"
+
+[registration]
+auto_approval = false
+verification_required = true
+kyc_level = "basic"
+minimum_stake = 1000
+registration_fee = 10
+
+[governance]
+dao_enabled = true
+proposal_threshold = 100
+voting_period = 86400  # 24 hours
+quorum_threshold = 0.33
+
+[mining]
+poe_algorithm = "proof-of-engagement"
+difficulty_adjustment = 600  # 10 minutes
+block_reward = 50
+notary_reward = 10
+
+[security]
+encryption_enabled = true
+signature_verification = true
+rate_limiting = true
+ddos_protection = true
+# Real cryptographic primitives from shared/crates/crypto-primitives
+crypto_impl = "ed25519_real"
+hash_algorithm = "blake3"
+use_real_signatures = true
+
+[storage]
+data_dir = "/opt/bpci-server/data"
+log_dir = "/opt/bpci-server/logs"
+cache_enabled = true
+cache_size = "1GB"
+
+[api]
+rest_enabled = true
+rest_port = 9546
+websocket_enabled = true
+websocket_port = 9547
+graphql_enabled = true
+graphql_port = 9548
+
+[monitoring]
+metrics_enabled = true
+metrics_port = 9091
+health_check_port = 8081
+prometheus_enabled = true
+
+[logging]
+level = "info"
+format = "json"
+file_rotation = true
+max_file_size = "100MB"

@@ -1,0 +1,33 @@
+[package]
+name = "comprehensive-350-tests"
+version = "1.0.0"
+edition = "2021"
+description = "Comprehensive 350-test suite validating all aspects of Metanode complete architecture"
+
+[dependencies]
+# Shared components
+crypto-primitives = { path = "../shared/crates/crypto-primitives" }
+networking = { path = "../shared/crates/networking" }
+storage = { path = "../shared/crates/storage" }
+protocols = { path = "../shared/crates/protocols" }
+
+# Test dependencies
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1.0", features = ["serde-float"] }
+proptest = "1.0"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# Additional test utilities
+tempfile = "3.0"
+mockall = "0.11"
+wiremock = "0.5"
+testcontainers = "0.14"
+
+[[bin]]
+name = "run_350_tests"
+path = "src/main.rs"

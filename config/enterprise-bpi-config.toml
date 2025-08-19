@@ -1,0 +1,68 @@
+# Enterprise BPI Chain Configuration - REAL CORE INFRASTRUCTURE
+# Uses actual bpi-core binary with real crypto-primitives, networking, storage, protocols
+
+[network]
+name = "enterprise-bpi"
+mode = "autocratic"
+chain_id = "bpi-enterprise-001"
+listen_addr = "0.0.0.0:8545"
+rpc_port = 8545
+p2p_port = 30303
+# Real P2P networking from shared/crates/networking
+network_impl = "real_p2p"
+use_real_crypto = true
+
+[consensus]
+type = "ibft"
+block_time = 2000  # 2 seconds
+finality_blocks = 12
+validator_set_size = 7
+# Real consensus using actual protocols
+consensus_impl = "real_ibft"
+
+[enterprise]
+autocratic_mode = true
+enterprise_control = true
+community_bridge_enabled = true
+bpci_server_endpoint = "http://localhost:9545"
+# Real enterprise features - no mocks
+use_real_enterprise_features = true
+
+[security]
+encryption_enabled = true
+signature_verification = true
+audit_logging = true
+compliance_mode = "enterprise"
+# Real cryptographic primitives from shared/crates/crypto-primitives
+crypto_impl = "ed25519_real"
+hash_algorithm = "blake3"
+use_real_signatures = true
+
+[storage]
+data_dir = "/opt/bpi-enterprise/data"
+log_dir = "/opt/bpi-enterprise/logs"
+backup_enabled = true
+retention_days = 365
+# Real storage implementation from shared/crates/storage
+storage_impl = "real_storage"
+use_real_persistence = true
+
+[api]
+rest_enabled = true
+rest_port = 8546
+websocket_enabled = true
+websocket_port = 8547
+graphql_enabled = true
+graphql_port = 8548
+
+[monitoring]
+metrics_enabled = true
+metrics_port = 9090
+health_check_port = 8080
+prometheus_enabled = true
+
+[logging]
+level = "info"
+format = "json"
+file_rotation = true
+max_file_size = "100MB"

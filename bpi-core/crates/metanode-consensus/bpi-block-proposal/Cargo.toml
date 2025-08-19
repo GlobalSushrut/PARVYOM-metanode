@@ -1,0 +1,29 @@
+[package]
+name = "bpi-block-proposal"
+version = "0.1.0"
+edition = "2021"
+description = "Block proposal and voting system for BPI Mesh consensus"
+
+[dependencies]
+# Core dependencies
+anyhow = "1.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# BPI Mesh dependencies
+bpi-enc = { path = "../enc" }
+bpi-headers = { path = "../bpi-headers" }
+bpi-validator-set = { path = "../bpi-validator-set" }
+bpi-leader-selection = { path = "../bpi-leader-selection" }
+bpi-blsagg = { path = "../blsagg" }
+bpi-merkle = { path = "../merkle" }
+bpi-vrf = { path = "../vrf" }
+
+# Cryptographic dependencies
+rand = "0.8"
+sha3 = "0.10"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+proptest = "1.0"

@@ -1,0 +1,89 @@
+[package]
+name = "metanode-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+description = "Military-grade core utilities and foundational components (consolidates 15 crates)"
+keywords = ["blockchain", "core", "utilities", "military-grade"]
+
+[dependencies]
+# Workspace dependencies
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Cryptography
+ring.workspace = true
+sha2.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
+
+# Networking and HTTP
+axum.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+hyper.workspace = true
+
+# Storage
+sled.workspace = true
+
+# Async
+futures.workspace = true
+async-trait.workspace = true
+dashmap.workspace = true
+
+# Math and utilities
+rust_decimal.workspace = true
+num-bigint.workspace = true
+num-traits.workspace = true
+
+# Configuration
+config.workspace = true
+toml.workspace = true
+
+# Monitoring
+prometheus.workspace = true
+
+# Compression
+lz4.workspace = true
+
+# Additional dependencies for consolidated functionality
+hex = "0.4"
+base64 = "0.21"
+bincode = "1.3"
+num_cpus = "1.16"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.8"
+criterion = "0.5"
+
+[features]
+default = ["full"]
+full = ["math", "mempool", "gateway", "merkle", "vrf", "receipts", "billing", "dashboard", "config", "http", "shadow-registry", "notary", "court", "auditing", "inclusion"]
+math = []
+mempool = []
+gateway = []
+merkle = []
+vrf = []
+receipts = []
+billing = []
+dashboard = []
+config = []
+http = []
+shadow-registry = []
+notary = []
+court = []
+auditing = []
+inclusion = []

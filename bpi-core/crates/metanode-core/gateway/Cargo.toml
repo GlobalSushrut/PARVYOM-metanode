@@ -1,0 +1,61 @@
+[package]
+name = "bpi-gateway"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gateway"
+path = "src/bin/gateway.rs"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.0", features = ["full"] }
+futures = "0.3"
+
+# Networking and HTTP
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+hyper = { version = "0.14", features = ["full"] }
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.4", features = ["cors", "trace"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+
+# HTTP Server
+warp = "0.3"
+
+# Cryptography and hashing
+blake3 = "1.5"
+hex = "0.4"
+
+# Metrics and observability
+prometheus = "0.13"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Configuration and CLI
+clap = { version = "4.0", features = ["derive"] }
+config = "0.13"
+once_cell = "1.19"
+
+# Data structures
+ahash = "0.8"
+lru = "0.12"
+rand = "0.8"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Time utilities
+chrono = { version = "0.4", features = ["serde"] }
+
+# BPI crates
+bpi-relay = { path = "../relay" }
+bpi-bpci = { path = "../bpci" }
+
+[dev-dependencies]
+tempfile = "3.8"

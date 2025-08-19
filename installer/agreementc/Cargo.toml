@@ -1,0 +1,18 @@
+[package]
+name = "agreementc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+bpi-docklock = { path = "../../rust/crates/docklock" }
+
+[[bin]]
+name = "agreementc"
+path = "src/main.rs"

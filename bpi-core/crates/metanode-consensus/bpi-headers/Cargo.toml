@@ -1,0 +1,24 @@
+[package]
+name = "bpi-headers"
+version = "0.1.0"
+edition = "2021"
+description = "Block headers and validation for BPI Mesh Web3 architecture"
+
+[dependencies]
+# Core dependencies
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+hex = "0.4"
+
+# BPI dependencies
+bpi-enc = { path = "../../metanode-security/bpi-enc" }
+bpi-merkle = { path = "../../metanode-core/merkle" }
+bpi-blsagg = { path = "../../blsagg" }
+bpi-vrf = { path = "../../metanode-core/vrf" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.0"
+hex = "0.4"

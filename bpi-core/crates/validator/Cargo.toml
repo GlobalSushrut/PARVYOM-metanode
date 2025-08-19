@@ -1,0 +1,21 @@
+[package]
+name = "bpi-validator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Internal BPI dependencies
+bpi-consensus = { path = "../bpi-consensus" }
+bpi-block-proposal = { path = "../bpi-block-proposal" }
+bpi-headers = { path = "../bpi-headers" }
+bpi-validator-set = { path = "../bpi-validator-set" }
+bpi-leader-selection = { path = "../bpi-leader-selection" }
+bpi-enc = { path = "../enc" }
+bpi-blsagg = { path = "../blsagg" }
+bpi-vrf = { path = "../vrf" }

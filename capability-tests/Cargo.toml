@@ -1,0 +1,34 @@
+[package]
+name = "capability-tests"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+description = "Comprehensive test suite for all 100 core capabilities"
+
+[dependencies]
+# Workspace dependencies
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+
+# Shared components
+crypto-primitives = { path = "../shared/crates/crypto-primitives" }
+networking = { path = "../shared/crates/networking" }
+storage = { path = "../shared/crates/storage" }
+protocols = { path = "../shared/crates/protocols" }
+
+# Test dependencies
+criterion = "0.5"
+
+[dev-dependencies]
+tokio-test = "0.4"

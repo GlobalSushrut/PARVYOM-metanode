@@ -1,0 +1,22 @@
+[package]
+name = "governance"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1.32", features = ["serde-with-str"] }
+thiserror = "1.0"
+tracing = "0.1"
+futures = "0.3"
+ahash = "0.8"
+
+# Internal dependencies
+billing-meter = { path = "../billing-meter" }
+
+[dev-dependencies]
+tokio-test = "0.4"

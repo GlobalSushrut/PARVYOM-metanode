@@ -1,0 +1,79 @@
+# Pravyom SaaS App - Docklock Deployment Specification
+version: "1.0"
+
+metadata:
+  name: "pravyom-saas-app"
+  labels:
+    app: "pravyom-saas"
+    tier: "frontend"
+    component: "web"
+  annotations:
+    description: "Pravyom blockchain banking SaaS application"
+    maintainer: "pravyom-team"
+  created_by: "docklock"
+  version: "1.0.0"
+
+runtime:
+  runtime_type: "Cage"
+  working_directory: "/app"
+  user: "1000"
+  group: "1000"
+  capabilities: []
+  readonly_rootfs: false
+  no_new_privileges: true
+
+security:
+  selinux_context: null
+  apparmor_profile: null
+  seccomp_profile: null
+  capabilities_add: []
+  capabilities_drop: ["ALL"]
+  privileged: false
+  allow_privilege_escalation: false
+
+resources:
+  cpu_limit: 2.0
+  memory_limit: 1073741824  # 1GB
+  storage_limit: 2147483648  # 2GB
+  network_bandwidth: null
+  file_descriptors: 1024
+  processes: 100
+
+networking:
+  network_mode: "Bridge"
+  port_mappings:
+    - host_port: 3000
+      container_port: 3000
+      protocol: "TCP"
+      host_ip: null
+  dns_servers: ["8.8.8.8", "8.8.4.4"]
+  hostname: "pravyom-saas"
+  domain_name: null
+
+volumes:
+  - source: "/home/umesh/metanode/examples/live-testnet/saas-app"
+    destination: "/app"
+    mount_type: "Bind"
+    readonly: false
+    options: []
+
+environment:
+  NODE_ENV: "production"
+  PORT: "3000"
+  PRAVYOM_RPC_URL: "http://localhost:8545"
+  PRAVYOM_WS_URL: "ws://localhost:8546"
+  JWT_SECRET: "pravyom-blockchain-banking-secret-2024"
+  DB_URL: "sqlite:///app/data/pravyom.db"
+  CORS_ORIGINS: "http://localhost:3000,http://localhost:8080"
+  LOG_LEVEL: "info"
+
+commands:
+  entrypoint: ["node"]
+  args: ["server.js"]
+
+health_check:
+  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+  interval: 30
+  timeout: 10
+  retries: 3
+  start_period: 40

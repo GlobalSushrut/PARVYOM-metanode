@@ -1,0 +1,25 @@
+mode = "dev"
+
+[bpci]
+data_dir = "/home/umesh/metanode/examples/live-testnet/data"
+log_level = "info"
+
+[network]
+name = "pravyom-testnet"
+chain_id = 1337
+listen_port = 30303
+rpc_port = 8545
+ws_port = 8546
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+
+[mining]
+enabled = true
+threads = 2
+
+[api]
+http_enabled = true
+ws_enabled = true
+cors_origins = ["*"]

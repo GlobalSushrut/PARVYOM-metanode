@@ -1,0 +1,49 @@
+[package]
+name = "metanode-config"
+version = "0.1.0"
+edition = "2021"
+description = "CUE-based configuration runtime for Metanode platform"
+
+[dependencies]
+# CUE integration
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Configuration management
+config = "0.14"
+toml = "0.8"
+
+# Schema validation
+jsonschema = "0.18"
+
+# Code generation
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["full"] }
+
+# File system operations
+walkdir = "2.0"
+glob = "0.3"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Logging
+tracing = "0.1"
+
+# Hash and crypto for config validation
+sha2 = "0.10"
+hex = "0.4"
+
+[build-dependencies]
+# CUE compiler integration
+serde_json = "1.0"
+walkdir = "2.0"
+
+[dev-dependencies]
+tempfile = "3.0"

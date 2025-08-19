@@ -1,0 +1,38 @@
+[package]
+name = "bpi-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "BPI Metanode Core - Community blockchain node"
+
+[[bin]]
+name = "bpi-core"
+path = "src/main.rs"
+
+[dependencies]
+tokio.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+clap = { version = "4.0", features = ["derive"] }
+hex = "0.4"
+toml = "0.8"
+axum = "0.7"
+tower-http = { version = "0.5", features = ["cors"] }
+
+# Shared components
+crypto-primitives = { path = "../shared/crates/crypto-primitives" }
+networking = { path = "../shared/crates/networking" }
+storage = { path = "../shared/crates/storage" }
+protocols = { path = "../shared/crates/protocols" }
+
+# BPI Core crates
+bpi-headers = { path = "crates/metanode-consensus/bpi-headers" }
+bpi-merkle = { path = "crates/metanode-core/merkle" }
+sha2 = "0.10"
