@@ -6,7 +6,7 @@
 use axum::{
     extract::{Query, Path},
     http::StatusCode,
-    response::Json,
+    response::{Json, Html},
     routing::{get, post, put, delete},
     Router,
 };
@@ -18,6 +18,7 @@ use ed25519_dalek::{SigningKey, VerifyingKey, Signer};
 use rand::rngs::OsRng;
 use tracing::{info, warn, error};
 use anyhow::{Result, anyhow};
+use sha2::{Sha256, Digest};
 
 use crate::bpi_ledger_integration::BpiLedgerClient;
 

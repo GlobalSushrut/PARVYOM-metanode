@@ -639,11 +639,11 @@ mod tests {
             "test_sender".to_string(),
         );
         
-        let auction_result = crate::bpci_auction_mempool::AuctionResult {
+        let auction_result = MempoolAuctionResult {
+            auction_id: "test_auction_1".to_string(),
             window_id: 1,
-            winners: vec![tx],
+            winning_transactions: vec![tx],
             total_revenue: 1000000,
-            total_gas_used: 21000,
             merkle_root: [0u8; 32],
             timestamp: Utc::now(),
         };

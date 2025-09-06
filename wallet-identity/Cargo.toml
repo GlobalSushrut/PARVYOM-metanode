@@ -62,29 +62,30 @@ tokio-test = "0.4"
 tempfile = "3.0"
 wiremock = "0.5"
 
-[[example]]
-name = "basic_wallet"
-path = "examples/basic_wallet.rs"
+# Examples temporarily disabled - files need to be created
+# [[example]]
+# name = "basic_wallet"
+# path = "examples/basic_wallet.rs"
 
-[[example]]
-name = "messaging_demo"
-path = "examples/messaging_demo.rs"
+# [[example]]
+# name = "messaging_demo"
+# path = "examples/messaging_demo.rs"
 
-[[example]]
-name = "payment_demo"
-path = "examples/payment_demo.rs"
+# [[example]]
+# name = "payment_demo"
+# path = "examples/payment_demo.rs"
 
-[[example]]
-name = "video_call_demo"
-path = "examples/video_call_demo.rs"
+# [[example]]
+# name = "video_call_demo"
+# path = "examples/video_call_demo.rs"
 
-[[example]]
-name = "device_auth_demo"
-path = "examples/device_auth_demo.rs"
+# [[example]]
+# name = "device_auth_demo"
+# path = "examples/device_auth_demo.rs"
 
-[[example]]
-name = "cross_provider_demo"
-path = "examples/cross_provider_demo.rs"
+# [[example]]
+# name = "cross_provider_demo"
+# path = "examples/cross_provider_demo.rs"
 
 [package.metadata.docs.rs]
 all-features = true

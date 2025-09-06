@@ -337,50 +337,46 @@ impl ProductionBPCIClient {
             return Err(MathError::InvalidInput("Invalid wallet address format - must start with BPI(".into()));
         }
 
-        let parts: Vec<&str> = address.split(')').collect();
-        if parts.len() != 3 {
-            return Err(MathError::InvalidInput("Invalid wallet address format - incorrect structure".into()));
-        }
+        // Find the domain part: BPI(domain)
+        let domain_end = address.find(")<")
+            .ok_or_else(|| MathError::InvalidInput("Cannot find domain end marker )<".into()))?;
+        let domain = address[4..domain_end].to_string(); // Skip "BPI("
 
-        // Extract domain: BPI(domain)
-        let domain = parts[0].strip_prefix("BPI(")
-            .ok_or_else(|| MathError::InvalidInput("Cannot extract domain from wallet address".into()))?;
+        // Find the wallet ID part: <wallet_id>
+        let wallet_start = domain_end + 2; // Skip ")<"
+        let wallet_end = address[wallet_start..].find(">(")
+            .ok_or_else(|| MathError::InvalidInput("Cannot find wallet end marker >(".into()))?;
+        let wallet_id = address[wallet_start..wallet_start + wallet_end].to_string();
 
-        // Extract wallet ID: <wallet_id>
-        let wallet_part = parts[1];
-        if !wallet_part.starts_with('<') || !wallet_part.ends_with('>') {
-            return Err(MathError::InvalidInput("Invalid wallet ID format".into()));
-        }
-        let wallet_id = wallet_part.trim_start_matches('<').trim_end_matches('>');
-
-        // Extract HTTP cage address: (httpcg//actual_address)
-        let httpcg_part = parts[2];
-        if !httpcg_part.starts_with("(httpcg//") {
+        // Find the HTTP cage address part: (httpcg//actual_address)
+        let httpcg_start = wallet_start + wallet_end + 2; // Skip ">(" 
+        if !address[httpcg_start..].starts_with("httpcg//") {
             return Err(MathError::InvalidInput("Invalid HTTP cage address format".into()));
         }
-        let httpcg_address = httpcg_part.strip_prefix("(httpcg//")
-            .ok_or_else(|| MathError::InvalidInput("Cannot extract HTTP cage address".into()))?;
+        let httpcg_address = address[httpcg_start + 8..].trim_end_matches(')').to_string(); // Skip "httpcg//" and remove trailing ")"
 
         Ok(ProductionWalletAddress {
             full_address: address.to_string(),
-            domain: domain.to_string(),
-            wallet_id: wallet_id.to_string(),
-            httpcg_address: httpcg_address.to_string(),
+            domain,
+            wallet_id,
+            httpcg_address,
         })
     }
 
     /// Parse production token format
     pub fn parse_token(token: &str) -> Result<ProductionToken, MathError> {
         // Format: wallet address//Password
-        let parts: Vec<&str> = token.split("//").collect();
-        if parts.len() != 2 {
-            return Err(MathError::InvalidInput("Invalid token format - must be wallet_address//password".into()));
-        }
+        // Find the last occurrence of "//" to split wallet address from password
+        let split_pos = token.rfind("//")
+            .ok_or_else(|| MathError::InvalidInput("Invalid token format - must contain // separator".into()))?;
+        
+        let wallet_address = token[..split_pos].to_string();
+        let password = token[split_pos + 2..].to_string(); // Skip "//"
 
         Ok(ProductionToken {
             full_token: token.to_string(),
-            wallet_address: parts[0].to_string(),
-            password: parts[1].to_string(),
+            wallet_address,
+            password,
         })
     }
 

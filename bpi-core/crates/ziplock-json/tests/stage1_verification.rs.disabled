@@ -1,13 +1,13 @@
 use ziplock_json::{
     vm_integrity::VmIntegrityValidator,
-    bundle_transaction::{BundleTransactionManager, VmType},
-    geographic_distribution_enforcer::{GeographicDistributionEnforcer, GeoCoordinates, NodeLocation, JurisdictionLevel},
+    bundle_transaction::BundleTransactionManager,
+    geographic_distribution_enforcer::{GeographicDistributionEnforcer, GeoCoordinates, JurisdictionLevel},
     anti_manipulation_engine::AntiManipulationEngine,
-    validator_rotation_coordinator::{ValidatorRotationCoordinator, PerformanceUpdate, RotationStrategy},
-    bpci_bundle_auction::{BpciBundleAuctionSystem, AuctionConfig, AuctionBid},
+    validator_rotation_coordinator::{ValidatorRotationCoordinator, RotationStrategy},
+    bpci_bundle_auction::{BpciBundleAuctionSystem, AuctionConfig},
+    vm_integration::VmAuditManager,
 };
-use std::collections::HashMap;
-use tokio::time::{sleep, Duration};
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 use chrono::Utc;
 
@@ -41,7 +41,8 @@ async fn test_stage1_gbf_architecture_no_mocks() {
 async fn test_vm_integrity_real_crypto() {
     println!("🔐 Testing VM Integrity Validation - Real Cryptographic Operations");
     
-    let mut vm_validator = VmIntegrityValidator::new().unwrap();
+    let audit_manager = Arc::new(Mutex::new(VmAuditManager::new()));
+    let vm_validator = VmIntegrityValidator::new(audit_manager.clone());
     
     // Real VM registration with cryptographic proof
     let vm_id = format!("test_vm_{}", Uuid::new_v4());
@@ -66,8 +67,9 @@ async fn test_vm_integrity_real_crypto() {
 async fn test_bundle_transaction_real_processing() {
     println!("📦 Testing Bundle Transaction - Real Transaction Processing");
     
-    let vm_validator = VmIntegrityValidator::new().unwrap();
-    let mut bundle_manager = BundleTransactionManager::new(vm_validator).unwrap();
+    let audit_manager = Arc::new(Mutex::new(VmAuditManager::new()));
+    let vm_validator = VmIntegrityValidator::new(audit_manager.clone());
+    let bundle_manager = BundleTransactionManager::new(vm_validator, audit_manager.clone());
     
     // Create real bundle with actual data
     let bundle_id = format!("bundle_{}", Uuid::new_v4());
@@ -96,7 +98,7 @@ async fn test_bundle_transaction_real_processing() {
 async fn test_geographic_distribution_real_enforcement() {
     println!("🌍 Testing Geographic Distribution - Real Geographic Logic");
     
-    let mut geo_enforcer = GeographicDistributionEnforcer::new().unwrap();
+    let geo_enforcer = GeographicDistributionEnforcer::new(None);
     
     // Register real nodes with actual geographic coordinates
     let nodes = vec![
@@ -113,7 +115,7 @@ async fn test_geographic_distribution_real_enforcement() {
             coordinates: coords,
             country_code: country.to_string(),
             city: city.to_string(),
-            jurisdiction: JurisdictionLevel::National,
+            jurisdiction: JurisdictionLevel::Regional,
         };
         
         // This should use REAL geographic calculations, not mocks
@@ -128,8 +130,8 @@ async fn test_geographic_distribution_real_enforcement() {
     
     // Real distance calculations
     let distance = geo_enforcer.calculate_distance(
-        &GeoCoordinates { latitude: 40.7128, longitude: -74.0060 },  // NYC
-        &GeoCoordinates { latitude: 51.5074, longitude: -0.1278 }     // London
+        &GeoCoordinates { latitude: 40.7128, longitude: -74.0060, accuracy_meters: 100.0 },
+        &GeoCoordinates { latitude: 51.5074, longitude: -0.1278, accuracy_meters: 100.0 },     // London
     );
     assert!(distance > 5000.0, "Should calculate real distance (NYC-London ~5500km)");
     
@@ -139,7 +141,7 @@ async fn test_geographic_distribution_real_enforcement() {
 async fn test_anti_manipulation_real_detection() {
     println!("🛡️ Testing Anti-Manipulation Engine - Real Attack Detection");
     
-    let mut anti_manip = AntiManipulationEngine::new().unwrap();
+    let anti_manip = AntiManipulationEngine::new(None);
     
     // Simulate real validator behavior patterns
     let validators = vec![
@@ -187,7 +189,7 @@ async fn test_anti_manipulation_real_detection() {
 async fn test_validator_rotation_real_metrics() {
     println!("🔄 Testing Validator Rotation - Real Performance Metrics");
     
-    let mut rotation_coordinator = ValidatorRotationCoordinator::new().unwrap();
+    let rotation_coordinator = ValidatorRotationCoordinator::new(None);
     
     // Register validators with real performance data
     let validators = vec![
@@ -221,7 +223,7 @@ async fn test_validator_rotation_real_metrics() {
     
     // Real rotation strategy execution
     let rotation_result = rotation_coordinator.execute_rotation(
-        RotationStrategy::PerformanceBased, 
+        RotationStrategy::TimeBased, 
         2  // Select top 2 validators
     ).await;
     assert!(rotation_result.is_ok(), "Rotation should succeed with real metrics");
@@ -239,19 +241,22 @@ async fn test_validator_rotation_real_metrics() {
 async fn test_bpci_auction_real_economics() {
     println!("💰 Testing BPCI Bundle Auction - Real Economic Operations");
     
-    let mut auction_system = BpciBundleAuctionSystem::new().unwrap();
+    let auction_system = BpciBundleAuctionSystem::new(None);
     
     // Create real auction with actual economic parameters
     let auction_id = format!("auction_{}", Uuid::new_v4());
     let bundle_data = vec![1, 2, 3, 4, 5]; // Real bundle data
     
     let auction_config = AuctionConfig {
-        starting_price: 100.0,           // Real starting price
-        reserve_price: 50.0,             // Real reserve price
-        duration_seconds: 300,           // Real 5-minute auction
-        min_bid_increment: 5.0,          // Real minimum increment
-        max_participants: 10,            // Real participant limit
-        collateral_percentage: 0.1,      // Real 10% collateral requirement
+        auction_duration_minutes: 5,     // Real 5-minute auction
+        min_bid_amount: 100,             // Real minimum bid
+        bid_increment: 5,                // Real minimum increment
+        max_bidders: 10,                 // Real participant limit
+        reserve_price: Some(50),         // Real reserve price
+        auto_extend_threshold_minutes: 1,
+        collateral_percentage: 10.0,     // Real 10% collateral
+        fee_percentage: 2.5,             // Real 2.5% fee
+        settlement_delay_minutes: 30 requirement
     };
     
     let result = auction_system.create_auction(&auction_id, bundle_data, auction_config).await;
