@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPCI Folder Documentation - PARVYOM Metanode</title>
+    <meta name="description" content="Comprehensive folder-by-folder documentation for the BPCI ecosystem with detailed technical specifications">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .main-content {
+            padding: 3rem 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .documentation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .doc-category {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .doc-category h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .doc-list {
+            list-style: none;
+        }
+
+        .doc-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        .doc-list a {
+            color: #34495e;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .doc-list a:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .doc-list a i {
+            width: 20px;
+            color: #27ae60;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #27ae60;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .badge.core { background: #e74c3c; }
+        .badge.enterprise { background: #f39c12; }
+        .badge.advanced { background: #9b59b6; }
+
+        .alert {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .alert h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer h3 {
+            margin-bottom: 1rem;
+        }
+
+        .footer a {
+            color: #bdc3c7;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .documentation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-cube"></i> PARVYOM
+                </a>
+            </div>
+            <ul class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="modules/index.html">Modules</a>
+                <a href="folder-documentation.html">Documentation</a>
+                <a href="api/index.html">API</a>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-folder-open"></i> BPCI Folder Documentation</h1>
+                <p>Comprehensive folder-by-folder documentation covering all 40+ components of the BPCI ecosystem with detailed technical specifications, architecture diagrams, and implementation guides</p>
+            </div>
+
+            <div class="alert">
+                <h3><i class="fas fa-info-circle"></i> Documentation Access</h3>
+                <p>The comprehensive folder documentation is integrated into the Pravyom project. Each folder contains detailed README.md files with technical specifications, code examples, and implementation guides.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">40+</div>
+                    <div class="stat-label">Documentation Folders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1000+</div>
+                    <div class="stat-label">Pages of Documentation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Technical Coverage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Live</div>
+                    <div class="stat-label">GitHub Integration</div>
+                </div>
+            </div>
+
+            <div class="documentation-grid">
+                <div class="doc-category">
+                    <h2><i class="fas fa-rocket"></i> Core Infrastructure</h2>
+                    <div class="badges">
+                        <span class="badge core">Foundation</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/01-firstuse"><i class="fas fa-play"></i> First Use & Setup</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/02-toolkit"><i class="fas fa-tools"></i> Development Toolkit</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/03-httpcg-client"><i class="fas fa-desktop"></i> HTTPCG Client</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/04-httpcg-gateway"><i class="fas fa-gateway"></i> HTTPCG Gateway</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/05-docklock-enc-orchestration"><i class="fas fa-docker"></i> DockLock & ENC</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/10-bpi-core"><i class="fas fa-cube"></i> BPI Core</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/11-bpi-ledger"><i class="fas fa-ledger"></i> BPI Ledger</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/12-bpi-os"><i class="fas fa-server"></i> BPI Operating System</a></li>
+                    </ul>
+                </div>
+
+                <div class="doc-category">
+                    <h2><i class="fas fa-building"></i> Enterprise Systems</h2>
+                    <div class="badges">
+                        <span class="badge enterprise">Business</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/13-bpci-governance"><i class="fas fa-gavel"></i> BPCI Governance</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/14-bpci-economy"><i class="fas fa-coins"></i> BPCI Economy</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/15-gov-api"><i class="fas fa-landmark"></i> Government API</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/16-bank-api"><i class="fas fa-university"></i> Banking API</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/18-bpci-community"><i class="fas fa-users"></i> BPCI Community</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/19-roundtable"><i class="fas fa-handshake"></i> Roundtable Partnership</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/34-compliance-regulatory"><i class="fas fa-balance-scale"></i> Compliance & Regulatory</a></li>
+                    </ul>
+                </div>
+
+                <div class="doc-category">
+                    <h2><i class="fas fa-shield-alt"></i> Security & Privacy</h2>
+                    <div class="badges">
+                        <span class="badge core">Security</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/07-firewall-and-security"><i class="fas fa-firewall"></i> Firewall & Security</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/08-qlock-and-tsls"><i class="fas fa-lock"></i> QLOCK & TSLS</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/20-shadow-registry"><i class="fas fa-user-secret"></i> Shadow Registry</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/26-encryption-core"><i class="fas fa-key"></i> Encryption Core</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/31-security-auditing"><i class="fas fa-search"></i> Security Auditing</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/23-vm-and-audit-logic"><i class="fas fa-desktop"></i> VM & Audit Logic</a></li>
+                    </ul>
+                </div>
+
+                <div class="doc-category">
+                    <h2><i class="fas fa-network-wired"></i> Network & Protocol</h2>
+                    <div class="badges">
+                        <span class="badge advanced">Protocol</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/17-oracle"><i class="fas fa-satellite-dish"></i> Oracle System</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/22-bpi-to-bpi-oracle"><i class="fas fa-exchange-alt"></i> BPI-to-BPI Oracle</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/27-network-protocols"><i class="fas fa-sitemap"></i> Network Protocols</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/21-node-distribution"><i class="fas fa-share-alt"></i> Node Distribution</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/24-shared-consensus"><i class="fas fa-vote-yea"></i> Shared Consensus</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/25-merkle-trees"><i class="fas fa-tree"></i> Merkle Trees</a></li>
+                    </ul>
+                </div>
+
+                <div class="doc-category">
+                    <h2><i class="fas fa-cogs"></i> Operations & Maintenance</h2>
+                    <div class="badges">
+                        <span class="badge enterprise">Operations</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/28-deployment-automation"><i class="fas fa-rocket"></i> Deployment Automation</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/29-testing-framework"><i class="fas fa-vial"></i> Testing Framework</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/30-monitoring-observability"><i class="fas fa-chart-line"></i> Monitoring & Observability</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/32-performance-optimization"><i class="fas fa-tachometer-alt"></i> Performance Optimization</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/33-operations-maintenance"><i class="fas fa-wrench"></i> Operations & Maintenance</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/35-business-continuity-disaster-recovery"><i class="fas fa-shield"></i> Business Continuity</a></li>
+                    </ul>
+                </div>
+
+                <div class="doc-category">
+                    <h2><i class="fas fa-brain"></i> Advanced Systems</h2>
+                    <div class="badges">
+                        <span class="badge advanced">Advanced</span>
+                    </div>
+                    <ul class="doc-list">
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/33-auction-mempool"><i class="fas fa-gavel"></i> Auction Mempool</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/37-analytics-reporting"><i class="fas fa-chart-bar"></i> Analytics & Reporting</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/38-ai-machine-learning"><i class="fas fa-robot"></i> AI & Machine Learning</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/39-iot-edge-computing"><i class="fas fa-microchip"></i> IoT & Edge Computing</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/40-blockchain-infrastructure"><i class="fas fa-link"></i> Blockchain Infrastructure</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode/tree/master/docs/documentation/36-system-integration"><i class="fas fa-puzzle-piece"></i> System Integration</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h3>Documentation</h3>
+                    <p><a href="index.html">Main Documentation</a></p>
+                    <p><a href="modules/index.html">Module Pages</a></p>
+                    <p><a href="folder-documentation.html">Folder Documentation</a></p>
+                </div>
+                <div>
+                    <h3>BPCI Ecosystem</h3>
+                    <p>40+ comprehensive folders</p>
+                    <p>Complete technical specifications</p>
+                    <p>Implementation guides</p>
+                </div>
+                <div>
+                    <h3>GitHub Integration</h3>
+                    <p>Direct GitHub repository links</p>
+                    <p>Live documentation access</p>
+                    <p>Professional formatting</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
