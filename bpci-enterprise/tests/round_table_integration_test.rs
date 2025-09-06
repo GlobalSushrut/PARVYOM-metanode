@@ -125,13 +125,13 @@ async fn test_complete_round_table_integration() {
         println!("🎯 Created auction window: {}", window_id);
         
         // Immediately seal the auction for testing
-        let auction_result = mempool.seal_auction_window(window_id).unwrap();
+        let auction_result = mempool.seal_auction_window(window_id).await.unwrap();
         
         println!("🏆 Auction sealed with {} winners, total revenue: {} wei", 
-            auction_result.winners.len(), auction_result.total_revenue);
+            auction_result.winning_transactions.len(), auction_result.total_revenue);
         
         // Verify transaction ordering (highest effective bid rate first)
-        for (i, winner) in auction_result.winners.iter().enumerate() {
+        for (i, winner) in auction_result.winning_transactions.iter().enumerate() {
             println!("  Winner {}: Chain {}, Bid: {} wei, Rate: {:.6}", 
                 i + 1, winner.chain_id, winner.bid_amount, winner.effective_bid_rate());
         }
@@ -147,10 +147,10 @@ async fn test_complete_round_table_integration() {
         
         // Create a mock auction result for testing
         AuctionResult {
+            auction_id: "test_auction_1".to_string(),
             window_id: 1,
-            winners: vec![bpci_tx1, polygon_tx1, arbitrum_tx1, polygon_tx2],
+            winning_transactions: vec![bpci_tx1, polygon_tx1, arbitrum_tx1, polygon_tx2],
             total_revenue: 7800000, // Sum of all bids
-            total_gas_used: 180000,
             merkle_root: [0u8; 32],
             timestamp: Utc::now(),
         }
@@ -349,10 +349,10 @@ async fn test_revenue_calculation_accuracy() {
     ];
     
     let auction_result = AuctionResult {
+        auction_id: "test_auction_2".to_string(),
         window_id: 1,
-        winners: transactions,
+        winning_transactions: transactions,
         total_revenue: 4500000, // 1M + 2M + 1.5M
-        total_gas_used: 63000,
         merkle_root: [0u8; 32],
         timestamp: Utc::now(),
     };

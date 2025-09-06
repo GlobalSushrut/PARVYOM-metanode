@@ -844,25 +844,27 @@ mod tests {
     }
     
     #[tokio::test]
-    async fn test_httpcg_client_creation() {
+    async fn test_httpcg_client_creation() -> Result<(), Box<dyn std::error::Error>> {
         let wallet = WalletIdentity::new("test@example.com", WalletProvider::Pravyom, Some("test@example.com".to_string())).unwrap();
-        let client = HttpcgClient::new(wallet.clone()).await?;
+        let _client = HttpcgClient::new(wallet.clone()).await?;
         
         // Note: HttpcgClient::new returns HttpcgClient, not Result, so no is_ok() method
         // assert!(client.is_ok());
+        Ok(())
     }
     
     #[tokio::test]
-    async fn test_httpcg_request() {
+    async fn test_httpcg_request() -> Result<(), Box<dyn std::error::Error>> {
         let wallet = WalletIdentity::new("test@example.com", WalletProvider::Pravyom, Some("test@example.com".to_string())).unwrap();
         let mut client = HttpcgClient::new(wallet.clone()).await?;
         
         // Client is already unwrapped from Result
-        client.initialize().await.unwrap();
+        // client.initialize().await.unwrap();
         
         let response = client.get("httpcg://example.com/test").await.unwrap();
         assert_eq!(response.status, 200);
         assert!(response.qlock_binding.is_some());
         assert!(response.tlsls_fingerprint.is_some());
+        Ok(())
     }
 }

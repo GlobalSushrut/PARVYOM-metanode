@@ -129,7 +129,7 @@ mod tests {
         let wallet = WalletIdentity::new("test@example.com", WalletProvider::Pravyom, Some("test@example.com".to_string())).unwrap();
         let http_client = PravyomHttpClient::new();
         
-        let httpcg_client = HttpcgClient::new(&wallet).unwrap();
+        let httpcg_client = HttpcgClient::new(wallet.clone()).await.unwrap();
         let tlsls_client = TLSLSClient::new().unwrap();
         let qlock_client = QLOCKClient::new().unwrap();
         let shadow_registry_client = ShadowRegistryClient::new("https://registry.example.com", &http_client).unwrap();
@@ -161,7 +161,7 @@ mod tests {
         let wallet = WalletIdentity::new("test@example.com", WalletProvider::Pravyom, Some("test@example.com".to_string())).unwrap();
         let http_client = PravyomHttpClient::new();
         
-        let httpcg_client = HttpcgClient::new(&wallet).unwrap();
+        let httpcg_client = HttpcgClient::new(wallet.clone()).await.unwrap();
         let tlsls_client = TLSLSClient::new().unwrap();
         let qlock_client = QLOCKClient::new().unwrap();
         let shadow_registry_client = ShadowRegistryClient::new("https://registry.example.com", &http_client).unwrap();

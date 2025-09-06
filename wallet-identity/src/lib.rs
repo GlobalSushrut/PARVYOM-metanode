@@ -199,8 +199,9 @@ mod integration_tests {
         // Register both wallets in the identity registry
         registry.register_wallet(alice.clone()).unwrap();
         registry.register_wallet(bob.clone()).unwrap();
-        let mut shadow_service = XTMPShadowService::new(alice.clone(), registry.clone()).unwrap();
+        let mut shadow_service = XTMPShadowService::new();
         let message_id = shadow_service.send_message(
+            &alice,
             &bob.wallet_address,
             MessageContent {
                 text: Some("Hello Bob!".to_string()),
@@ -208,9 +209,8 @@ mod integration_tests {
                 payment: None,
                 custom_data: None,
             },
-            MessageType::Text,
-            Some(RoutingStrategy::Direct),
-        ).await.unwrap();
+            RoutingStrategy::Direct,
+        ).unwrap();
         
         assert!(!message_id.is_empty());
         
@@ -340,12 +340,13 @@ mod integration_tests {
             registry.register_wallet(wallet.clone()).unwrap();
         }
         let alice = wallets[0].clone();
-        let mut shadow_service = XTMPShadowService::new(alice.clone(), registry.clone()).unwrap();
+        let mut shadow_service = XTMPShadowService::new();
         
         for (i, sender) in wallets.iter().enumerate() {
             for (j, recipient) in wallets.iter().enumerate() {
                 if i != j {
                     let message_id = shadow_service.send_message(
+                        sender,
                         &recipient.wallet_address,
                         MessageContent {
                             text: Some(format!("Message from {} to {}", sender.wallet_address, recipient.wallet_address)),
@@ -353,9 +354,8 @@ mod integration_tests {
                             payment: None,
                             custom_data: None,
                         },
-                        MessageType::Text,
-                        Some(RoutingStrategy::Direct),
-                    ).await.unwrap();
+                        RoutingStrategy::Direct,
+                    ).unwrap();
                     
                     assert!(!message_id.is_empty());
                 }

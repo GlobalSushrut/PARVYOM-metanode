@@ -54,7 +54,7 @@ pub struct Ledger6D {
     pub current_coordinate: Coordinate6D,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Network6DConfig {
     pub node_id: String,
     pub consensus_threshold: f64,
@@ -401,6 +401,39 @@ impl ReceiptProcessor {
 }
 
 impl ConsensusIntegration {
+    /// Create a new ConsensusIntegration instance
+    pub fn new(config: Network6DConfig) -> Result<Self, Box<dyn std::error::Error>> {
+        let (action_tx, action_rx) = mpsc::unbounded_channel();
+        let (block_tx, block_rx) = mpsc::unbounded_channel();
+        
+        let network_manager = Arc::new(RwLock::new(Network6DManager {
+            config: config.clone(),
+            nodes: HashMap::new(),
+        }));
+        
+        let consensus_engine = Arc::new(RwLock::new(BPIConsensusEngine::new()));
+        let block_producer = BlockProducer::new(
+            config.node_id.clone(),
+            config.block_time_ms,
+            config.transactions_per_block,
+        );
+        let receipt_processor = ReceiptProcessor::new();
+        let registry_guard = Arc::new(BPCIRegistryGuard::new());
+        
+        Ok(Self {
+            network_manager,
+            consensus_engine,
+            block_producer,
+            receipt_processor,
+            registry_guard,
+            action_rx,
+            block_tx,
+            last_block_height: 0,
+            total_receipts_processed: 0,
+            total_blocks_created: 0,
+        })
+    }
+
     /// Get integration statistics
     pub fn get_integration_stats(&self) -> IntegrationStats {
         // Placeholder implementation for integration statistics

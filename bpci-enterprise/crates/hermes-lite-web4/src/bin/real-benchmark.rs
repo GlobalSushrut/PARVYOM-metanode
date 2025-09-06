@@ -456,7 +456,7 @@ impl RealHermesLiteBenchmark {
         
         // Save results to JSON file
         let json_results = serde_json::to_string_pretty(&self.results)?;
-        tokio::fs::write("hermes_lite_web4_benchmark_results.json", json_results).await?;
+        std::fs::write("hermes_lite_web4_benchmark_results.json", json_results)?;
         
         info!("Benchmark results saved to hermes_lite_web4_benchmark_results.json");
         

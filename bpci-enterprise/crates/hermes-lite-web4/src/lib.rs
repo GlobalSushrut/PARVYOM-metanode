@@ -136,6 +136,7 @@ mod tests {
         let consensus_msg = P2PMessage {
             id: "test".to_string(),
             traffic_class: TrafficClass::Consensus,
+            message_type: MessageType::IbftPrepare,
             payload: vec![1, 2, 3],
             timestamp: std::time::SystemTime::now(),
         };
