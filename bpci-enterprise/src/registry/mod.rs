@@ -7,14 +7,21 @@ pub mod node_types;
 pub mod identity;
 pub mod authority;
 pub mod registration;
+pub mod geodid;
+pub mod geoledger;
+pub mod statewallet;
 
 pub use node_types::*;
 pub use identity::*;
 pub use authority::*;
 pub use registration::*;
+pub use geodid::*;
+pub use geoledger::*;
+pub use statewallet::*;
 
 /// Enhanced BPCI Registry System
-/// Supports comprehensive node registration, identity management, and authority systems
+/// Supports comprehensive node registration, identity management, authority systems,
+/// and geopolitical governance with GeoDID, GeoLedger, and StateWallet integration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BpciRegistry {
     pub nodes: HashMap<String, NodeRegistration>,
@@ -24,6 +31,10 @@ pub struct BpciRegistry {
     pub miner_pool: MinerPool,
     pub notary_committee: NotaryCommittee,
     pub governance: GovernanceSystem,
+    /// Geopolitical governance components
+    pub geodid_registry: GeoDIDRegistry,
+    pub geoledger: GeoLedger,
+    pub state_wallet_registry: StateWalletRegistry,
     pub created_at: DateTime<Utc>,
     pub last_updated: DateTime<Utc>,
 }
@@ -39,6 +50,9 @@ impl BpciRegistry {
             miner_pool: MinerPool::new(),
             notary_committee: NotaryCommittee::new(),
             governance: GovernanceSystem::new(),
+            geodid_registry: GeoDIDRegistry::new(),
+            geoledger: GeoLedger::new(),
+            state_wallet_registry: StateWalletRegistry::new(),
             created_at: now,
             last_updated: now,
         }
@@ -78,6 +92,18 @@ impl BpciRegistry {
             NodeType::Hybrid { .. } => {
                 // Hybrid nodes can participate in multiple systems
                 self.validator_set.add_validator(&node_id, &registration).await?;
+                self.governance.add_participant(&node_id, &registration).await?;
+            },
+            NodeType::BankApiRegistry { .. } => {
+                // Bank API Registry nodes for banking compliance
+                self.governance.add_participant(&node_id, &registration).await?;
+            },
+            NodeType::GovernmentApiRegistry { .. } => {
+                // Government API Registry nodes for regulatory compliance
+                self.governance.add_participant(&node_id, &registration).await?;
+            },
+            NodeType::RoundtableApi { .. } => {
+                // Roundtable API nodes for governance parliament
                 self.governance.add_participant(&node_id, &registration).await?;
             },
         }
@@ -169,6 +195,16 @@ impl BpciRegistry {
                 NodeType::Hybrid { .. } => {
                     hybrid += 1;
                     active_validators += 1; // Hybrid nodes can be validators
+                },
+
+                NodeType::BankApiRegistry { .. } => {
+                    // Bank API Registry nodes for banking compliance
+                },
+                NodeType::GovernmentApiRegistry { .. } => {
+                    // Government API Registry nodes for regulatory compliance
+                },
+                NodeType::RoundtableApi { .. } => {
+                    // Roundtable API nodes for governance parliament
                 },
             }
         }
@@ -418,6 +454,9 @@ impl GovernanceSystem {
             NodeType::BpiCommunity { .. } => 1,
             NodeType::BpciEnterprise { .. } => registration.stake.unwrap_or(0) / 1000,
             NodeType::Hybrid { .. } => registration.stake.unwrap_or(0) / 500, // Hybrid gets bonus
+            NodeType::BankApiRegistry { .. } => registration.stake.unwrap_or(0) / 100, // High voting power for bank nodes
+            NodeType::GovernmentApiRegistry { .. } => registration.stake.unwrap_or(0) / 50, // Highest voting power for government nodes
+            NodeType::RoundtableApi { .. } => registration.stake.unwrap_or(0) / 200, // Enhanced voting power for governance nodes
         }
     }
 }

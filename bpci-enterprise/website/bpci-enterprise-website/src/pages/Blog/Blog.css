@@ -1,0 +1,77 @@
+/* Blog Page - AGGRESSIVE Text Contrast Fix */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.blog-page,
+.blog-page *,
+.blog-page h1,
+.blog-page h2, 
+.blog-page h3,
+.blog-page h4,
+.blog-page h5,
+.blog-page h6,
+.blog-page p,
+.blog-page div,
+.blog-page span,
+.blog-page li,
+.blog-page ul,
+.blog-page .ant-typography,
+.blog-page .ant-typography-title,
+.blog-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.blog-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.blog-page .ant-card,
+.blog-page .ant-card *,
+.blog-page .ant-card h1,
+.blog-page .ant-card h2,
+.blog-page .ant-card h3,
+.blog-page .ant-card h4,
+.blog-page .ant-card h5,
+.blog-page .ant-card h6,
+.blog-page .ant-card p,
+.blog-page .ant-card div,
+.blog-page .ant-card span,
+.blog-page .ant-card li,
+.blog-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.blog-page .bg-white,
+.blog-page .bg-blue-50,
+.blog-page .bg-yellow-50,
+.blog-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.blog-page .bg-white *,
+.blog-page .bg-blue-50 *,
+.blog-page .bg-yellow-50 *,
+.blog-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* BLUE INFO SECTIONS - Force blue background with DARK BLUE text */
+.blog-page .bg-blue-50 {
+  background: #eff6ff !important;
+}
+
+.blog-page .bg-blue-50 *,
+.blog-page .bg-blue-50 h1,
+.blog-page .bg-blue-50 h2,
+.blog-page .bg-blue-50 h3,
+.blog-page .bg-blue-50 h4,
+.blog-page .bg-blue-50 p,
+.blog-page .bg-blue-50 li {
+  color: #1e40af !important;
+  text-shadow: none !important;
+}

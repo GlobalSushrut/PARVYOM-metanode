@@ -1,0 +1,31 @@
+# PARVYOM Metanode Real Testnet Configuration
+# Production-grade cloud-hosted testnet
+
+[network]
+mode = "Enterprise"
+network = "testnet"
+rpc_endpoint = "http://localhost:8545"
+testnet_rpc = "http://localhost:8545"
+local_blockchain = false
+connect_only = true
+
+[node]
+node_type = "light"
+data_dir = "/var/lib/parvyom-testnet"
+log_level = "info"
+full_node = false
+light_client = true
+
+[connection]
+allowed_networks = ["testnet"]
+forbidden_networks = ["mainnet", "localhost", "localnet", "local", "devnet"]
+remote_only = true
+
+[services]
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+registry_service = true
+rpc_service = true
+api_service = true

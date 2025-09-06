@@ -21,6 +21,12 @@ pub mod network;
 pub mod notary;
 pub mod maintenance;
 pub mod web;
+pub mod bank_api_handlers;
+pub mod cuedb;
+pub mod cross_system;
+pub mod orchestration;
+pub mod mother_coin;
+pub mod internal_governance;
 
 use wallet::WalletCommands;
 use registry::RegistryCommands;
@@ -30,6 +36,11 @@ use network::NetworkCommands;
 use notary::NotaryCommands;
 use maintenance::MaintenanceCommands;
 use web::WebCommands;
+use cuedb::CueDbArgs;
+use cross_system::CrossSystemCommands;
+use orchestration::OrchestrationArgs;
+use mother_coin::MotherCoinArgs;
+use crate::wallet_registry::WalletRegistryArgs;
 
 /// BPCI Enterprise - Complete Blockchain Platform Command Interface
 /// Military-grade security, enterprise governance, autonomous economics
@@ -95,6 +106,30 @@ pub enum BpciCommands {
     /// Web interface and API operations
     #[command(subcommand)]
     Web(WebCommands),
+
+    /// CueDB advanced database operations
+    #[command(subcommand)]
+    CueDb(CueDbArgs),
+
+    /// Cross-system integration operations (Court, Shadow Registry, BPI Mesh)
+    #[command(subcommand)]
+    CrossSystem(CrossSystemCommands),
+
+    /// Revolutionary orchestration system (MetanodeClusterManager, DaemonTree, Agreements)
+    #[command(subcommand)]
+    Orchestration(OrchestrationArgs),
+
+    /// Mother Coin (GEN) Distribution System - Raise $1M safely with decentralization
+    #[command(subcommand)]
+    MotherCoin(mother_coin::MotherCoinCommands),
+
+    /// Comprehensive Wallet Registry System - All stakeholder types with mandatory registration IDs
+    #[command(subcommand)]
+    WalletRegistry(crate::wallet_registry::WalletRegistryCommands),
+
+    /// Internal Governance System - 75%/25% distribution, community tickets, BPCI VM
+    #[command(subcommand)]
+    InternalGovernance(internal_governance::InternalGovernanceCommands),
 
     /// Show comprehensive system status
     Status,
@@ -182,6 +217,27 @@ impl BpciCli {
             }
             BpciCommands::Web(cmd) => {
                 web::handle_web_command(cmd, self.is_json(), self.dry_run).await
+            }
+            BpciCommands::CueDb(cmd) => {
+                cmd.execute().await
+            }
+            BpciCommands::CrossSystem(cmd) => {
+                cmd.execute().await
+            }
+            BpciCommands::Orchestration(cmd) => {
+                cmd.execute(self.is_json()).await
+            }
+            BpciCommands::MotherCoin(cmd) => {
+                let args = mother_coin::MotherCoinArgs { command: cmd.clone() };
+                mother_coin::handle_mother_coin_command(args, self.is_json()).await
+            }
+            BpciCommands::WalletRegistry(cmd) => {
+                let args = crate::wallet_registry::WalletRegistryArgs { command: cmd.clone() };
+                crate::wallet_registry::handle_wallet_registry_command(args).await
+            }
+            BpciCommands::InternalGovernance(cmd) => {
+                let args = internal_governance::InternalGovernanceArgs { command: cmd.clone() };
+                internal_governance::handle_internal_governance_command(args, self.is_json()).await
             }
             BpciCommands::Status => {
                 self.handle_status_command().await

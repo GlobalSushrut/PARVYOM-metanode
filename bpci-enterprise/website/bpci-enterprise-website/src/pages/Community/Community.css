@@ -1,0 +1,137 @@
+/* Community Page - Enhanced Styling with Contrast Fixes */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.community-page,
+.community-page *,
+.community-page h1,
+.community-page h2, 
+.community-page h3,
+.community-page h4,
+.community-page h5,
+.community-page h6,
+.community-page p,
+.community-page div,
+.community-page span,
+.community-page li,
+.community-page ul,
+.community-page .ant-typography,
+.community-page .ant-typography-title,
+.community-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.community-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.community-page .ant-card,
+.community-page .ant-card *,
+.community-page .ant-card h1,
+.community-page .ant-card h2,
+.community-page .ant-card h3,
+.community-page .ant-card h4,
+.community-page .ant-card h5,
+.community-page .ant-card h6,
+.community-page .ant-card p,
+.community-page .ant-card div,
+.community-page .ant-card span,
+.community-page .ant-card li,
+.community-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.community-page .bg-white,
+.community-page .bg-blue-50,
+.community-page .bg-yellow-50,
+.community-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.community-page .bg-white *,
+.community-page .bg-blue-50 *,
+.community-page .bg-yellow-50 *,
+.community-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Special styling for pitch section */
+.pitch-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 12px !important;
+  padding: 48px 24px !important;
+  margin: 48px 0 !important;
+}
+
+.pitch-section * {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Support buttons styling */
+.support-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.support-button {
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.coffee-button {
+  background: #ff813f !important;
+  border: none !important;
+  color: white !important;
+}
+
+.coffee-button:hover {
+  background: #e6732d !important;
+  transform: translateY(-2px) !important;
+}
+
+.discord-button {
+  background: #5865f2 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.discord-button:hover {
+  background: #4752c4 !important;
+  transform: translateY(-2px) !important;
+}
+
+.github-button {
+  background: #333 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.github-button:hover {
+  background: #24292e !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Reality check section */
+.reality-section {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px !important;
+  padding: 24px !important;
+  margin: 24px 0 !important;
+}
+
+.reality-section h3 {
+  color: #ffd700 !important;
+  margin-bottom: 16px !important;
+}

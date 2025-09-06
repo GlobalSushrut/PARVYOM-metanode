@@ -1,0 +1,94 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # BPI Core Services (User Installation)
+  - job_name: 'bpi-vm-server'
+    static_configs:
+      - targets: ['localhost:7777']
+    metrics_path: '/__vm/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'bpi-http-cage'
+    static_configs:
+      - targets: ['localhost:8888']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'bpi-shadow-registry'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # CRITICAL: BPCI Connection Monitoring
+  - job_name: 'bpi-bpci-connection'
+    static_configs:
+      - targets: ['localhost:7777']
+    metrics_path: '/bpci/metrics'
+    scrape_interval: 15s  # More frequent for critical dependency
+    scrape_timeout: 5s
+
+  # BPI Wallet BPCI Registration Status
+  - job_name: 'bpi-wallet-bpci-status'
+    static_configs:
+      - targets: ['localhost:7777']
+    metrics_path: '/wallet/bpci-metrics'
+    scrape_interval: 30s
+
+  # POE Submission to BPCI
+  - job_name: 'bpi-poe-bpci-submission'
+    static_configs:
+      - targets: ['localhost:7777']
+    metrics_path: '/poe/bpci-metrics'
+    scrape_interval: 30s
+
+  # System Metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # External BPCI Server (Your Hosted Server)
+  # NOTE: Replace 'your-server.com' with actual BPCI server URL
+  - job_name: 'external-bpci-server'
+    static_configs:
+      - targets: ['localhost:8081']
+    metrics_path: '/api/metrics'
+    scrape_interval: 60s
+    scrape_timeout: 30s
+
+  - job_name: 'bpci-economy-status'
+    static_configs:
+      - targets: ['localhost:8081']
+    metrics_path: '/api/economy/metrics'
+    scrape_interval: 60s
+
+  - job_name: 'bpci-wallet-registry'
+    static_configs:
+      - targets: ['localhost:8081']
+    metrics_path: '/api/registry/metrics'
+    scrape_interval: 30s  # Critical for BPI operation
+
+  - job_name: 'bpci-bank-integration'
+    static_configs:
+      - targets: ['localhost:8081']
+    metrics_path: '/api/bank/metrics'
+    scrape_interval: 60s
+
+  - job_name: 'bpci-government-governance'
+    static_configs:
+      - targets: ['localhost:8081']
+    metrics_path: '/api/government/metrics'
+    scrape_interval: 60s

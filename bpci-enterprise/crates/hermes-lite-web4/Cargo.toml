@@ -1,0 +1,31 @@
+[package]
+name = "hermes-lite-web4"
+version = "0.1.0"
+edition = "2021"
+description = "Ultra-Light HERMES-Lite for Web-4/Testnet - Simple, Solid, Fast"
+
+[dependencies]
+# Minimal async runtime
+tokio = { version = "1.0", features = ["net", "rt-multi-thread", "macros", "time"] }
+
+# Simple UDP networking (no QUIC complexity for testnet)
+socket2 = "0.5"
+
+# Basic crypto (no quantum-safe complexity for testnet)
+blake3 = "1.5"
+ed25519-dalek = "2.0"
+rand = "0.8"
+
+# Minimal serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Config
+toml = "0.8"
+
+[dev-dependencies]
+tokio-test = "0.4"

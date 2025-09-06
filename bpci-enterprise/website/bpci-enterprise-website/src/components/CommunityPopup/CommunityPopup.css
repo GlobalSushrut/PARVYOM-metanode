@@ -1,0 +1,142 @@
+.community-popup .ant-modal-header {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.community-popup .ant-modal-title {
+  color: #1f2937;
+}
+
+.social-icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+  border: 2px solid transparent;
+}
+
+.social-icon-container:hover {
+  background: #ffffff;
+  border-color: var(--hover-color, #1890ff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.social-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.social-icon-container:hover .social-icon {
+  color: var(--hover-color, #1890ff);
+}
+
+.social-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.social-icon-container:hover .social-name {
+  color: var(--hover-color, #1890ff);
+}
+
+.community-popup .ant-form-item-label > label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.community-popup .ant-input {
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+}
+
+.community-popup .ant-input:focus,
+.community-popup .ant-input-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.community-popup .ant-btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: 8px;
+  height: 48px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.community-popup .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.community-popup .ant-statistic-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.community-popup .ant-statistic-content-prefix {
+  margin-right: 8px;
+}
+
+/* Animation for voter count */
+@keyframes countUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.community-popup .ant-statistic-content-value {
+  animation: countUp 0.5s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .community-popup {
+    margin: 0 16px;
+  }
+  
+  .social-icon-container {
+    padding: 8px;
+  }
+  
+  .social-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  .social-name {
+    font-size: 10px;
+  }
+}
+
+/* Gradient background for the modal */
+.community-popup .ant-modal-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Success state styling */
+.community-popup .ant-message-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 8px;
+}

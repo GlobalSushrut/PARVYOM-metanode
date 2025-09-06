@@ -1,0 +1,83 @@
+# BPCI Enterprise Documentation - GitHub Pages Configuration
+
+title: "BPCI Enterprise Documentation"
+description: "Universal Web3 Infrastructure Platform - Comprehensive Technical Documentation"
+url: "https://your-username.github.io"
+baseurl: "/metanode"
+
+# Theme configuration
+theme: minima
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Plugin configuration
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation structure
+header_pages:
+  - 01-welcome-to-bpi.md
+  - 02-understanding-bpi-architecture.md
+  - 03-installer-guide.md
+  - 04-your-first-transaction.md
+  - 05-bpi-vs-bpci.md
+  - 06-community-support.md
+  - 07-glossary.md
+  - 08-architecture-overview.md
+  - 09-blockchain-consensus.md
+  - 11-economics-engine.md
+  - 12-security-cryptography.md
+  - 13-cross-system-communication.md
+  - 14-data-flow-messages.md
+
+# Site settings
+author: "BPCI Enterprise Team"
+email: "contact@bpci.org"
+twitter_username: "bpci_enterprise"
+github_username: "metanode"
+
+# Build settings
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - backup_md_files/
+
+# Collections for better organization
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Default layouts
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "page"
+
+# SEO and social
+social:
+  name: "BPCI Enterprise"
+  links:
+    - https://github.com/metanode/bpci-enterprise
+    - https://community.bpi.org
+    - https://twitter.com/bpci_platform
+
+# Google Analytics (optional)
+# google_analytics: UA-XXXXXXXX-X

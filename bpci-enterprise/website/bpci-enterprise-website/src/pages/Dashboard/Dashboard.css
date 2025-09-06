@@ -1,0 +1,77 @@
+/* Dashboard Page - AGGRESSIVE Text Contrast Fix */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.dashboard-page,
+.dashboard-page *,
+.dashboard-page h1,
+.dashboard-page h2, 
+.dashboard-page h3,
+.dashboard-page h4,
+.dashboard-page h5,
+.dashboard-page h6,
+.dashboard-page p,
+.dashboard-page div,
+.dashboard-page span,
+.dashboard-page li,
+.dashboard-page ul,
+.dashboard-page .ant-typography,
+.dashboard-page .ant-typography-title,
+.dashboard-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.dashboard-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.dashboard-page .ant-card,
+.dashboard-page .ant-card *,
+.dashboard-page .ant-card h1,
+.dashboard-page .ant-card h2,
+.dashboard-page .ant-card h3,
+.dashboard-page .ant-card h4,
+.dashboard-page .ant-card h5,
+.dashboard-page .ant-card h6,
+.dashboard-page .ant-card p,
+.dashboard-page .ant-card div,
+.dashboard-page .ant-card span,
+.dashboard-page .ant-card li,
+.dashboard-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.dashboard-page .bg-white,
+.dashboard-page .bg-blue-50,
+.dashboard-page .bg-yellow-50,
+.dashboard-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.dashboard-page .bg-white *,
+.dashboard-page .bg-blue-50 *,
+.dashboard-page .bg-yellow-50 *,
+.dashboard-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* YELLOW WARNING - Force yellow background with DARK BROWN text */
+.dashboard-page .bg-yellow-50 {
+  background: #fef3c7 !important;
+}
+
+.dashboard-page .bg-yellow-50 *,
+.dashboard-page .bg-yellow-50 h1,
+.dashboard-page .bg-yellow-50 h2,
+.dashboard-page .bg-yellow-50 h3,
+.dashboard-page .bg-yellow-50 h4,
+.dashboard-page .bg-yellow-50 p,
+.dashboard-page .bg-yellow-50 li {
+  color: #92400e !important;
+  text-shadow: none !important;
+}

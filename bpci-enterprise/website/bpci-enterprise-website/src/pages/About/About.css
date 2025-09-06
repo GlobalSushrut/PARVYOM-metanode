@@ -1,0 +1,77 @@
+/* About Page - AGGRESSIVE Text Contrast Fix */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.about-page,
+.about-page *,
+.about-page h1,
+.about-page h2, 
+.about-page h3,
+.about-page h4,
+.about-page h5,
+.about-page h6,
+.about-page p,
+.about-page div,
+.about-page span,
+.about-page li,
+.about-page ul,
+.about-page .ant-typography,
+.about-page .ant-typography-title,
+.about-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.about-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.about-page .ant-card,
+.about-page .ant-card *,
+.about-page .ant-card h1,
+.about-page .ant-card h2,
+.about-page .ant-card h3,
+.about-page .ant-card h4,
+.about-page .ant-card h5,
+.about-page .ant-card h6,
+.about-page .ant-card p,
+.about-page .ant-card div,
+.about-page .ant-card span,
+.about-page .ant-card li,
+.about-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.about-page .bg-white,
+.about-page .bg-blue-50,
+.about-page .bg-yellow-50,
+.about-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.about-page .bg-white *,
+.about-page .bg-blue-50 *,
+.about-page .bg-yellow-50 *,
+.about-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* YELLOW WARNING - Force yellow background with DARK BROWN text */
+.about-page .bg-yellow-50 {
+  background: #fef3c7 !important;
+}
+
+.about-page .bg-yellow-50 *,
+.about-page .bg-yellow-50 h1,
+.about-page .bg-yellow-50 h2,
+.about-page .bg-yellow-50 h3,
+.about-page .bg-yellow-50 h4,
+.about-page .bg-yellow-50 p,
+.about-page .bg-yellow-50 li {
+  color: #92400e !important;
+  text-shadow: none !important;
+}

@@ -19,6 +19,11 @@ use bpi_validator_set::{ValidatorSet, ValidatorInfo};
 // use bpi_consensus::BlockHeader; // Temporarily commented for compilationnsusError, BlockHeader};
 use bpi_merkle::{MerkleTree, MerkleProof};
 
+// Import node types
+use crate::mining::node_types::{self};
+use crate::mining::node_types::authority;
+use crate::registry::node_types::VerificationType as RegistryVerificationType;
+
 // Define missing wallet types for BPCI integration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WalletType {
@@ -71,6 +76,9 @@ pub struct ValidatorNode {
     pub reputation: u32,
     pub endpoints: Vec<String>,
     pub status: NodeStatus,
+    pub last_activity: chrono::DateTime<chrono::Utc>,
+    pub endpoint: String,
+    pub capabilities: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,6 +98,7 @@ pub enum NodeStatus {
     Suspended,
     Slashed,
     Joining,
+    Maintenance,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -401,20 +410,25 @@ impl WalletRegistryMiningBridge {
         Ok(())
     }
 
-    /// Register node in the BPCI registry
+    /// Register node in the BPCI registry - Community registration creates 5 specialized nodes
     async fn register_node(&self) -> Result<()> {
-        debug!("Registering node in BPCI registry...");
+        debug!("Registering community node - creating 11 specialized nodes...");
         
-        let registration = crate::registry::NodeRegistration {
-            node_id: None,
+        let base_timestamp = chrono::Utc::now().timestamp();
+        let mut registry = self.registry.write().await;
+        
+        // 1. Mining Node
+        let mining_node_id = format!("{}-mining-{}", self.node_id, base_timestamp);
+        let mining_registration = crate::registry::NodeRegistration {
+            node_id: Some(mining_node_id.clone()),
             node_type: crate::registry::NodeType::BpiCommunity {
-                app_hosting: true,
-                community_governance: true,
-                max_apps: Some(10),
-                supported_app_types: vec![crate::registry::AppType::Docker],
+                app_hosting: false,
+                community_governance: false,
+                max_apps: None,
+                supported_app_types: vec![],
             },
             identity: crate::registry::IdentityProof {
-                did: format!("did:bpci:{}", self.node_id),
+                did: format!("did:bpci:{}-mining", self.node_id),
                 dadhaar: None,
                 dpan: None,
                 verification_level: crate::registry::VerificationLevel::Enhanced,
@@ -427,7 +441,7 @@ impl WalletRegistryMiningBridge {
                 community_vouching: 1,
                 reputation_score: 100,
                 participation_years: 1,
-                roles: vec![],
+                roles: vec![crate::registry::CommunityRole::Validator],
             },
             capabilities: vec![
                 crate::registry::NodeCapability::Mining {
@@ -437,9 +451,9 @@ impl WalletRegistryMiningBridge {
                 },
             ],
             endpoints: crate::registry::NetworkEndpoints {
-                primary: self.bpi_endpoints.api_endpoint.clone(),
-                backup: vec![self.bpi_endpoints.rpc_endpoint.clone()],
-                api: Some(self.bpi_endpoints.api_endpoint.clone()),
+                primary: format!("{}:9001", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9001", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
                 websocket: Some("127.0.0.1:9001".to_string()),
                 p2p: Some("127.0.0.1:9000".to_string()),
             },
@@ -450,11 +464,710 @@ impl WalletRegistryMiningBridge {
             registered_at: chrono::Utc::now(),
             last_activity: chrono::Utc::now(),
         };
-
-        let mut registry = self.registry.write().await;
-        let registered_node_id = registry.insert("node_id".to_string(), serde_json::Value::String(self.node_id.clone()));
+        registry.insert(mining_node_id.clone(), serde_json::to_value(&mining_registration)?);
         
-        info!("Node registered successfully with ID: {:?}", registered_node_id);
+        // 2. BPCI Server Node 1
+        let bpci_server1_id = format!("{}-bpci-server-1-{}", self.node_id, base_timestamp);
+        let bpci_server1_registration = crate::registry::NodeRegistration {
+            node_id: Some(bpci_server1_id.clone()),
+            node_type: crate::registry::NodeType::BpciEnterprise {
+                validator: false,
+                miner: false,
+                notary_committee: false,
+                banking_compliance: true,
+                enhanced_security: crate::registry::SecurityLevel::Enhanced,
+                regulatory_compliance: vec![crate::registry::ComplianceType::Kyc],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-bpci-server-1", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 1,
+                reputation_score: 100,
+                participation_years: 1,
+                roles: vec![crate::registry::CommunityRole::Developer],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 5,
+                    supported_runtimes: vec![crate::registry::Runtime::Docker],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 2,
+                        memory_gb: 4,
+                        storage_gb: 50,
+                        network_bandwidth_mbps: 100,
+                    },
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9002", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9002", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9002".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: None,
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(bpci_server1_id.clone(), serde_json::to_value(&bpci_server1_registration)?);
+        
+        // 3. BPCI Server Node 2
+        let bpci_server2_id = format!("{}-bpci-server-2-{}", self.node_id, base_timestamp);
+        let bpci_server2_registration = crate::registry::NodeRegistration {
+            node_id: Some(bpci_server2_id.clone()),
+            node_type: crate::registry::NodeType::BpciEnterprise {
+                validator: false,
+                miner: false,
+                notary_committee: false,
+                banking_compliance: true,
+                enhanced_security: crate::registry::SecurityLevel::Enhanced,
+                regulatory_compliance: vec![crate::registry::ComplianceType::Kyc],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-bpci-server-2", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 1,
+                reputation_score: 100,
+                participation_years: 1,
+                roles: vec![crate::registry::CommunityRole::Developer],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 5,
+                    supported_runtimes: vec![crate::registry::Runtime::Docker],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 2,
+                        memory_gb: 4,
+                        storage_gb: 50,
+                        network_bandwidth_mbps: 100,
+                    },
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9003", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9003", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9003".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: None,
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(bpci_server2_id.clone(), serde_json::to_value(&bpci_server2_registration)?);
+        
+        // 4. Validator Node
+        let validator_node_id = format!("{}-validator-{}", self.node_id, base_timestamp);
+        let validator_registration = crate::registry::NodeRegistration {
+            node_id: Some(validator_node_id.clone()),
+            node_type: crate::registry::NodeType::BpciEnterprise {
+                validator: true,
+                miner: false,
+                notary_committee: false,
+                banking_compliance: false,
+                enhanced_security: crate::registry::SecurityLevel::Standard,
+                regulatory_compliance: vec![],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-validator", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 1,
+                reputation_score: 100,
+                participation_years: 1,
+                roles: vec![crate::registry::CommunityRole::Validator],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::Validator {
+                    max_stake: 100000,
+                    commission_rate: 5.0,
+                    slashing_conditions: crate::registry::SlashingConditions {
+                        double_signing: crate::registry::SlashingPenalty {
+                            percentage: 5.0,
+                            jail_duration_hours: 720,
+                        },
+                        downtime: crate::registry::SlashingPenalty {
+                            percentage: 1.0,
+                            jail_duration_hours: 24,
+                        },
+                        invalid_block: crate::registry::SlashingPenalty {
+                            percentage: 10.0,
+                            jail_duration_hours: 1440,
+                        },
+                    },
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9004", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9004", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9004".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: Some(1000),
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(validator_node_id.clone(), serde_json::to_value(&validator_registration)?);
+        
+        // 5. Notary Node
+        let notary_node_id = format!("{}-notary-{}", self.node_id, base_timestamp);
+        let notary_registration = crate::registry::NodeRegistration {
+            node_id: Some(notary_node_id.clone()),
+            node_type: crate::registry::NodeType::BpciEnterprise {
+                validator: false,
+                miner: false,
+                notary_committee: true,
+                banking_compliance: true,
+                enhanced_security: crate::registry::SecurityLevel::Enhanced,
+                regulatory_compliance: vec![crate::registry::ComplianceType::Kyc, crate::registry::ComplianceType::Aml],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-notary", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 1,
+                reputation_score: 100,
+                participation_years: 1,
+                roles: vec![crate::registry::authority::CommunityRole::Notary],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::Notary {
+                    verification_types: vec![RegistryVerificationType::Transaction, RegistryVerificationType::Identity],
+                    throughput_capacity: 1000,
+                    reputation_threshold: 80,
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9005", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9005", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9005".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: None,
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(notary_node_id.clone(), serde_json::to_value(&notary_registration)?);
+        
+        // 6. Logbook Node - Records all BPCI auctioned to community for auditability
+        let logbook_node_id = format!("{}-logbook-{}", self.node_id, base_timestamp);
+        let logbook_registration = crate::registry::NodeRegistration {
+            node_id: Some(logbook_node_id.clone()),
+            node_type: crate::registry::NodeType::BpiCommunity {
+                app_hosting: true,
+                community_governance: true,
+                max_apps: Some(1), // Dedicated to logbook application
+                supported_app_types: vec![crate::registry::AppType::Database],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-logbook", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 2,
+                reputation_score: 150,
+                participation_years: 1,
+                roles: vec![crate::registry::CommunityRole::Auditor],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 1,
+                    supported_runtimes: vec![crate::registry::Runtime::Docker],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 1,
+                        memory_gb: 2,
+                        storage_gb: 100, // Large storage for auction records
+                        network_bandwidth_mbps: 50,
+                    },
+                },
+                crate::registry::NodeCapability::Auditing {
+                    audit_types: vec!["auction_records".to_string(), "bpci_bundles".to_string()],
+                    retention_period_days: 2555, // 7 years retention
+                    compliance_standards: vec!["SOX".to_string(), "GDPR".to_string()],
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9006", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9006", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9006".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: Some(500), // Moderate stake for audit integrity
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(logbook_node_id.clone(), serde_json::to_value(&logbook_registration)?);
+        
+        // 7. Roundtable Node - Governance and coordination for community decisions
+        let roundtable_node_id = format!("{}-roundtable-{}", self.node_id, base_timestamp);
+        let roundtable_registration = crate::registry::NodeRegistration {
+            node_id: Some(roundtable_node_id.clone()),
+            node_type: crate::registry::NodeType::BpiCommunity {
+                app_hosting: true,
+                community_governance: true,
+                max_apps: Some(3), // Governance, voting, coordination apps
+                supported_app_types: vec![crate::registry::AppType::Web, crate::registry::AppType::Api],
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-roundtable", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 3,
+                reputation_score: 200,
+                participation_years: 2,
+                roles: vec![crate::registry::CommunityRole::Governance],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 3,
+                    supported_runtimes: vec![crate::registry::Runtime::Docker, crate::registry::Runtime::Wasm],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 2,
+                        memory_gb: 4,
+                        storage_gb: 25,
+                        network_bandwidth_mbps: 100,
+                    },
+                },
+                crate::registry::NodeCapability::Governance {
+                    voting_power: 100,
+                    proposal_creation: true,
+                    treasury_access: false,
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9007", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![],
+                api: Some(format!("{}:9007", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9007".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: Some(750), // Higher stake for governance authority
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(roundtable_node_id.clone(), serde_json::to_value(&roundtable_registration)?);
+        
+        // 8. Box Block Node - BPCI server duplication per wallet for mass adoption
+        let boxblock_node_id = format!("{}-boxblock-{}", self.node_id, base_timestamp);
+        let boxblock_registration = crate::registry::NodeRegistration {
+            node_id: Some(boxblock_node_id.clone()),
+            node_type: crate::registry::NodeType::Hybrid {
+                bank_sponsored: false,
+                community_operated: true,
+                dual_authority: true,
+                bank_sponsor: None,
+                community_operator: Some(crate::registry::CommunityOperator {
+                    name: "Community Mass Adoption Operator".to_string(),
+                    reputation: 100,
+                    experience_years: 1,
+                    specializations: vec!["wallet_scaling".to_string(), "mass_adoption".to_string()],
+                    vouchers: vec![],
+                }),
+            },
+            identity: crate::registry::IdentityProof {
+                did: format!("did:bpci:{}-boxblock", self.node_id),
+                dadhaar: None,
+                dpan: None,
+                verification_level: crate::registry::VerificationLevel::Enhanced,
+                crypto_proof: crate::registry::CryptoProof::new(),
+                created_at: chrono::Utc::now(),
+                last_verified: chrono::Utc::now(),
+            },
+            authority: crate::registry::AuthorityLevel::Community {
+                basic_verification: true,
+                community_vouching: 2,
+                reputation_score: 125,
+                participation_years: 1,
+                roles: vec![crate::registry::CommunityRole::Developer, crate::registry::CommunityRole::Operator],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 50, // High capacity for wallet duplication
+                    supported_runtimes: vec![crate::registry::Runtime::Docker, crate::registry::Runtime::Native],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 4,
+                        memory_gb: 8,
+                        storage_gb: 200, // Large storage for wallet instances
+                        network_bandwidth_mbps: 200,
+                    },
+                },
+                crate::registry::NodeCapability::WalletScaling {
+                    max_wallet_instances: 1000,
+                    auto_scaling_enabled: true,
+                    load_balancing: true,
+                    replication_factor: 3,
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: format!("{}:9008", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1")),
+                backup: vec![format!("{}:9009", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))],
+                api: Some(format!("{}:9008", self.bpi_endpoints.api_endpoint.replace("http://", "").split(':').next().unwrap_or("127.0.0.1"))),
+                websocket: Some("127.0.0.1:9008".to_string()),
+                p2p: Some("127.0.0.1:9000".to_string()),
+            },
+            stake: Some(1500), // High stake for mass adoption responsibility
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(boxblock_node_id.clone(), serde_json::to_value(&boxblock_registration)?);
+
+        // 9. Roundtable API Node - Parliament-style governance coordination (BPCI creates + 1 from each community)
+        let roundtable_api_node_id = format!("{}-roundtable-api-{}", self.node_id, base_timestamp);
+        let roundtable_api_registration = crate::registry::NodeRegistration {
+            node_id: Some(roundtable_api_node_id.clone()),
+            node_type: crate::registry::NodeType::RoundtableApi {
+                governance_scope: crate::registry::node_types::GovernanceScope::Global,
+                parliamentary_functions: vec![
+                    crate::registry::node_types::ParliamentaryFunction::ProposalCreation,
+                    crate::registry::node_types::ParliamentaryFunction::VotingCoordination,
+                    crate::registry::node_types::ParliamentaryFunction::DebateModeration,
+                    crate::registry::node_types::ParliamentaryFunction::ConsensusBuilding,
+                    crate::registry::node_types::ParliamentaryFunction::AuditOversight,
+                    crate::registry::node_types::ParliamentaryFunction::TreasuryManagement,
+                ],
+                voting_mechanisms: vec![
+                    crate::registry::node_types::VotingMechanism::WeightedVoting,
+                    crate::registry::node_types::VotingMechanism::QuadraticVoting,
+                    crate::registry::node_types::VotingMechanism::ConsensusVoting,
+                ],
+                audit_features: vec![
+                    crate::registry::node_types::AuditFeature::RealTimeAudit,
+                    crate::registry::node_types::AuditFeature::BlockchainAuditTrail,
+                    crate::registry::node_types::AuditFeature::TransparencyDashboard,
+                    crate::registry::node_types::AuditFeature::PublicVerification,
+                ],
+                coordination_protocols: vec![
+                    crate::registry::node_types::CoordinationProtocol::ConsensusCoordination,
+                    crate::registry::node_types::CoordinationProtocol::MultiSigCoordination,
+                    crate::registry::node_types::CoordinationProtocol::FederatedGovernance,
+                ],
+            },
+            identity: crate::registry::IdentityProof::new(format!("roundtable_api_did_{}", base_timestamp)),
+            authority: crate::registry::AuthorityLevel::Bank {
+                kyc_verified: true,
+                aml_compliant: true,
+                regulatory_approval: vec!["BPCI_GOVERNANCE".to_string(), "PARLIAMENT_COORDINATION".to_string()],
+                sponsoring_bank: crate::registry::authority::BankInfo {
+                    name: "BPCI Core Authority".to_string(),
+                    identifier: "BPCI001".to_string(),
+                    bank_type: crate::registry::authority::BankType::Central,
+                    jurisdiction: "Global".to_string(),
+                    licenses: vec![],
+                    contact: crate::registry::authority::ContactInfo {
+                        email: Some("governance@bpci.org".to_string()),
+                        phone: Some("+1-800-BPCI-GOV".to_string()),
+                        address: Some("BPCI Governance Center".to_string()),
+                        website: Some("https://governance.bpci.org".to_string()),
+                        contact_person: Some("BPCI Governance Team".to_string()),
+                        emergency_contact: Some("+1-800-BPCI-EMRG".to_string()),
+                    },
+                    sponsorship_start: chrono::Utc::now(),
+                    sponsorship_level: crate::registry::authority::SponsorshipLevel::Platinum {
+                        max_nodes: 1000,
+                        support_level: crate::registry::authority::SupportLevel::Premium,
+                        priority_access: true,
+                        custom_features: vec!["governance".to_string(), "regulatory".to_string()],
+                        dedicated_support: true,
+                    },
+                },
+                compliance_level: crate::registry::authority::BankingComplianceLevel::Enterprise,
+                audit_trail: vec![],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::Governance {
+                    voting_power: 1000,
+                    proposal_creation: true,
+                    treasury_access: true,
+                },
+                crate::registry::NodeCapability::Auditing {
+                    audit_types: vec!["governance".to_string(), "transparency".to_string()],
+                    retention_period_days: 3650,
+                    compliance_standards: vec!["SOX".to_string(), "GDPR".to_string()],
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: "127.0.0.1:8560".to_string(),
+                backup: vec!["127.0.0.1:8561".to_string()],
+                api: Some("127.0.0.1:8560".to_string()),
+                websocket: Some("127.0.0.1:8560".to_string()),
+                p2p: Some("127.0.0.1:8562".to_string()),
+            },
+            stake: Some(5000000), // 5M tokens for governance coordination
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(roundtable_api_node_id.clone(), serde_json::to_value(&roundtable_api_registration)?);
+
+        // 10. Bank API Registry Node - Highly secure bank-stamped BPI connections (allocated only by owner company)
+        let bank_api_node_id = format!("{}-bank-api-{}", self.node_id, base_timestamp);
+        let bank_api_registration = crate::registry::NodeRegistration {
+            node_id: Some(bank_api_node_id.clone()),
+            node_type: crate::registry::NodeType::BankApiRegistry {
+                compliance_level: crate::registry::node_types::BankComplianceLevel::Tier1,
+                authorized_services: vec![
+                    crate::registry::node_types::BankingService::DepositAccounts,
+                    crate::registry::node_types::BankingService::PaymentProcessing,
+                    crate::registry::node_types::BankingService::DigitalBanking,
+                    crate::registry::node_types::BankingService::CorporateBanking,
+                ],
+                jurisdiction: "Global".to_string(),
+                bank_license: crate::registry::node_types::BankLicense {
+                    license_number: format!("BPCI-BANK-{}", base_timestamp),
+                    issuing_authority: "BPCI Core Authority".to_string(),
+                    license_type: crate::registry::node_types::BankLicenseType::CommercialBank,
+                    valid_until: chrono::Utc::now() + chrono::Duration::days(3650), // 10 years
+                    jurisdiction: "Global".to_string(),
+                },
+                security_protocols: vec![
+                    crate::registry::node_types::SecurityProtocol::MultiFactorAuth,
+                    crate::registry::node_types::SecurityProtocol::HardwareSecurityModule,
+                    crate::registry::node_types::SecurityProtocol::QuantumResistantCrypto,
+                    crate::registry::node_types::SecurityProtocol::BlockchainAuditTrail,
+                ],
+            },
+            identity: crate::registry::IdentityProof::new(format!("bank_api_did_{}", base_timestamp)),
+            authority: crate::registry::AuthorityLevel::Bank {
+                kyc_verified: true,
+                aml_compliant: true,
+                regulatory_approval: vec!["BANK_STAMPED_BPI".to_string(), "AUTONOMOUS_ECONOMY".to_string()],
+                sponsoring_bank: crate::registry::authority::BankInfo {
+                    name: "BPCI Banking Authority".to_string(),
+                    identifier: "BPCI002".to_string(),
+                    bank_type: crate::registry::authority::BankType::Commercial,
+                    jurisdiction: "Global".to_string(),
+                    licenses: vec![],
+                    contact: crate::registry::authority::ContactInfo {
+                        email: Some("banking@bpci.org".to_string()),
+                        phone: Some("+1-800-BPCI-BANK".to_string()),
+                        address: Some("BPCI Banking Center".to_string()),
+                        website: Some("https://banking.bpci.org".to_string()),
+                        contact_person: Some("BPCI Banking Team".to_string()),
+                        emergency_contact: Some("+1-800-BPCI-EMRG".to_string()),
+                    },
+                    sponsorship_start: chrono::Utc::now(),
+                    sponsorship_level: crate::registry::authority::SponsorshipLevel::Platinum {
+                        max_nodes: 1000,
+                        support_level: crate::registry::authority::SupportLevel::Premium,
+                        priority_access: true,
+                        custom_features: vec!["governance".to_string(), "regulatory".to_string()],
+                        dedicated_support: true,
+                    },
+                },
+                compliance_level: crate::registry::authority::BankingComplianceLevel::Enterprise,
+                audit_trail: vec![],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::Auditing {
+                    audit_types: vec!["banking".to_string(), "regulatory".to_string()],
+                    retention_period_days: 2555, // 7 years for banking compliance
+                    compliance_standards: vec!["Basel III".to_string(), "PCI DSS".to_string()],
+                },
+                crate::registry::NodeCapability::AppHosting {
+                    max_concurrent_apps: 100,
+                    supported_runtimes: vec![crate::registry::Runtime::Docker, crate::registry::Runtime::Native],
+                    resource_limits: crate::registry::ResourceLimits {
+                        cpu_cores: 32,
+                        memory_gb: 128,
+                        storage_gb: 5000,
+                        network_bandwidth_mbps: 5000,
+                    },
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: "127.0.0.1:8570".to_string(),
+                backup: vec!["127.0.0.1:8571".to_string()],
+                api: Some("127.0.0.1:8570".to_string()),
+                websocket: Some("127.0.0.1:8570".to_string()),
+                p2p: Some("127.0.0.1:8572".to_string()),
+            },
+            stake: Some(10000000), // 10M tokens for bank registry (highest security)
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(bank_api_node_id.clone(), serde_json::to_value(&bank_api_registration)?);
+
+        // 11. Government API Registry Node - Government-stamped BPI for jurisdictional management (allocated only by owner company)
+        let govt_api_node_id = format!("{}-govt-api-{}", self.node_id, base_timestamp);
+        let govt_api_registration = crate::registry::NodeRegistration {
+            node_id: Some(govt_api_node_id.clone()),
+            node_type: crate::registry::NodeType::GovernmentApiRegistry {
+                government_level: crate::registry::node_types::GovernmentLevel::Federal,
+                jurisdiction_authority: crate::registry::node_types::JurisdictionAuthority {
+                    authority_name: "BPCI Government Authority".to_string(),
+                    jurisdiction_code: "BPCI-GLOBAL".to_string(),
+                    authority_level: crate::registry::node_types::GovernmentLevel::Federal,
+                    regulatory_powers: vec![
+                        crate::registry::node_types::RegulatoryPower::Licensing,
+                        crate::registry::node_types::RegulatoryPower::Supervision,
+                        crate::registry::node_types::RegulatoryPower::Enforcement,
+                        crate::registry::node_types::RegulatoryPower::Rulemaking,
+                    ],
+                },
+                authorized_services: vec![
+                    crate::registry::node_types::GovernmentService::IdentityVerification,
+                    crate::registry::node_types::GovernmentService::RegulatoryOversight,
+                    crate::registry::node_types::GovernmentService::LawEnforcement,
+                    crate::registry::node_types::GovernmentService::EmergencyServices,
+                ],
+                compliance_requirements: vec![
+                    crate::registry::node_types::RegulatoryRequirement {
+                        requirement_type: crate::registry::node_types::RequirementType::DataProtection,
+                        compliance_deadline: chrono::Utc::now() + chrono::Duration::days(365),
+                        reporting_frequency: crate::registry::node_types::ReportingFrequency::Monthly,
+                        penalty_for_non_compliance: "Authority revocation".to_string(),
+                    }
+                ],
+                emergency_capabilities: vec![
+                    crate::registry::node_types::EmergencyCapability::NationalSecurity,
+                    crate::registry::node_types::EmergencyCapability::CyberSecurityIncident,
+                    crate::registry::node_types::EmergencyCapability::EconomicCrisis,
+                ],
+            },
+            identity: crate::registry::IdentityProof::new(format!("govt_api_did_{}", base_timestamp)),
+            authority: crate::registry::AuthorityLevel::Bank {
+                kyc_verified: true,
+                aml_compliant: true,
+                regulatory_approval: vec!["GOVT_STAMPED_BPI".to_string(), "JURISDICTIONAL_MANAGEMENT".to_string()],
+                sponsoring_bank: crate::registry::authority::BankInfo {
+                    name: "BPCI Government Authority".to_string(),
+                    identifier: "BPCI003".to_string(),
+                    bank_type: crate::registry::authority::BankType::Central,
+                    jurisdiction: "Global".to_string(),
+                    licenses: vec![],
+                    contact: crate::registry::authority::ContactInfo {
+                        email: Some("government@bpci.org".to_string()),
+                        phone: Some("+1-800-BPCI-GOVT".to_string()),
+                        address: Some("BPCI Government Center".to_string()),
+                        website: Some("https://government.bpci.org".to_string()),
+                        contact_person: Some("BPCI Government Team".to_string()),
+                        emergency_contact: Some("+1-800-BPCI-EMRG".to_string()),
+                    },
+                    sponsorship_start: chrono::Utc::now(),
+                    sponsorship_level: crate::registry::authority::SponsorshipLevel::Platinum {
+                        max_nodes: 1000,
+                        support_level: crate::registry::authority::SupportLevel::Premium,
+                        priority_access: true,
+                        custom_features: vec!["governance".to_string(), "regulatory".to_string()],
+                        dedicated_support: true,
+                    },
+                },
+                compliance_level: crate::registry::authority::BankingComplianceLevel::Enterprise,
+                audit_trail: vec![],
+            },
+            capabilities: vec![
+                crate::registry::NodeCapability::Governance {
+                    voting_power: 2000, // Higher voting power for government nodes
+                    proposal_creation: true,
+                    treasury_access: true,
+                },
+                crate::registry::NodeCapability::Auditing {
+                    audit_types: vec!["government".to_string(), "regulatory".to_string(), "emergency".to_string()],
+                    retention_period_days: 3650, // 10 years for government compliance
+                    compliance_standards: vec!["NIST".to_string(), "ISO 27001".to_string(), "FISMA".to_string()],
+                },
+            ],
+            endpoints: crate::registry::NetworkEndpoints {
+                primary: "127.0.0.1:8580".to_string(),
+                backup: vec!["127.0.0.1:8581".to_string()],
+                api: Some("127.0.0.1:8580".to_string()),
+                websocket: Some("127.0.0.1:8580".to_string()),
+                p2p: Some("127.0.0.1:8582".to_string()),
+            },
+            stake: Some(15000000), // 15M tokens for government registry (highest authority)
+            reputation: crate::registry::ReputationScore::new(),
+            status: crate::registry::NodeStatus::Active,
+            metadata: crate::registry::NodeMetadata::new(),
+            registered_at: chrono::Utc::now(),
+            last_activity: chrono::Utc::now(),
+        };
+        registry.insert(govt_api_node_id.clone(), serde_json::to_value(&govt_api_registration)?);
+        
+        info!("Community node registered successfully - created 11 comprehensive specialized nodes:");
+        info!("  1. Mining Node: {}", mining_node_id);
+        info!("  2. BPCI Server 1: {}", bpci_server1_id);
+        info!("  3. BPCI Server 2: {}", bpci_server2_id);
+        info!("  4. Validator Node: {}", validator_node_id);
+        info!("  5. Notary Node: {}", notary_node_id);
+        info!("  6. Logbook Node: {}", logbook_node_id);
+        info!("  7. Roundtable Node: {}", roundtable_node_id);
+        info!("  8. Box Block Node: {}", boxblock_node_id);
+        info!("  9. Roundtable API Node (Parliament): {}", roundtable_api_node_id);
+        info!(" 10. Bank API Registry Node: {}", bank_api_node_id);
+        info!(" 11. Government API Registry Node: {}", govt_api_node_id);
+        
         Ok(())
     }
 

@@ -1,0 +1,77 @@
+/* Technology Page - AGGRESSIVE Text Contrast Fix */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.technology-page,
+.technology-page *,
+.technology-page h1,
+.technology-page h2, 
+.technology-page h3,
+.technology-page h4,
+.technology-page h5,
+.technology-page h6,
+.technology-page p,
+.technology-page div,
+.technology-page span,
+.technology-page li,
+.technology-page ul,
+.technology-page .ant-typography,
+.technology-page .ant-typography-title,
+.technology-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.technology-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.technology-page .ant-card,
+.technology-page .ant-card *,
+.technology-page .ant-card h1,
+.technology-page .ant-card h2,
+.technology-page .ant-card h3,
+.technology-page .ant-card h4,
+.technology-page .ant-card h5,
+.technology-page .ant-card h6,
+.technology-page .ant-card p,
+.technology-page .ant-card div,
+.technology-page .ant-card span,
+.technology-page .ant-card li,
+.technology-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.technology-page .bg-white,
+.technology-page .bg-blue-50,
+.technology-page .bg-yellow-50,
+.technology-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.technology-page .bg-white *,
+.technology-page .bg-blue-50 *,
+.technology-page .bg-yellow-50 *,
+.technology-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* YELLOW WARNING - Force yellow background with DARK BROWN text */
+.technology-page .bg-yellow-50 {
+  background: #fef3c7 !important;
+}
+
+.technology-page .bg-yellow-50 *,
+.technology-page .bg-yellow-50 h1,
+.technology-page .bg-yellow-50 h2,
+.technology-page .bg-yellow-50 h3,
+.technology-page .bg-yellow-50 h4,
+.technology-page .bg-yellow-50 p,
+.technology-page .bg-yellow-50 li {
+  color: #92400e !important;
+  text-shadow: none !important;
+}

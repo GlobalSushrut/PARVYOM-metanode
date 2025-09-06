@@ -1,0 +1,389 @@
+    Checking pravyom-enterprise v1.0.0 (/home/umesh/metanode/bpci-enterprise)
+error[E0433]: failed to resolve: could not find `GovernmentAuthorityLevel` in `government_layer`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:671:55
+    |
+--
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `multi_jurisdiction_smartcontract_deployment`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:705:33
+    |
+--
+
+error[E0425]: cannot find value `VerificationLevel` in module `crate::government_layer`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:720:70
+    |
+--
+
+error[E0425]: cannot find value `RenewalRequirements` in module `crate::government_layer`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:722:64
+    |
+--
+
+error[E0433]: failed to resolve: use of undeclared type `ExecutionFrequency`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:200:42
+    |
+--
+
+error[E0425]: cannot find value `api_access_tests` in this scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:294:55
+    |
+--
+
+error[E0412]: cannot find type `EnhancedGovernmentApi` in module `government_api_enhanced`
+  --> bpci-enterprise/src/government_layer/mod.rs:36:50
+   |
+--
+
+error[E0412]: cannot find type `CrossBorderMonitoringSystem` in module `cross_border_monitoring`
+  --> bpci-enterprise/src/government_layer/mod.rs:40:59
+   |
+--
+
+error[E0603]: enum import `VerificationLevel` is private
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:16:5
+    |
+--
+
+error[E0603]: struct import `RenewalRequirements` is private
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:16:24
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/triple_consensus_coordinator.rs:302:25
+    |
+--
+
+error[E0382]: borrow of moved value: `phase`
+   --> bpci-enterprise/src/triple_consensus_coordinator.rs:458:76
+    |
+--
+
+error[E0382]: borrow of moved value: `round.finalized_block_hash`
+   --> bpci-enterprise/src/triple_consensus_coordinator.rs:559:29
+    |
+--
+
+error[E0277]: the trait bound `Result<Json<AuctionModeResponse>, StatusCode>: From<Json<...>>` is not satisfied
+   --> bpci-enterprise/src/bpci_consensus_server.rs:289:50
+    |
+--
+
+error[E0061]: this function takes 3 arguments but 2 arguments were supplied
+   --> bpci-enterprise/src/government_layer_integration.rs:250:11
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/government_layer_integration.rs:267:9
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/government_layer_integration.rs:297:9
+    |
+--
+
+error[E0382]: borrow of moved value: `contracts`
+   --> bpci-enterprise/src/government_layer_integration.rs:318:26
+    |
+--
+
+error[E0277]: `Result<RwLockReadGuard<'_, MultiJurisdictionDeploymentManager>, ...>` is not a future
+   --> bpci-enterprise/src/government_layer_integration.rs:330:70
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/government_layer_integration.rs:368:9
+    |
+--
+
+error[E0599]: no function or associated item named `default` found for struct `government_layer_integration::RateLimits` in the current scope
+   --> bpci-enterprise/src/government_layer_integration.rs:377:42
+    |
+--
+
+error[E0061]: this function takes 3 arguments but 1 argument was supplied
+   --> bpci-enterprise/src/government_layer_integration.rs:399:20
+    |
+--
+
+error[E0277]: `?` couldn't convert the error to `axum::http::StatusCode`
+   --> bpci-enterprise/src/government_layer_integration.rs:399:60
+    |
+--
+
+error[E0599]: no variant named `National` found for enum `GovernmentAuthorityLevel`
+   --> bpci-enterprise/src/government_layer/multi_jurisdiction_smartcontract_deployment.rs:473:39
+    |
+--
+
+error[E0026]: variant `GovernmentAuthorityLevel::State` does not have fields named `country_code`, `state_code`
+   --> bpci-enterprise/src/government_layer/multi_jurisdiction_smartcontract_deployment.rs:478:47
+    |
+--
+
+error[E0615]: attempted to take value of method `jurisdiction_contracts` on type `&multi_jurisdiction_smartcontract_deployment::JurisdictionCoordinator`
+   --> bpci-enterprise/src/government_layer/multi_jurisdiction_smartcontract_deployment.rs:648:22
+    |
+--
+
+error[E0560]: struct `internet_governance_demo::InternetGovernanceTestResults` has no field named `multi_jurisdiction_coordination_score`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:429:13
+    |
+--
+
+error[E0560]: struct `internet_governance_demo::InternetGovernanceTestResults` has no field named `emergency_response_score`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:430:13
+    |
+--
+
+error[E0560]: struct `internet_governance_demo::InternetGovernanceTestResults` has no field named `rights_protection_score`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:431:13
+    |
+--
+
+error[E0560]: struct `internet_governance_demo::InternetGovernanceTestResults` has no field named `innovation_support_score`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:432:13
+    |
+--
+
+error[E0560]: struct `internet_governance_demo::InternetGovernanceTestResults` has no field named `test_timestamp`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:433:13
+    |
+--
+
+error[E0609]: no field `cable_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:439:22
+    |
+--
+
+error[E0609]: no field `datacenter_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:440:22
+    |
+--
+
+error[E0609]: no field `cdn_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:441:22
+    |
+--
+
+error[E0609]: no field `isp_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:442:22
+    |
+--
+
+error[E0609]: no field `cable_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:448:26
+    |
+--
+
+error[E0609]: no field `datacenter_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:449:26
+    |
+--
+
+error[E0609]: no field `cdn_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:450:26
+    |
+--
+
+error[E0609]: no field `isp_governance_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:451:26
+    |
+--
+
+error[E0609]: no field `multi_jurisdiction_coordination_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:457:22
+    |
+--
+
+error[E0609]: no field `emergency_response_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:458:22
+    |
+--
+
+error[E0609]: no field `rights_protection_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:459:22
+    |
+--
+
+error[E0609]: no field `innovation_support_score` on type `internet_governance_demo::InternetGovernanceTestResults`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:460:22
+    |
+--
+
+error[E0107]: enum takes 2 generic arguments but 1 generic argument was supplied
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:403:57
+    |
+--
+
+error[E0107]: enum takes 2 generic arguments but 1 generic argument was supplied
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:441:56
+    |
+--
+
+error[E0599]: no variant named `National` found for enum `GovernmentAuthorityLevel`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:166:61
+    |
+--
+
+error[E0559]: variant `GovernmentAuthorityLevel::State` has no field named `country_code`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:171:25
+    |
+--
+
+error[E0559]: variant `GovernmentAuthorityLevel::State` has no field named `state_code`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:172:25
+    |
+--
+
+error[E0599]: no variant named `Regional` found for enum `GovernmentAuthorityLevel`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:174:52
+    |
+--
+
+error[E0599]: no associated item named `Territory` found for struct `missing_types::GeographicBoundaries` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:180:66
+    |
+--
+
+error[E0599]: no associated item named `Legal` found for struct `missing_types::EnforcementMechanism` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:181:72
+    |
+--
+
+error[E0599]: no associated item named `Regulatory` found for struct `missing_types::EnforcementMechanism` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:181:101
+    |
+--
+
+error[E0599]: no associated item named `LegalCode` found for struct `missing_types::ApplicableLaw` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:187:58
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::AuditRequirements` has no field named `auditor_requirements`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:216:21
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::AuditRequirements` has no field named `audit_reporting`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:217:21
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::BpciIntegration` has no field named `enabled_services`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:221:21
+    |
+--
+
+error[E0599]: no associated item named `SmartContracts` found for struct `multi_jurisdiction_smartcontract_deployment::BpciService` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:221:57
+    |
+--
+
+error[E0599]: no associated item named `Governance` found for struct `multi_jurisdiction_smartcontract_deployment::BpciService` in the current scope
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:221:86
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::BpciIntegration` has no field named `connection_config`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:222:21
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::StampedWalletRequirements` has no field named `required_stamp_types`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:226:21
+    |
+--
+
+error[E0560]: struct `multi_jurisdiction_smartcontract_deployment::StampedWalletRequirements` has no field named `verification_level`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:227:21
+    |
+--
+
+error[E0061]: this method takes 3 arguments but 1 argument was supplied
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:234:56
+    |
+--
+
+error[E0609]: no field `success` on type `std::string::String`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:235:39
+    |
+--
+
+error[E0061]: this method takes 1 argument but 3 arguments were supplied
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:264:58
+    |
+--
+
+error[E0609]: no field `success` on type `std::string::String`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:268:41
+    |
+--
+
+error[E0609]: no field `coordination_id` on type `std::string::String`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:269:42
+    |
+--
+
+error[E0599]: no variant named `National` found for enum `GovernmentAuthorityLevel`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:298:61
+    |
+--
+
+error[E0559]: variant `GovernmentAuthorityLevel::State` has no field named `country_code`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:303:25
+    |
+--
+
+error[E0559]: variant `GovernmentAuthorityLevel::State` has no field named `state_code`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:304:25
+    |
+--
+
+error[E0599]: no variant named `Regional` found for enum `GovernmentAuthorityLevel`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:306:52
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:318:37
+    |
+--
+
+error[E0061]: this method takes 3 arguments but 1 argument was supplied
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:333:51
+    |
+--
+
+error[E0609]: no field `success` on type `std::string::String`
+   --> bpci-enterprise/src/government_layer/universal_jurisdiction_test.rs:334:34
+    |
+--
+
+error[E0277]: the trait bound `fn(..., ...) -> ... {handle_government_operation}: Handler<_, _>` is not satisfied
+   --> bpci-enterprise/src/government_layer_integration.rs:157:55
+    |
+--
+
+error[E0615]: attempted to take value of method `jurisdiction_contracts` on type `&multi_jurisdiction_smartcontract_deployment::JurisdictionCoordinator`
+   --> bpci-enterprise/src/government_layer/multi_jurisdiction_smartcontract_deployment.rs:631:31
+    |
+--
+
+error[E0609]: no field `jurisdiction_contracts` on type `&multi_jurisdiction_smartcontract_deployment::JurisdictionCoordinator`
+   --> bpci-enterprise/src/government_layer/multi_jurisdiction_smartcontract_deployment.rs:640:15
+    |
+--
+
+error[E0308]: mismatched types
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:632:29
+    |
+--
+
+error[E0063]: missing field `audit_trail` in initializer of `multi_jurisdiction_smartcontract_deployment::GovernmentSmartContract`
+   --> bpci-enterprise/src/government_layer/internet_governance_demo.rs:663:9
+    |

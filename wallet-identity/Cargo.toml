@@ -1,0 +1,91 @@
+[package]
+name = "wallet-identity"
+version = "0.1.0"
+edition = "2021"
+authors = ["Pravyom Team <dev@pravyom.com>"]
+description = "XTMP Protocol Suite - Universal Wallet-as-Identity System for the Pravyom Internet"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/pravyom/metanode"
+keywords = ["wallet", "identity", "messaging", "payments", "authorization"]
+categories = ["cryptography", "network-programming", "authentication", "web-programming"]
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+futures-util = "0.3"
+hex = "0.4"
+rand = "0.8"
+uuid = { version = "1.0", features = ["v4"] }
+
+# Cryptography
+ed25519-dalek = { version = "1.0", features = ["std", "serde"] }
+sha2 = "0.10"
+hmac = "0.12"
+hkdf = "0.12"
+aes-gcm = "0.9"
+rand_core = { version = "0.6", features = ["std"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_cbor = "0.11"
+
+# Networking
+reqwest = { version = "0.11", features = ["json", "stream"] }
+tokio-tungstenite = { version = "0.20", features = ["native-tls"] }
+url = "2.4"
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+base64 = "0.21"
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# BPI Integration (local dependencies)
+# Note: These would be actual crate dependencies in production
+# For now, we'll use feature flags to enable/disable BPI integration
+
+[features]
+default = ["bpi-integration"]
+bpi-integration = []
+web2-compatibility = []
+government-integration = []
+banking-integration = []
+post-quantum = []
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.0"
+wiremock = "0.5"
+
+[[example]]
+name = "basic_wallet"
+path = "examples/basic_wallet.rs"
+
+[[example]]
+name = "messaging_demo"
+path = "examples/messaging_demo.rs"
+
+[[example]]
+name = "payment_demo"
+path = "examples/payment_demo.rs"
+
+[[example]]
+name = "video_call_demo"
+path = "examples/video_call_demo.rs"
+
+[[example]]
+name = "device_auth_demo"
+path = "examples/device_auth_demo.rs"
+
+[[example]]
+name = "cross_provider_demo"
+path = "examples/cross_provider_demo.rs"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

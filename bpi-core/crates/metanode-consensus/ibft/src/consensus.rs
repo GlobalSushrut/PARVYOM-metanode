@@ -1,8 +1,9 @@
 //! IBFT consensus engine implementation
 
 use super::*;
+use crate::meta_config::{MetaConfig, HotStuffOptimizer, HeaderCheckpoint};
 
-/// IBFT consensus engine
+/// IBFT consensus engine with meta-configuration support
 pub struct IbftConsensus {
     config: IbftConfig,
     node_id: Vec<u8>,
@@ -20,6 +21,11 @@ pub struct IbftConsensus {
     // Communication channels
     message_tx: mpsc::UnboundedSender<IbftMessage>,
     message_rx: mpsc::UnboundedReceiver<IbftMessage>,
+    
+    // Meta-configuration for evolution (lightweight extension)
+    meta_config: Option<MetaConfig>,
+    hotstuff_optimizer: Option<HotStuffOptimizer>,
+    checkpoint_history: Vec<HeaderCheckpoint>,
 }
 
 impl IbftConsensus {
@@ -60,6 +66,9 @@ impl IbftConsensus {
             commit_votes: HashMap::new(),
             message_tx,
             message_rx,
+            meta_config: None,
+            hotstuff_optimizer: None,
+            checkpoint_history: Vec::new(),
         }
     }
     
@@ -163,6 +172,12 @@ impl IbftConsensus {
         println!("Block finalized! Height: {}, Hash: {:?}", 
                 self.current_round.height, proposal_hash);
         
+        // Process meta-config features (lightweight, non-invasive)
+        if self.meta_config.is_some() {
+            let meta_config = self.meta_config.clone().unwrap();
+            self.process_checkpoint_certificate(proposal_hash, &meta_config).await?;
+        }
+        
         // Move to next height
         self.current_round.height += 1;
         self.current_round.round = 0;
@@ -178,5 +193,84 @@ impl IbftConsensus {
             .map_err(|e| IbftError::PohError(format!("PoH advancement failed: {}", e)))?;
         
         Ok(())
+    }
+    
+    // === Meta-Configuration Methods (Lightweight Extensions) ===
+    
+    /// Enable meta-configuration for evolution
+    pub fn enable_meta_config(&mut self, meta_config: MetaConfig) {
+        // Initialize HotStuff optimizer if enabled
+        if meta_config.performance.enable_hotstuff {
+            self.hotstuff_optimizer = Some(HotStuffOptimizer::new(&meta_config.performance));
+        }
+        
+        self.meta_config = Some(meta_config);
+    }
+    
+    /// Process checkpoint certificate (lightweight, non-invasive)
+    async fn process_checkpoint_certificate(
+        &mut self, 
+        block_hash: [u8; 32], 
+        meta_config: &MetaConfig
+    ) -> Result<(), IbftError> {
+        // Only create checkpoint if enabled and at interval
+        if !meta_config.checkpoints.enabled {
+            return Ok(());
+        }
+        
+        if self.current_round.height % meta_config.checkpoints.interval != 0 {
+            return Ok(());
+        }
+        
+        // Create header-based checkpoint certificate
+        let previous_hash = self.checkpoint_history
+            .last()
+            .map(|cc| cc.compute_hash())
+            .unwrap_or([0u8; 32]);
+        
+        let checkpoint = HeaderCheckpoint::new(
+            self.current_round.height,
+            block_hash,
+            [0u8; 32], // State root (would be computed from actual state)
+            [0u8; 32], // Validator root (would be computed from validator set)
+            vec![0u8; 96], // Consensus proof (would be actual BLS aggregate)
+            previous_hash,
+        );
+        
+        // Store checkpoint
+        self.checkpoint_history.push(checkpoint);
+        
+        // Keep only recent checkpoints (prevent unbounded growth)
+        if self.checkpoint_history.len() > 1000 {
+            self.checkpoint_history.remove(0);
+        }
+        
+        println!("Checkpoint certificate created at height {}", self.current_round.height);
+        
+        Ok(())
+    }
+    
+    /// Get current meta-configuration
+    pub fn get_meta_config(&self) -> Option<&MetaConfig> {
+        self.meta_config.as_ref()
+    }
+    
+    /// Get HotStuff performance metrics
+    pub fn get_hotstuff_metrics(&self) -> Option<&crate::meta_config::HotStuffMetrics> {
+        self.hotstuff_optimizer.as_ref().map(|opt| &opt.metrics)
+    }
+    
+    /// Get checkpoint history
+    pub fn get_checkpoint_history(&self) -> &[HeaderCheckpoint] {
+        &self.checkpoint_history
+    }
+    
+    /// Check if target latency is being met
+    pub fn is_performance_target_met(&self) -> bool {
+        if let (Some(meta_config), Some(optimizer)) = (&self.meta_config, &self.hotstuff_optimizer) {
+            optimizer.metrics.is_target_met(meta_config.performance.target_latency_us)
+        } else {
+            true // If no meta-config, assume target is met
+        }
     }
 }

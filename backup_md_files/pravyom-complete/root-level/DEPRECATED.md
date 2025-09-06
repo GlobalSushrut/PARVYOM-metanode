@@ -1,0 +1,38 @@
+# ENC Lock + TSLPS Integration - DEPRECATED COMPONENTS
+
+## ⚠️ **DEPRECATION NOTICE**
+
+The standalone ENC Gateway and deployment scripts in this directory have been **DEPRECATED** as of 2025-08-21.
+
+## ✅ **NEW INTEGRATION LOCATION**
+
+ENC Lock + TSLPS is now **100% integrated** into the BPI core as a first-class component:
+
+- **Real Integration**: `/home/umesh/metanode/bpi-core/src/vm_server.rs`
+- **CUE Certificate Contract**: `/home/umesh/metanode/examples/real-saas-deployment/cue-orchestration/enc-lock-certificate.cue`
+- **Documentation**: `/home/umesh/metanode/examples/real-saas-deployment/ENC-LOCK-INTEGRATION-COMPLETE.md`
+
+## 🚀 **How to Use**
+
+Instead of standalone deployment, use the **real** BPI core integration:
+
+```bash
+# Start BPI VM Server with ENC Lock + TSLPS
+cd /home/umesh/metanode
+./target/release/bpi-core vm-server start --json
+
+# Validate integration
+curl -s "http://localhost:7777/__vm/status" | jq .vm_server.post_quantum_enabled
+```
+
+## 📋 **Removed Components**
+
+- ~~`enc-gateway/` - Standalone ENC Gateway (replaced by BPI core integration)~~
+- ~~`scripts/deploy-enc-lock.sh` - Deployment script (replaced by automatic integration)~~
+
+## ✅ **Active Components**
+
+- `docs/BPI-ECOSYSTEM-INTEGRATION.md` - Integration guide
+- `policy/*.json` - TSLPS policy files (still used by BPI core)
+
+**Status**: ENC Lock + TSLPS is now **production-ready** and **100% real** in BPI core.

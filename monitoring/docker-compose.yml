@@ -1,0 +1,101 @@
+version: '3.3'
+
+services:
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bpi-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - bpi-monitoring
+    restart: unless-stopped
+
+  # Grafana - Visualization & Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bpi-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=bpi-admin-2024
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SMTP_ENABLED=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel
+    networks:
+      - bpi-monitoring
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: bpi-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - bpi-monitoring
+    restart: unless-stopped
+
+  # Promtail - Log Collection
+  promtail:
+    image: grafana/promtail:latest
+    container_name: bpi-promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+      - /home/umesh/metanode/logs:/bpi/logs:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - bpi-monitoring
+    restart: unless-stopped
+
+  # Node Exporter - System Metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: bpi-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - bpi-monitoring
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  bpi-monitoring:
+    driver: bridge

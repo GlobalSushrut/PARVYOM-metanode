@@ -1,0 +1,11 @@
+{
+  "is_mining": true,
+  "mempool_initialized": true,
+  "current_block_height": 0,
+  "total_hashrate": 1.2,
+  "blocks_mined": 0,
+  "rewards_earned": 0.0,
+  "active_threads": 4,
+  "mining_pool": null,
+  "start_time": "2025-08-19T08:25:38.659117503Z"
+}

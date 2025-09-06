@@ -1,0 +1,161 @@
+# PARVYOM Metanode Real Testnet Configuration
+# Production-grade cloud-hosted testnet
+
+[network]
+mode = "Enterprise"
+network = "testnet"
+rpc_endpoint = "http://localhost:8545"
+testnet_rpc = "http://localhost:8545"
+local_blockchain = false
+connect_only = false
+
+[node]
+node_type = "full"
+data_dir = "/var/lib/parvyom-testnet"
+log_level = "info"
+full_node = true
+light_client = false
+
+[connection]
+allowed_networks = ["testnet"]
+forbidden_networks = ["mainnet"]
+remote_only = false
+
+[services]
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+registry_service = true
+rpc_service = true
+api_service = true
+
+# Public endpoints (will be configured with actual domains)
+public_rpc_url = "https://testnet-rpc.parvyom.network"
+public_ws_url = "wss://testnet-ws.parvyom.network"
+public_api_url = "https://testnet-api.parvyom.network"
+public_dashboard_url = "https://testnet-dashboard.parvyom.network"
+
+[database]
+# Production database configuration
+postgres_url = "postgresql://testnet:${DB_PASSWORD}@db.parvyom.network/testnet"
+redis_url = "redis://cache.parvyom.network:6379"
+connection_pool_size = 20
+max_connections = 100
+
+[consensus]
+algorithm = "ibft"
+block_time = 2
+epoch_length = 30000
+validators = [
+    # Initial validator set (will be replaced with actual validator addresses)
+    "0x742d35Cc6634C0532925a3b8D4C0b7C5C8C8b8b8",
+    "0x8ba1f109551bD432803012645Hac136c30d3b8b8",
+    "0x9ca2e210662cBd432803012645Hac136c30d4c9c9"
+]
+
+[mining]
+enabled = true
+rewards = true
+gas_limit = 8000000
+gas_price = 1000000000  # 1 gwei
+coinbase = "0x742d35Cc6634C0532925a3b8D4C0b7C5C8C8b8b8"
+
+[p2p]
+listen_address = "0.0.0.0:30303"
+max_peers = 50
+discovery_enabled = true
+bootstrap_nodes = [
+    "enode://validator-1.parvyom.network:30303",
+    "enode://validator-2.parvyom.network:30303",
+    "enode://validator-3.parvyom.network:30303"
+]
+
+[api]
+http_enabled = true
+ws_enabled = true
+cors_origins = ["*"]
+http_modules = ["eth", "net", "web3", "personal", "admin", "debug", "txpool"]
+ws_modules = ["eth", "net", "web3", "personal"]
+max_connections = 1000
+rate_limit = 1000  # requests per minute per IP
+
+[logging]
+level = "info"
+file = "/var/log/parvyom-testnet/server.log"
+max_size = "100MB"
+max_files = 10
+
+[monitoring]
+enabled = true
+prometheus_port = 9090
+grafana_port = 3001
+metrics_interval = 30  # seconds
+
+[security]
+# Production security settings
+tls_enabled = true
+cert_file = "/etc/ssl/certs/parvyom.crt"
+key_file = "/etc/ssl/private/parvyom.key"
+rate_limiting = true
+ddos_protection = true
+
+[storage]
+data_dir = "/var/lib/parvyom-testnet/data"
+logs_dir = "/var/log/parvyom-testnet"
+backup_enabled = true
+backup_interval = "24h"
+
+[registry]
+enabled = true
+authority_level = "testnet"
+node_registration = true
+identity_verification = false
+kyc_required = false
+aml_compliance = false
+
+[services]
+# Core blockchain services
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+bridge_service = true
+
+# Public services
+explorer_service = true
+faucet_service = true
+api_documentation = true
+
+# Bridge services for ecosystem
+community_bridge = true
+bpi_bridge = true
+enterprise_bridge = true
+
+[bridge]
+# Community node coordination
+community_nodes_max = 1000
+community_registration = true
+enterprise_nodes_max = 100
+enterprise_verification = true
+
+[faucet]
+enabled = true
+amount = "10.0"  # 10 testnet tokens per request
+cooldown = "24h"  # 24 hours between requests per address
+max_daily = "1000.0"  # Maximum tokens distributed per day
+
+[explorer]
+enabled = true
+blocks_per_page = 25
+transactions_per_page = 50
+search_enabled = true
+analytics_enabled = true
+
+[performance]
+# Production performance settings
+cache_size = "1GB"
+db_pool_size = 20
+worker_threads = 8
+max_block_size = "32MB"
+transaction_pool_size = 10000

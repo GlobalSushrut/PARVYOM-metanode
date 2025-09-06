@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPI Core Monitoring Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .metric-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status-active {
+            color: #4CAF50;
+        }
+        .status-inactive {
+            color: #f44336;
+        }
+        .refresh-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+        }
+        .refresh-btn:hover {
+            background: #45a049;
+        }
+        .last-updated {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 BPI Core Monitoring Dashboard</h1>
+            <p>Real-time monitoring of BPI VM Server and integrations</p>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">VM Server Status</div>
+                <div class="metric-value" id="vm-status">Loading...</div>
+                <div>Security Rating: <span id="security-rating">-</span>/10</div>
+                <div>Version: <span id="version">-</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">HTTP Cage Integration</div>
+                <div class="metric-value" id="http-cage-status">Loading...</div>
+                <div>Port: <span id="http-cage-port">-</span></div>
+                <div>Requests: <span id="http-cage-requests">-</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">Shadow Registry</div>
+                <div class="metric-value" id="shadow-registry-status">Loading...</div>
+                <div>Endpoint: <span id="shadow-registry-endpoint">-</span></div>
+                <div>Lookups: <span id="shadow-registry-lookups">-</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">ZKLock Integration</div>
+                <div class="metric-value" id="zklock-status">Loading...</div>
+                <div>Endpoint: <span id="zklock-endpoint">-</span></div>
+                <div>Connections: <span id="zklock-connections">-</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">System Statistics</div>
+                <div>Total Requests: <span id="total-requests">-</span></div>
+                <div>Running Instances: <span id="running-instances">-</span></div>
+                <div>Avg Response Time: <span id="avg-response-time">-</span>ms</div>
+                <div>Security Incidents: <span id="security-incidents">-</span></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">Post-Quantum Security</div>
+                <div class="metric-value" id="post-quantum-status">Loading...</div>
+                <div>Operations: <span id="post-quantum-ops">-</span></div>
+                <div>Isolation Level: <span id="isolation-level">-</span></div>
+            </div>
+        </div>
+
+        <div class="last-updated">
+            Last updated: <span id="last-updated">Never</span>
+        </div>
+    </div>
+
+    <script>
+        async function refreshData() {
+            try {
+                const response = await fetch('http://localhost:7777/__vm/status');
+                const data = await response.json();
+                
+                // VM Server Status
+                document.getElementById('vm-status').textContent = data.vm_server.status;
+                document.getElementById('vm-status').className = 'metric-value ' + 
+                    (data.vm_server.status === 'active' ? 'status-active' : 'status-inactive');
+                document.getElementById('security-rating').textContent = data.vm_server.security_rating;
+                document.getElementById('version').textContent = data.vm_server.version;
+                
+                // HTTP Cage
+                document.getElementById('http-cage-status').textContent = 
+                    data.integrations.http_cage.enabled ? 'Enabled' : 'Disabled';
+                document.getElementById('http-cage-status').className = 'metric-value ' + 
+                    (data.integrations.http_cage.enabled ? 'status-active' : 'status-inactive');
+                document.getElementById('http-cage-port').textContent = data.integrations.http_cage.port;
+                document.getElementById('http-cage-requests').textContent = data.integrations.http_cage.requests;
+                
+                // Shadow Registry
+                document.getElementById('shadow-registry-status').textContent = 
+                    data.integrations.shadow_registry.enabled ? 'Enabled' : 'Disabled';
+                document.getElementById('shadow-registry-status').className = 'metric-value ' + 
+                    (data.integrations.shadow_registry.enabled ? 'status-active' : 'status-inactive');
+                document.getElementById('shadow-registry-endpoint').textContent = data.integrations.shadow_registry.endpoint;
+                document.getElementById('shadow-registry-lookups').textContent = data.integrations.shadow_registry.lookups;
+                
+                // ZKLock
+                document.getElementById('zklock-status').textContent = 
+                    data.integrations.zklock.enabled ? 'Enabled' : 'Disabled';
+                document.getElementById('zklock-status').className = 'metric-value ' + 
+                    (data.integrations.zklock.enabled ? 'status-active' : 'status-inactive');
+                document.getElementById('zklock-endpoint').textContent = data.integrations.zklock.endpoint;
+                document.getElementById('zklock-connections').textContent = data.integrations.zklock.connections;
+                
+                // Statistics
+                document.getElementById('total-requests').textContent = data.statistics.total_requests;
+                document.getElementById('running-instances').textContent = data.statistics.running_instances;
+                document.getElementById('avg-response-time').textContent = data.statistics.avg_response_time_ms;
+                document.getElementById('security-incidents').textContent = data.statistics.security_incidents;
+                
+                // Post-Quantum Security
+                document.getElementById('post-quantum-status').textContent = 
+                    data.vm_server.post_quantum_enabled ? 'Active' : 'Inactive';
+                document.getElementById('post-quantum-status').className = 'metric-value ' + 
+                    (data.vm_server.post_quantum_enabled ? 'status-active' : 'status-inactive');
+                document.getElementById('post-quantum-ops').textContent = data.statistics.post_quantum_operations;
+                document.getElementById('isolation-level').textContent = data.vm_server.isolation_level;
+                
+                document.getElementById('last-updated').textContent = new Date().toLocaleString();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('vm-status').textContent = 'Error';
+                document.getElementById('vm-status').className = 'metric-value status-inactive';
+            }
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshData, 5000);
+        
+        // Initial load
+        refreshData();
+    </script>
+</body>
+</html>
