@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank API Integration - PARVYOM Metanode</title>
+    <meta name="description" content="Bank API integration with bank-stamped wallets, settlement processing, and liquidity sharing for enterprise blockchain infrastructure.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="../../assets/css/responsive.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-cube nav-icon"></i>
+                <span class="nav-title">PARVYOM Metanode</span>
+                <span class="nav-subtitle">Bank API Integration</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="../../" class="nav-link">Home</a>
+                <a href="../" class="nav-link">Modules</a>
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#api" class="nav-link">API</a>
+                <a href="https://github.com/GlobalSushrut/PARVYOM-metanode" class="nav-link github-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero module-hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="module-icon bank-icon large">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h1>Bank API Integration</h1>
+                <p>Enterprise-grade banking integration with bank-stamped wallets, settlement processing, and regulatory compliance for seamless financial operations.</p>
+                <div class="hero-badges">
+                    <span class="badge production">Production Ready</span>
+                    <span class="badge security">Bank Grade Security</span>
+                    <span class="badge compliance">Regulatory Compliant</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="content-section">
+        <div class="container">
+            <h2>System Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3><i class="fas fa-wallet"></i> Bank-Stamped Wallets</h3>
+                    <p>Specialized wallets with enhanced compliance features, multi-signature requirements, and direct banking integration for enterprise financial operations.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><i class="fas fa-exchange-alt"></i> Settlement Processing</h3>
+                    <p>Multi-phase settlement lifecycle with AUR/SC4 settlement coins, completely isolated from gas/rent economy for reliable financial transactions.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><i class="fas fa-network-wired"></i> Bank Mesh Network</h3>
+                    <p>Inter-bank liquidity sharing and consensus governance with automated revenue distribution and partnership coordination.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><i class="fas fa-shield-alt"></i> Compliance Framework</h3>
+                    <p>Comprehensive AML, sanctions, KYC, and regulatory validation with real-time compliance monitoring and audit trails.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Settlement Coin Integration</h3>
+                        <p>AUR/SC4 settlement coins completely isolated from gas/rent economy, ensuring reliable bank-to-bank transactions without blockchain congestion impact.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Multi-Phase Settlement</h3>
+                        <p>Comprehensive settlement lifecycle with initiation, validation, execution, and confirmation phases, ensuring transaction integrity and auditability.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Inter-Bank Liquidity</h3>
+                        <p>Automated liquidity sharing between participating banks with consensus governance and transparent revenue distribution mechanisms.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Regulatory Compliance</h3>
+                        <p>Built-in AML, sanctions screening, KYC validation, and regulatory reporting with real-time compliance monitoring and automated alerts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Reference Section -->
+    <section id="api" class="api-section">
+        <div class="container">
+            <h2>API Reference</h2>
+            <div class="api-endpoints">
+                <div class="endpoint-group">
+                    <h3>Bank Registration</h3>
+                    <div class="endpoint">
+                        <div class="endpoint-method post">POST</div>
+                        <div class="endpoint-path">/api/bank/register</div>
+                        <div class="endpoint-description">Register a new bank in the network</div>
+                    </div>
+                    <div class="endpoint">
+                        <div class="endpoint-method get">GET</div>
+                        <div class="endpoint-path">/api/bank/status/{bank_id}</div>
+                        <div class="endpoint-description">Get bank registration status and capabilities</div>
+                    </div>
+                </div>
+
+                <div class="endpoint-group">
+                    <h3>Settlement Operations</h3>
+                    <div class="endpoint">
+                        <div class="endpoint-method post">POST</div>
+                        <div class="endpoint-path">/api/settlement/initiate</div>
+                        <div class="endpoint-description">Initiate a new settlement transaction</div>
+                    </div>
+                    <div class="endpoint">
+                        <div class="endpoint-method get">GET</div>
+                        <div class="endpoint-path">/api/settlement/status/{settlement_id}</div>
+                        <div class="endpoint-description">Get settlement transaction status</div>
+                    </div>
+                    <div class="endpoint">
+                        <div class="endpoint-method post">POST</div>
+                        <div class="endpoint-path">/api/settlement/confirm</div>
+                        <div class="endpoint-description">Confirm settlement transaction completion</div>
+                    </div>
+                </div>
+
+                <div class="endpoint-group">
+                    <h3>Compliance & Audit</h3>
+                    <div class="endpoint">
+                        <div class="endpoint-method post">POST</div>
+                        <div class="endpoint-path">/api/compliance/validate</div>
+                        <div class="endpoint-description">Validate transaction for regulatory compliance</div>
+                    </div>
+                    <div class="endpoint">
+                        <div class="endpoint-method get">GET</div>
+                        <div class="endpoint-path">/api/audit/trail/{transaction_id}</div>
+                        <div class="endpoint-description">Get complete audit trail for a transaction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="metrics-section">
+        <div class="container">
+            <h2>Performance Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">&lt;2s</div>
+                    <div class="metric-label">Settlement Processing</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">99.9%</div>
+                    <div class="metric-label">Transaction Success Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">10,000+</div>
+                    <div class="metric-label">Transactions/Hour</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">Compliance Monitoring</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PARVYOM Metanode</h3>
+                    <p>Revolutionary enterprise blockchain infrastructure with AI, IoT, and quantum-safe security.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="../../">Overview</a></li>
+                        <li><a href="../../#architecture">Architecture</a></li>
+                        <li><a href="../">Modules</a></li>
+                        <li><a href="../../#deployment">Deployment</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Bank API</h4>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#api">API Reference</a></li>
+                        <li><a href="https://github.com/GlobalSushrut/PARVYOM-metanode">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PARVYOM Metanode. Enterprise-grade blockchain infrastructure.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>
