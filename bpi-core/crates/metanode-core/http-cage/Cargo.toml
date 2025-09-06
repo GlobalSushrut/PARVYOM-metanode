@@ -27,6 +27,9 @@ serde_json = "1.0"
 serde_yaml = "0.9"
 bincode = "1.0"
 
+# ZIPLOCK-JSON comprehensive audit integration
+ziplock-json = { path = "../../ziplock-json" }
+
 # HTTP parsing and validation
 httparse = "1.0"
 http = "1.0"

@@ -291,7 +291,7 @@ impl PoECalculator {
     /// Estimate resource usage from LogBlock metadata
     fn estimate_usage_from_logblock(&self, logblock: &LogBlock) -> Result<ResourceUsage> {
         // Parse time range to estimate duration
-        let duration_s = self.parse_time_range(&logblock.range)?;
+        let _duration_s = self.parse_time_range(&logblock.range)?;
         
         // Estimate usage based on receipt count and duration
         // These are rough estimates - in production, we'd parse actual StepReceipts

@@ -1,0 +1,72 @@
+[package]
+name = "bpi-immutable-os"
+version = "1.0.0"
+edition = "2021"
+authors = ["BPI Core Team"]
+description = "BPI Immutable OS Installer - Transform any Linux into immutable BPI Core OS"
+license = "MIT"
+
+[[bin]]
+name = "bpi-immutable-installer"
+path = "src/main.rs"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+# System interaction
+sysinfo = "0.30"
+nix = { version = "0.27", features = ["user"] }
+libc = "0.2"
+
+# Filesystem operations
+walkdir = "2.4"
+tempfile = "3.8"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# HTTP client for real service health checks
+reqwest = { version = "0.11", features = ["json"] }
+
+# Random number generation for cryptographic keys
+rand = "0.8"
+toml = "0.8"
+
+# Cryptography (BPI integration)
+sha2 = "0.10"
+blake3 = "1.5"
+ed25519-dalek = "2.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Command execution
+which = "5.0"
+
+# UUID generation
+uuid = { version = "1.6", features = ["v4"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Process management
+subprocess = "0.2"
+
+[features]
+default = ["hardware-detection", "security-hardening", "bpi-integration"]
+hardware-detection = []
+security-hardening = []
+bpi-integration = []
+atomic-updates = []
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

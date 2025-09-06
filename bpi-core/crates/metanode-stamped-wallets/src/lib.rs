@@ -24,6 +24,7 @@ pub mod stamp_types;
 pub mod bank_stamped_simple;
 pub mod government_stamped;
 pub mod economics_integration;
+pub mod bpi_wallet_registry;
 // Future modules - not implemented yet
 // pub mod stamp_registry;
 // pub mod compliance;
@@ -57,6 +58,14 @@ pub enum StampedWalletError {
     AuthorityNotFound(String),
     #[error("Verification failed: {0}")]
     VerificationFailed(String),
+    #[error("Security violation: {0}")]
+    SecurityViolation(String),
+    #[error("Wallet not found: {0}")]
+    WalletNotFound(String),
+    #[error("Invalid operation: {0}")]
+    InvalidOperation(String),
+    #[error("Invalid credentials: {0}")]
+    InvalidCredentials(String),
     #[error("Configuration error: {0}")]
     ConfigurationError(String),
     #[error("Network error: {0}")]

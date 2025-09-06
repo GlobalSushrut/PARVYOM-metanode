@@ -1,0 +1,61 @@
+/* Enterprise Page - AGGRESSIVE Text Contrast Fix */
+
+/* FORCE ALL TEXT TO BE WHITE BY DEFAULT */
+.enterprise-page,
+.enterprise-page *,
+.enterprise-page h1,
+.enterprise-page h2, 
+.enterprise-page h3,
+.enterprise-page h4,
+.enterprise-page h5,
+.enterprise-page h6,
+.enterprise-page p,
+.enterprise-page div,
+.enterprise-page span,
+.enterprise-page li,
+.enterprise-page ul,
+.enterprise-page .ant-typography,
+.enterprise-page .ant-typography-title,
+.enterprise-page .ant-typography-paragraph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* CARDS - Force white background with BLACK text */
+.enterprise-page .ant-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.enterprise-page .ant-card,
+.enterprise-page .ant-card *,
+.enterprise-page .ant-card h1,
+.enterprise-page .ant-card h2,
+.enterprise-page .ant-card h3,
+.enterprise-page .ant-card h4,
+.enterprise-page .ant-card h5,
+.enterprise-page .ant-card h6,
+.enterprise-page .ant-card p,
+.enterprise-page .ant-card div,
+.enterprise-page .ant-card span,
+.enterprise-page .ant-card li,
+.enterprise-page .ant-card ul {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* LIGHT SECTIONS - Force light background with BLACK text */
+.enterprise-page .bg-white,
+.enterprise-page .bg-blue-50,
+.enterprise-page .bg-yellow-50,
+.enterprise-page .bg-gray-50 {
+  background: #ffffff !important;
+}
+
+.enterprise-page .bg-white *,
+.enterprise-page .bg-blue-50 *,
+.enterprise-page .bg-yellow-50 *,
+.enterprise-page .bg-gray-50 * {
+  color: #000000 !important;
+  text-shadow: none !important;
+}

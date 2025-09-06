@@ -1,0 +1,39 @@
+[package]
+name = "enc-cluster-manager"
+version = "0.1.0"
+edition = "2021"
+authors = ["BPI Core Team <dev@bpi.foundation>"]
+description = "ENC Cluster Manager - Revolutionary orchestration system for BPI nodes"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bpi-foundation/metanode"
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+dashmap = "5.0"
+blake3 = "1.0"
+ed25519-dalek = "2.0"
+cue-lang = "0.1"
+
+# BPI Core dependencies
+http-cage = { path = "../http-cage" }
+bpi-enc = { path = "../../metanode-security/bpi-enc" }
+split-origin-auditing = { path = "../../metanode-security/split-origin-auditing" }
+court-node = { path = "../../metanode-security/court-node" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.0"
+
+[features]
+default = ["full-security"]
+full-security = ["quantum-crypto", "zk-privacy"]
+quantum-crypto = []
+zk-privacy = []
+test-mode = []

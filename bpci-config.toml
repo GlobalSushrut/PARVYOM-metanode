@@ -1,0 +1,28 @@
+[network]
+mode = "Development"
+network = "devnet"
+rpc_endpoint = "http://localhost:8545"
+testnet_rpc = "http://localhost:8545"
+local_blockchain = true
+connect_only = false
+
+[node]
+node_type = "full"
+data_dir = "./data"
+log_level = "info"
+full_node = true
+light_client = false
+
+[connection]
+allowed_networks = ["localhost", "localnet", "devnet"]
+forbidden_networks = ["mainnet", "testnet"]
+remote_only = false
+
+[services]
+wallet_service = true
+mining_service = true
+governance_service = true
+notary_service = true
+registry_service = true
+rpc_service = true
+api_service = true

@@ -3,7 +3,7 @@
 
 [network]
 name = "bpci-server"
-mode = "community-bridge"
+mode = "Server"
 server_id = "bpci-server-001"
 listen_addr = "0.0.0.0:9545"
 rpc_port = 9545

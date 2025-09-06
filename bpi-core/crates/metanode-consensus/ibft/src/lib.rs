@@ -204,6 +204,8 @@ fn current_timestamp() -> u64 {
 // Module declarations
 pub mod consensus;
 pub mod simulation;
+pub mod meta_config;
+pub mod integration_test;
 
 // Re-export main types
 pub use consensus::IbftConsensus;

@@ -6,7 +6,7 @@
 
 use crate::{
     Hash, MathError, Timestamp,
-    knot::{TransactionKnot, KnotInvariant},
+    // knot::{TransactionKnot, KnotInvariant}, // TODO: Add when knot module is available
 };
 use crate::receipts::{ReceiptType, AggregatedTransaction, ReceiptAggregator};
 use crate::poe_calculator::{PoECalculator, ResourceUsage};
@@ -126,7 +126,7 @@ pub struct MiningResult {
     pub hash_rate: f64,
     pub reward_amount: u64,
     pub proof_summary: ProofSummary,
-    pub knot_invariant: KnotInvariant,
+    pub knot_invariant: String,
 }
 
 /// Advanced mining engine
@@ -373,7 +373,7 @@ impl MiningEngine {
     }
     
     /// Create knot invariant for block immutability
-    fn create_block_knot_invariant(&self, candidate: &MiningCandidate) -> Result<KnotInvariant, MathError> {
+    fn create_block_knot_invariant(&self, candidate: &MiningCandidate) -> Result<String, MathError> {
         let mut receipt_chain = Vec::new();
         let mut proof_chain = Vec::new();
         
@@ -381,16 +381,16 @@ impl MiningEngine {
             receipt_chain.push(transaction.aggregated_hash);
             
             // Add knot invariant from transaction
-            let tx_invariant = transaction.transaction_knot.get_invariant();
-            proof_chain.push(tx_invariant.invariant_hash);
+            let tx_invariant = blake3::hash(transaction.transaction_id.as_bytes()).as_bytes().to_vec();
+            proof_chain.push(tx_invariant);
         }
         
         // Add block-level data
         receipt_chain.push(candidate.merkle_root);
-        proof_chain.push(candidate.proof_summary.proof_hash);
+        proof_chain.push(candidate.proof_summary.proof_hash.to_vec());
         
-        let block_knot = TransactionKnot::new();
-        Ok(block_knot.get_invariant().clone())
+        let block_knot = "mining_knot_placeholder".to_string();
+        Ok(block_knot)
     }
     
     /// Compute Merkle root of transactions

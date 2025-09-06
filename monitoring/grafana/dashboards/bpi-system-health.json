@@ -1,0 +1,198 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "🏠 BPI System Health - BPCI Connection Status",
+    "tags": ["bpi", "system", "health", "bpci"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "🚨 CRITICAL: BPCI Connection Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "probe_success{instance=\"http://localhost:7777/__vm/status\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "none",
+            "displayName": "BPCI Connection"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "background"
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "🏠 BPI Core Services Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"bpi-vm-server\"}",
+            "refId": "A",
+            "legendFormat": "VM Server"
+          },
+          {
+            "expr": "up{job=\"bpi-http-cage\"}",
+            "refId": "B",
+            "legendFormat": "HTTP Cage"
+          },
+          {
+            "expr": "up{job=\"bpi-shadow-registry\"}",
+            "refId": "C",
+            "legendFormat": "Shadow Registry"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "🔗 BPI-BPCI Integration Health",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(bpi_bpci_requests_total[5m])",
+            "refId": "A",
+            "legendFormat": "BPCI Requests/sec"
+          },
+          {
+            "expr": "rate(bpi_wallet_registrations_total[5m])",
+            "refId": "B",
+            "legendFormat": "Wallet Registrations/sec"
+          },
+          {
+            "expr": "rate(bpi_poe_submissions_total[5m])",
+            "refId": "C",
+            "legendFormat": "POE Submissions/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests per second",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "⚠️ BPI Dependency Alert",
+        "type": "text",
+        "options": {
+          "content": "# ⚠️ CRITICAL DEPENDENCY\n\n**BPI CORE CANNOT FUNCTION WITHOUT BPCI SERVER CONNECTION**\n\n- All consensus operations require BpciTransport\n- All wallet operations require BPCI registry\n- All mining operations send POE proofs to BPCI\n- All transactions require BPCI gas/rent payments\n\nIf BPCI connection is down, BPI will not operate.",
+          "mode": "markdown"
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 5,
+        "title": "🌐 External BPCI Server Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"external-bpci-server\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "displayName": "External BPCI Server"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 1
+  }
+}

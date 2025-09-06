@@ -113,6 +113,9 @@ impl NodeRegistration {
                 min_stake
             },
             NodeType::Hybrid { .. } => 500000, // 500K tokens for hybrid
+            NodeType::BankApiRegistry { .. } => 10000000, // 10M tokens for bank registry (highest security)
+            NodeType::GovernmentApiRegistry { .. } => 15000000, // 15M tokens for government registry (highest authority)
+            NodeType::RoundtableApi { .. } => 5000000, // 5M tokens for governance coordination
         }
     }
 
@@ -129,6 +132,9 @@ impl NodeRegistration {
             NodeType::BpiCommunity { .. } => 100,
             NodeType::BpciEnterprise { .. } => 500,
             NodeType::Hybrid { .. } => 300,
+            NodeType::BankApiRegistry { .. } => 900, // Highest trust for bank operations
+            NodeType::GovernmentApiRegistry { .. } => 950, // Maximum trust for government operations
+            NodeType::RoundtableApi { .. } => 800, // High trust for governance coordination
         };
 
         if trust_score < min_trust_required {
@@ -588,6 +594,24 @@ impl RegistrationService {
                 steps.push("Coordinate with bank sponsor".to_string());
                 steps.push("Set up community operation protocols".to_string());
             },
+            NodeType::BankApiRegistry { .. } => {
+                steps.push("Complete bank regulatory compliance verification".to_string());
+                steps.push("Set up bank-stamped BPI infrastructure".to_string());
+                steps.push("Configure autonomous economy protocols".to_string());
+                steps.push("Implement enhanced security protocols".to_string());
+            },
+            NodeType::GovernmentApiRegistry { .. } => {
+                steps.push("Complete government authority verification".to_string());
+                steps.push("Set up government-stamped BPI infrastructure".to_string());
+                steps.push("Configure jurisdictional management protocols".to_string());
+                steps.push("Implement emergency response capabilities".to_string());
+            },
+            NodeType::RoundtableApi { .. } => {
+                steps.push("Set up parliament-style governance infrastructure".to_string());
+                steps.push("Configure voting and consensus mechanisms".to_string());
+                steps.push("Implement audit and transparency features".to_string());
+                steps.push("Establish coordination protocols".to_string());
+            },
         }
         
         steps.push("Complete node health checks".to_string());
@@ -601,6 +625,9 @@ impl RegistrationService {
             NodeType::BpiCommunity { .. } => "1-2 days".to_string(),
             NodeType::BpciEnterprise { .. } => "1-2 weeks".to_string(),
             NodeType::Hybrid { .. } => "2-4 weeks".to_string(),
+            NodeType::BankApiRegistry { .. } => "4-8 weeks".to_string(), // Extended time for regulatory compliance
+            NodeType::GovernmentApiRegistry { .. } => "6-12 weeks".to_string(), // Longest time for government verification
+            NodeType::RoundtableApi { .. } => "3-6 weeks".to_string(), // Moderate time for governance setup
         }
     }
 }

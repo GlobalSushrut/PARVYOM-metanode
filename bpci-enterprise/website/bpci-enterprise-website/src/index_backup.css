@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* BPCI Enterprise - Clean Professional Styles */
+:root {
+  --primary-blue: #1e40af;
+  --primary-purple: #7c3aed;
+  --primary-teal: #0891b2;
+  --secondary-gray: #374151;
+  --secondary-green: #059669;
+  --secondary-orange: #ea580c;
+  --secondary-red: #dc2626;
+}
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: #374151;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1.125rem; }
+
+  h6 {
+    @apply text-base md:text-lg;
+  }
+}
+
+/* BPCI Enterprise Component Styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-blue hover:bg-primary-blue/90 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200 inline-flex items-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium px-6 py-3 rounded-lg transition-colors duration-200 inline-flex items-center gap-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 inline-flex items-center gap-2;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-neutral-200 p-6;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-md hover:border-neutral-300 transition-all duration-200;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-blue) 100%);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-blue to-primary-purple bg-clip-text text-transparent;
+  }
+
+  /* Enterprise Layout */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  /* Post-Quantum Security Aesthetic */
+  .quantum-glow {
+    box-shadow: 0 0 20px rgba(107, 70, 193, 0.3);
+  }
+
+  .security-border {
+    @apply border-2 border-primary-purple/20 rounded-lg;
+  }
+}
+
+/* BPCI Enterprise Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Clean, professional enterprise styles - no conflicts */

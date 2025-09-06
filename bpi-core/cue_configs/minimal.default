@@ -1,0 +1,65 @@
+package bpi_core
+
+// Minimal Default Configuration for BPI Core - Lightweight Setup
+minimal: {
+	// Minimal system configuration
+	system: {
+		type: "minimal_bpi_core"
+		version: "1.0"
+		profile: "lightweight"
+		ram_target: "512MB"
+	}
+
+	// Essential services only
+	services: {
+		bpi_core: {
+			enabled: true
+			minimal_mode: true
+		}
+		court_node: {
+			enabled: true
+			basic_contracts_only: true
+		}
+		oracle: {
+			enabled: false
+			local_only: true
+		}
+	}
+
+	// Minimal security
+	security: {
+		basic_encryption: true
+		simple_auth: true
+		audit_logging: "essential_only"
+	}
+
+	// Minimal storage
+	storage: {
+		local_only: true
+		encryption: "basic"
+		backup: false
+	}
+
+	// Minimal networking
+	networking: {
+		local_interface_only: true
+		firewall: "basic"
+		ssl: "self_signed"
+	}
+
+	// Resource limits
+	resources: {
+		cpu_limit: "1000m"
+		memory_limit: "512Mi"
+		disk_limit: "2Gi"
+		network_bandwidth: "100Mbps"
+	}
+
+	// Default agreements
+	default_agreements: {
+		basic_escrow: true
+		simple_payment: true
+		data_sharing: false
+		governance: false
+	}
+}

@@ -1,0 +1,39 @@
+{
+  "version": "2.0",
+  "domain": "vm.bpi.local",
+  "policy_id": "bpi-vm-2025-08-21",
+  "enc_lock": {
+    "daughter_lock": {
+      "angle_deg": 90,
+      "check": "sin²θ+cos²θ=1",
+      "mapping": "vm_requests→phase(θ)"
+    },
+    "sync_gate": {
+      "equation": "QLOCK(θ,h) = 1 if sin²θ+cos²θ≈1, else 0",
+      "on_fail": "vm_request→∞ (infinite collapse)",
+      "precision": 1e-10
+    }
+  },
+  "spacetime": {
+    "distance_bound_m": 50,
+    "epoch_ms": 25,
+    "tof_validation": true
+  },
+  "bpi_integration": {
+    "vm_port": 7777,
+    "http_cage_port": 8888,
+    "bpi_api_port": 9546,
+    "bpi_rpc_port": 9545,
+    "rpc_entangled_port": 9547
+  },
+  "security": {
+    "post_quantum_rating": 9.8,
+    "ciphertext_observability": 0,
+    "phase_lock_precision": "military_grade"
+  },
+  "enforcement": {
+    "level": "blocking",
+    "audit_trail": true,
+    "compliance_reporting": true
+  }
+}

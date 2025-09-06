@@ -41,6 +41,5 @@ metanode-security = { path = "../bpi-core/crates/metanode-security" }
 name = "metanode_integration_tests"
 path = "lib.rs"
 
-[[test]]
-name = "integration"
-path = "integration/mod.rs"
+# Integration tests are now part of the library and can access modules via crate::
+# Remove separate test binary configuration to allow proper module access

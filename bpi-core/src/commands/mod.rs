@@ -4,7 +4,10 @@ pub mod config;
 pub mod chain;
 pub mod enterprise;
 pub mod docklock;
+pub mod http_cage;
+pub mod enc_cluster;
 pub mod stubs;
+pub mod node_coordinator;
 
 // Re-export command types
 pub use types::*;
@@ -320,8 +323,32 @@ pub enum DocklockSecurityCommands {
     Compliance { container_id: String },
 }
 
+// HTTP Cage operations
+#[derive(Subcommand, Clone)]
+pub enum HttpCageCommands {
+    /// Start HTTP Cage server
+    Start {
+        #[arg(long, default_value = "8888")]
+        port: u16,
+        #[arg(long)]
+        frontend_dir: Option<String>,
+        #[arg(long, default_value = "http://localhost:3000")]
+        backend_url: String,
+        #[arg(long, default_value = "true")]
+        quantum_safe: bool,
+        #[arg(long, default_value = "9")]
+        security_rating: u8,
+    },
+    /// Show HTTP Cage status
+    Status,
+    /// Stop HTTP Cage server
+    Stop,
+    /// Show HTTP Cage metrics
+    Metrics,
+}
+
 // ENC cluster operations
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum EncCommands {
     /// Deploy ENC cluster
     Deploy,
@@ -347,7 +374,7 @@ pub enum EncCommands {
     Network(EncNetworkCommands),
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum EncWorkloadCommands {
     List,
     Deploy { name: String, image: String },
@@ -356,7 +383,7 @@ pub enum EncWorkloadCommands {
     Logs { name: String },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum EncNetworkCommands {
     Status,
     Policies,

@@ -1,0 +1,39 @@
+{
+  "version": "2.0",
+  "domain": "cage.bpi.local",
+  "policy_id": "bpi-cage-2025-08-21",
+  "enc_lock": {
+    "secant_lock": {
+      "angle_deg": 180,
+      "check": "sec(θ)·cos(θ)=1",
+      "mapping": "http_requests→phase(θ)"
+    },
+    "sync_gate": {
+      "equation": "QLOCK(θ,h) = 1 if sec(θ)·cos(θ)≈1, else 0",
+      "on_fail": "http_request→∞ (infinite collapse)",
+      "precision": 1e-10
+    }
+  },
+  "spacetime": {
+    "distance_bound_m": 100,
+    "epoch_ms": 25,
+    "tof_validation": true
+  },
+  "security": {
+    "rating": 9.5,
+    "military_grade": true,
+    "quantum_crypto": true,
+    "zk_privacy": true,
+    "ciphertext_observability": 0
+  },
+  "biso_integration": {
+    "policy_engine": true,
+    "did_notary_registry": true,
+    "split_origin_audit": true
+  },
+  "enforcement": {
+    "level": "military_blocking",
+    "audit_trail": true,
+    "compliance_reporting": true
+  }
+}

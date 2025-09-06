@@ -1,0 +1,80 @@
+{
+  "version": "2.0",
+  "domain": "core.bpi.local",
+  "policy_id": "bpi-core-2025-08-21",
+  "enc_lock": {
+    "combined_lock": {
+      "daughter_angle_deg": 90,
+      "secant_angle_deg": 180,
+      "check": "(sin²θ+cos²θ=1) ∧ (sec(φ)·cos(φ)=1)",
+      "mapping": "blockchain_ops→phase(θ,φ)"
+    },
+    "sync_gate": {
+      "equation": "QLOCK(θ,φ,h) = 1 if (sin²θ+cos²θ≈1) ∧ (sec(φ)·cos(φ)≈1), else 0",
+      "on_fail": "blockchain_request→∞ (infinite collapse)",
+      "precision": 1e-12
+    }
+  },
+  "spacetime": {
+    "distance_bound_m": 200,
+    "epoch_ms": 25,
+    "tof_validation": true,
+    "consensus_sync": true
+  },
+  "bpi_services": {
+    "api_port": 9546,
+    "rpc_port": 9545,
+    "consensus_enabled": true,
+    "mempool_enabled": true,
+    "wallet_integration": true
+  },
+  "security": {
+    "post_quantum_rating": 9.9,
+    "consensus_security": true,
+    "transaction_privacy": true,
+    "ciphertext_observability": 0
+  },
+  "wallet_types": [
+    {
+      "type": "normal",
+      "enc_lock": "basic_90deg",
+      "access_level": "standard"
+    },
+    {
+      "type": "compliance",
+      "enc_lock": "enhanced_90_180deg",
+      "access_level": "compliance"
+    },
+    {
+      "type": "regulated",
+      "enc_lock": "military_grade",
+      "access_level": "regulated"
+    },
+    {
+      "type": "government",
+      "enc_lock": "maximum_security",
+      "access_level": "government"
+    },
+    {
+      "type": "emergency_hipaa",
+      "enc_lock": "medical_grade",
+      "access_level": "medical"
+    },
+    {
+      "type": "bank",
+      "enc_lock": "banking_grade",
+      "access_level": "banking"
+    },
+    {
+      "type": "community",
+      "enc_lock": "community_grade",
+      "access_level": "community"
+    }
+  ],
+  "enforcement": {
+    "level": "consensus_blocking",
+    "audit_trail": true,
+    "compliance_reporting": true,
+    "blockchain_logging": true
+  }
+}

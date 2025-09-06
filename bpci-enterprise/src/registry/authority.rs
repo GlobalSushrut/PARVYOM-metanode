@@ -138,6 +138,14 @@ pub enum CommunityRole {
     Validator,
     /// Governance participant
     Governor,
+    /// Notary services provider
+    Notary,
+    /// System operator
+    Operator,
+    /// Audit and compliance specialist
+    Auditor,
+    /// Governance coordinator
+    Governance,
     /// Community leader
     Leader,
     /// Dispute resolver
