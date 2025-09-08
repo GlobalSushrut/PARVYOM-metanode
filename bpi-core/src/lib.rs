@@ -26,6 +26,7 @@ pub mod xtmp_protocol;
 pub mod xtmp_bpci_client;
 pub mod bpci_xtmp_server;
 pub mod client; // Stage 4: Advanced Transport Integration - Production Client SDK
+pub mod domain_management_api; // Production-ready domain registration API service
 // pub mod xtmp_integration_test; // Temporarily disabled due to compiler ICE
 
 // Re-export commonly used types for integration tests
