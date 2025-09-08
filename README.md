@@ -25,9 +25,37 @@ PARVYOM Metanode is an **infrastructure orchestration system** that coordinates 
 **Two-Layer Architecture:**
 
 1. **BPI Core** - The infrastructure foundation (ports 9001-9007)
-2. **BPCI Enterprise** - The orchestration layer (port 8080)
+2. **BPCI Enterprise** - The orchestration layer (hosted at https://www.pravyom.com/connect)
 
 BPCI coordinates everything: consensus, storage, compute, networking, and economics across multiple blockchain systems.
+
+## Complete Deployment Flow
+
+### 1. BPCI Server Deployment
+BPCI Enterprise will be hosted on a server inside the httpcg network using Shadow Registry at:
+```
+https://www.pravyom.com/connect
+```
+This provides the central coordination point for all BPI nodes and enterprise services.
+
+### 2. PravyomOS Installation
+For end users, the complete OS with BPI Core included will be installable via:
+```bash
+sudo apt-get install pravyomOS
+```
+This installs the complete operating system with integrated BPI Core infrastructure.
+
+### 3. Wallet & Dashboard Experience
+After installation, users access their system through:
+```bash
+pravyom wallet open
+```
+
+This opens a **beautiful BPI Core wallet** with:
+- **Advanced OS dashboard** with live BPI Core management
+- **Visual info board** showing real-time system status
+- **Password setup** on first launch for security
+- **Complete BPI Core layer visibility** and control
 
 ## Current Status (Honest Assessment)
 

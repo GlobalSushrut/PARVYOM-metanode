@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pravyom Wallet - BPI Core Management</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/pravyom-icon.svg">
+    
+    <!-- Modern CSS Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-running { background-color: var(--success-color); }
+        .status-stopped { background-color: var(--error-color); }
+        .status-starting { background-color: var(--warning-color); animation: pulse 2s infinite; }
+        .status-error { background-color: var(--error-color); animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success { background: var(--success-color); }
+        .notification.error { background: var(--error-color); }
+        .notification.warning { background: var(--warning-color); }
+        
+        .loading-spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tab-container {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen p-4">
+        <!-- Header -->
+        <header class="glass-effect rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">P</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Pravyom Wallet</h1>
+                        <p class="text-sm text-gray-300">BPI Core Infrastructure Management</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div id="connection-status" class="status-indicator status-stopped"></div>
+                        <span id="connection-text" class="text-sm">Disconnected</span>
+                    </div>
+                    
+                    <button id="wallet-lock-btn" class="btn-secondary">
+                        <span id="lock-icon">🔒</span>
+                        <span id="lock-text">Locked</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="card p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Wallet Overview</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-400">Address</label>
+                            <p id="wallet-address" class="text-sm font-mono break-all">Loading...</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400">Balance</label>
+                            <p id="wallet-balance" class="text-xl font-bold">0.00 BPI</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400">Network</label>
+                            <p id="wallet-network" class="text-sm">testnet</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-2">
+                        <button id="send-btn" class="btn-primary w-full">Send BPI</button>
+                        <button id="receive-btn" class="btn-secondary w-full">Receive</button>
+                    </div>
+                </div>
+                
+                <!-- System Health -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold mb-4">System Health</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Health Score</span>
+                                <span id="health-score">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="health-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>CPU Usage</span>
+                                <span id="cpu-usage">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="cpu-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Memory Usage</span>
+                                <span id="memory-usage">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="memory-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Panel -->
+            <div class="lg:col-span-3">
+                <!-- Tabs -->
+                <div class="tab-container">
+                    <div class="tab active" data-tab="dashboard">Dashboard</div>
+                    <div class="tab" data-tab="components">Components</div>
+                    <div class="tab" data-tab="transactions">Transactions</div>
+                    <div class="tab" data-tab="logs">Logs</div>
+                </div>
+                
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content">
+                    <!-- Metrics Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="metric-card">
+                            <h4 class="text-sm font-medium text-gray-400 mb-2">Total Components</h4>
+                            <p id="total-components" class="text-2xl font-bold">28</p>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h4 class="text-sm font-medium text-gray-400 mb-2">Running</h4>
+                            <p id="running-components" class="text-2xl font-bold text-green-400">0</p>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h4 class="text-sm font-medium text-gray-400 mb-2">Stopped</h4>
+                            <p id="stopped-components" class="text-2xl font-bold text-red-400">28</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card p-6 mb-6">
+                        <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <button id="start-core-btn" class="btn-primary">Start Core</button>
+                            <button id="stop-all-btn" class="btn-secondary">Stop All</button>
+                            <button id="refresh-btn" class="btn-secondary">Refresh</button>
+                            <button id="backup-btn" class="btn-secondary">Backup</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Component Categories -->
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold mb-4">Component Categories</h3>
+                        <div id="component-categories" class="space-y-4">
+                            <!-- Categories will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Components Tab -->
+                <div id="components-tab" class="tab-content hidden">
+                    <div class="card p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">BPI Core Components</h3>
+                            <div class="flex space-x-2">
+                                <select id="category-filter" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm">
+                                    <option value="">All Categories</option>
+                                    <option value="core">Core</option>
+                                    <option value="security">Security</option>
+                                    <option value="storage">Storage</option>
+                                    <option value="network">Network</option>
+                                    <option value="consensus">Consensus</option>
+                                    <option value="vm">VM</option>
+                                    <option value="integration">Integration</option>
+                                </select>
+                                <button id="refresh-components-btn" class="btn-secondary">Refresh</button>
+                            </div>
+                        </div>
+                        
+                        <div id="components-grid" class="component-grid">
+                            <!-- Components will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transactions Tab -->
+                <div id="transactions-tab" class="tab-content hidden">
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold mb-4">Transaction History</h3>
+                        <div id="transactions-list" class="space-y-4">
+                            <!-- Transactions will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logs Tab -->
+                <div id="logs-tab" class="tab-content hidden">
+                    <div class="card p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">System Logs</h3>
+                            <select id="log-component-select" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm">
+                                <option value="">Select Component</option>
+                            </select>
+                        </div>
+                        
+                        <div id="logs-container" class="bg-black rounded-lg p-4 h-96 overflow-y-auto font-mono text-sm">
+                            <div class="text-gray-400">Select a component to view logs...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    
+    <!-- Unlock Wallet Modal -->
+    <div id="unlock-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">Unlock Wallet</h3>
+            <p class="text-gray-400 mb-4">Enter your password to unlock the wallet and connect to BPI Core.</p>
+            
+            <form id="unlock-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="unlock-password" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2" placeholder="Enter password" required>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn-primary flex-1">
+                        <span id="unlock-btn-text">Unlock</span>
+                        <div id="unlock-spinner" class="loading-spinner ml-2 hidden"></div>
+                    </button>
+                    <button type="button" id="cancel-unlock-btn" class="btn-secondary flex-1">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Send Transaction Modal -->
+    <div id="send-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">Send BPI</h3>
+            
+            <form id="send-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Recipient Address</label>
+                    <input type="text" id="send-to" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2" placeholder="bpi_..." required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Amount (BPI)</label>
+                    <input type="number" id="send-amount" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2" placeholder="0.00" step="0.001" min="0" required>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn-primary flex-1">
+                        <span id="send-btn-text">Send</span>
+                        <div id="send-spinner" class="loading-spinner ml-2 hidden"></div>
+                    </button>
+                    <button type="button" id="cancel-send-btn" class="btn-secondary flex-1">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Component Details Modal -->
+    <div id="component-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="component-modal-title" class="text-xl font-semibold">Component Details</h3>
+                <button id="close-component-modal" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            
+            <div id="component-modal-content">
+                <!-- Component details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+    
+    <!-- JavaScript -->
+    <script src="/assets/wallet-app.js"></script>
+</body>
+</html>

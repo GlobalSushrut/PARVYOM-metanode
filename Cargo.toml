@@ -13,6 +13,7 @@ members = [
     "comprehensive-350-tests",
     "bpi-immutable-os",
     "tests",
+    "pravyom-wallet",
 ]
 
 [workspace.package]
