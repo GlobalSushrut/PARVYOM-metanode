@@ -1,0 +1,80 @@
+/* Contact Page Styles */
+.contact-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 40px 20px;
+  color: white;
+}
+
+.contact-form .ant-form-item-label > label {
+  color: #e2e8f0 !important;
+  font-weight: 600;
+}
+
+.contact-form .ant-input,
+.contact-form .ant-input-affix-wrapper,
+.contact-form .ant-select-selector {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  color: white !important;
+}
+
+.contact-form .ant-input::placeholder,
+.contact-form .ant-select-selection-placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.contact-form .ant-input-prefix {
+  color: #60a5fa !important;
+}
+
+.contact-form .ant-select-dropdown {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.contact-form .ant-select-item {
+  color: white !important;
+}
+
+.contact-form .ant-select-item:hover {
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+.contact-form .ant-select-item-selected {
+  background: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 20px 15px;
+  }
+}
+
+/* Animation for form submission */
+.contact-form .ant-btn-loading {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  opacity: 0.8;
+}
+
+/* Custom scrollbar for textarea */
+.contact-form .ant-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.contact-form .ant-input::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.contact-form .ant-input::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 3px;
+}
+
+.contact-form .ant-input::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}

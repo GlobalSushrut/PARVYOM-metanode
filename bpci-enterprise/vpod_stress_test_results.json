@@ -1,0 +1,11 @@
+{
+  "actual_throughput": 2607308,
+  "p50_latency_micros": 3,
+  "p99_latency_micros": 5,
+  "memory_usage_mb": 15832,
+  "cpu_utilization_percent": 100.0,
+  "virtual_nodes_active": 100,
+  "total_messages_processed": 78249496,
+  "test_duration_secs": 30.011593752,
+  "efficiency_multiplier": 104.29232
+}

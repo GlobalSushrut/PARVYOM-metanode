@@ -46,9 +46,10 @@ bpi-consensus = { path = "../bpi-core/crates/metanode-consensus/bpi-consensus" }
 bpi-merkle = { path = "../bpi-core/crates/metanode-core/merkle" }
 
 # Real mining and blockchain components
-blake3 = "1.5"
+blake3 = { version = "1.5", features = ["serde"] }
 sha2 = "0.10"
 md5 = "0.7"
+base64 = "0.21"
 reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 rust_decimal = { version = "1.32", features = ["serde-float"] }
 rand = "0.8"
@@ -59,8 +60,8 @@ tokio-test = "0.4"
 criterion = "0.5"
 
 # Missing dependencies for real implementations
-ed25519-dalek = "2.0"
-rand = "0.8"
+# ed25519-dalek = "2.0"  # Already defined above
+# rand = "0.8"  # Already defined above
 
 # Round Table Oracle dependencies
 env_logger = "0.10"

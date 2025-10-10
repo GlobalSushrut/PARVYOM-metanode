@@ -1,0 +1,369 @@
+//! Stage 1.3 Action Record Adapter CBOR Integration Tests
+//! 
+//! Comprehensive test suite for government enterprise-grade CBOR serialization,
+//! impossible-to-hide actionable events, and 7-year retention compliance.
+
+use anyhow::Result;
+use chrono::{DateTime, Utc};
+use std::collections::BTreeMap;
+
+use crate::pravyom_integration::action_record_adapter::ActionRecordAdapter;
+use crate::pravyom_integration::PravyomConfig;
+use crate::immutable_audit_system::{AuditRecord, ComponentType, AuditRecordType, RuntimeEvent, SecurityEvent, SecurityLevel, PerformanceMetrics, NetworkOperation, SystemState, CpuState, MemoryState, ImmutableProof, ProcessState, NetworkState};
+use crate::cbor_pipeline_foundation::*;
+
+/// Test Action Record Adapter creation and CBOR serialization
+#[tokio::test]
+async fn test_action_record_adapter_creation_and_cbor() -> Result<()> {
+    println!("🧪 Testing Action Record Adapter creation and CBOR serialization...");
+    
+    // Create test config
+    let config = create_test_pravyom_config();
+    
+    // Create Action Record Adapter
+    let adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Verify basic properties
+    assert!(!adapter.adapter_id.is_empty(), "Adapter ID should not be empty");
+    assert_eq!(adapter.performance_metrics.total_conversions, 0, "Initial conversions should be 0");
+    assert_eq!(adapter.audit_trail.audit_entries.len(), 0, "Initial audit entries should be empty");
+    
+    // Test CBOR serialization
+    let cbor_data = adapter.to_cbor()?;
+    assert!(!cbor_data.is_empty(), "CBOR data should not be empty");
+    
+    // Test CBOR deserialization
+    let deserialized_adapter = ActionRecordAdapter::from_cbor(&cbor_data)?;
+    assert_eq!(adapter.adapter_id, deserialized_adapter.adapter_id, "Adapter ID should match after deserialization");
+    assert_eq!(adapter.compliance_metadata.classification, deserialized_adapter.compliance_metadata.classification, "Classification should match");
+    
+    // Test human-readable diagnostic output
+    let diagnostic = adapter.to_diagnostic()?;
+    assert!(!diagnostic.is_empty(), "Diagnostic output should not be empty");
+    assert!(diagnostic.contains("government_enterprise"), "Diagnostic should contain classification");
+    
+    println!("✅ Action Record Adapter creation and CBOR serialization: SUCCESS");
+    Ok(())
+}
+
+/// Test audit record conversion with impossible-to-hide events
+#[tokio::test]
+async fn test_audit_record_conversion_with_impossible_to_hide_events() -> Result<()> {
+    println!("🧪 Testing audit record conversion with impossible-to-hide events...");
+    
+    // Create test config and adapter
+    let config = create_test_pravyom_config();
+    let mut adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Create test audit record
+    let audit_record = create_test_audit_record();
+    
+    // Convert audit record (this should record impossible-to-hide events)
+    let action_record = adapter.convert_audit_record(&audit_record)?;
+    
+    // Verify conversion results
+    assert!(!action_record.rid.is_empty(), "Record ID should not be empty");
+    assert!(!action_record.vm.id.is_empty(), "VM ID should not be empty");
+    assert!(!action_record.actor.wallet.is_empty(), "Actor wallet should not be empty");
+    assert!(!action_record.action.action_type.is_empty(), "Action type should not be empty");
+    
+    // Verify impossible-to-hide audit trail was recorded
+    assert_eq!(adapter.audit_trail.audit_entries.len(), 1, "Should have recorded 1 audit entry");
+    let audit_entry = &adapter.audit_trail.audit_entries[0];
+    assert_eq!(audit_entry.entry_type, "audit_record_conversion", "Audit entry type should match");
+    assert!(audit_entry.conversion_data.contains_key("record_id"), "Should contain record_id");
+    assert!(audit_entry.conversion_data.contains_key("impossible_to_hide"), "Should contain impossible_to_hide flag");
+    assert!(audit_entry.conversion_data.contains_key("government_compliance"), "Should contain government_compliance flag");
+    
+    // Verify performance metrics were updated
+    assert_eq!(adapter.performance_metrics.total_conversions, 1, "Total conversions should be 1");
+    assert_eq!(adapter.performance_metrics.successful_conversions, 1, "Successful conversions should be 1");
+    assert!(adapter.performance_metrics.average_conversion_time_ms > 0.0, "Average conversion time should be positive");
+    assert!(adapter.performance_metrics.throughput_per_second > 0.0, "Throughput should be positive");
+    
+    println!("✅ Audit record conversion with impossible-to-hide events: SUCCESS");
+    Ok(())
+}
+
+/// Test government compliance and 7-year retention
+#[tokio::test]
+async fn test_government_compliance_and_retention() -> Result<()> {
+    println!("🧪 Testing government compliance and 7-year retention...");
+    
+    // Create test config and adapter
+    let config = create_test_pravyom_config();
+    let adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Verify retention policy compliance
+    let retention_policy = &adapter.audit_trail.retention_policy;
+    assert_eq!(retention_policy.retention_years, 7, "Retention period should be 7 years");
+    assert_eq!(retention_policy.auto_delete_after_years, 7, "Auto-delete should be 7 years");
+    assert!(!retention_policy.legal_hold, "Legal hold should be false by default");
+    assert!(retention_policy.policy_id.contains("government_enterprise"), "Policy ID should indicate government enterprise");
+    
+    // Verify compliance metadata
+    let compliance = &adapter.compliance_metadata;
+    assert_eq!(compliance.classification, "government_enterprise", "Classification should be government_enterprise");
+    assert_eq!(compliance.retention_policy, "7_years", "Retention policy should be 7_years");
+    assert!(compliance.audit_requirements.contains(&"SOC2".to_string()), "Should include SOC2 compliance");
+    assert!(compliance.audit_requirements.contains(&"FIPS_140_2".to_string()), "Should include FIPS 140-2 compliance");
+    assert!(compliance.audit_requirements.contains(&"FISMA".to_string()), "Should include FISMA compliance");
+    assert!(compliance.audit_requirements.contains(&"Common_Criteria".to_string()), "Should include Common Criteria compliance");
+    
+    println!("✅ Government compliance and 7-year retention: SUCCESS");
+    Ok(())
+}
+
+/// Test multiple audit record conversions and performance metrics
+#[tokio::test]
+async fn test_multiple_conversions_and_performance_metrics() -> Result<()> {
+    println!("🧪 Testing multiple audit record conversions and performance metrics...");
+    
+    // Create test config and adapter
+    let config = create_test_pravyom_config();
+    let mut adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Convert multiple audit records
+    let num_conversions = 5;
+    for i in 0..num_conversions {
+        let mut audit_record = create_test_audit_record();
+        audit_record.runtime_event.event_id = format!("test_event_{}", i);
+        
+        let _action_record = adapter.convert_audit_record(&audit_record)?;
+    }
+    
+    // Verify performance metrics
+    assert_eq!(adapter.performance_metrics.total_conversions, num_conversions, "Total conversions should match");
+    assert_eq!(adapter.performance_metrics.successful_conversions, num_conversions, "All conversions should be successful");
+    assert_eq!(adapter.performance_metrics.failed_conversions, 0, "No conversions should fail");
+    assert!(adapter.performance_metrics.average_conversion_time_ms > 0.0, "Average conversion time should be positive");
+    assert!(adapter.performance_metrics.throughput_per_second > 0.0, "Throughput should be positive");
+    
+    // Verify audit trail entries
+    assert_eq!(adapter.audit_trail.audit_entries.len(), num_conversions as usize, "Should have recorded all conversions");
+    
+    // Verify each audit entry has required fields
+    for (i, entry) in adapter.audit_trail.audit_entries.iter().enumerate() {
+        assert_eq!(entry.entry_type, "audit_record_conversion", "Entry type should match");
+        assert!(entry.conversion_data.contains_key("record_id"), "Entry {} should contain record_id", i);
+        assert!(entry.conversion_data.contains_key("impossible_to_hide"), "Entry {} should contain impossible_to_hide flag", i);
+        assert!(entry.conversion_data.contains_key("government_compliance"), "Entry {} should contain government_compliance flag", i);
+        assert!(!entry.witness_signature.is_empty(), "Entry {} should have witness signature", i);
+        assert!(!entry.integrity_hash.is_empty(), "Entry {} should have integrity hash", i);
+    }
+    
+    println!("✅ Multiple conversions and performance metrics: SUCCESS");
+    Ok(())
+}
+
+/// Test VM type mapping and component conversion
+#[tokio::test]
+async fn test_vm_type_mapping_and_component_conversion() -> Result<()> {
+    println!("🧪 Testing VM type mapping and component conversion...");
+    
+    // Create test config and adapter
+    let config = create_test_pravyom_config();
+    let mut adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Test different component types
+    let test_cases = vec![
+        (ComponentType::BpiActionVM, "vmapp01"),
+        (ComponentType::CourtNode, "vmcourt01"),
+        (ComponentType::HttpCage, "vmfirewall01"),
+        (ComponentType::OrchestrationVM, "vmorch01"),
+        (ComponentType::UniversalAuditVM, "vmcluster01"),
+        (ComponentType::DockLock, "vmstorage01"),
+        (ComponentType::EncCluster, "vmbiso01"),
+        (ComponentType::BpiLedger, "vmtrafficlight01"),
+        (ComponentType::NotaryCommittee, "vmnotary01"),
+        (ComponentType::Mempool, "vmmempool01"),
+        (ComponentType::UniversalAuditSystem, "vmaudit01"),
+        (ComponentType::ShadowRegistryBridge, "vmbridge01"),
+        (ComponentType::LogbookTo6DBridge, "vmlogbook01"),
+    ];
+    
+    for (component_type, expected_vm_id) in test_cases {
+        let mut audit_record = create_test_audit_record();
+        audit_record.component = component_type.clone();
+        
+        let action_record = adapter.convert_audit_record(&audit_record)?;
+        assert_eq!(action_record.vm.id, expected_vm_id, "VM ID should match for component {:?}", component_type);
+    }
+    
+    println!("✅ VM type mapping and component conversion: SUCCESS");
+    Ok(())
+}
+
+/// Test CBOR diagnostic output for universal auditability
+#[tokio::test]
+async fn test_cbor_diagnostic_universal_auditability() -> Result<()> {
+    println!("🧪 Testing CBOR diagnostic output for universal auditability...");
+    
+    // Create test config and adapter
+    let config = create_test_pravyom_config();
+    let mut adapter = ActionRecordAdapter::new(&config)?;
+    
+    // Convert an audit record
+    let audit_record = create_test_audit_record();
+    let _action_record = adapter.convert_audit_record(&audit_record)?;
+    
+    // Generate diagnostic output
+    let diagnostic = adapter.to_diagnostic()?;
+    
+    // Verify diagnostic contains key compliance information
+    assert!(diagnostic.contains("government_enterprise"), "Diagnostic should contain classification");
+    assert!(diagnostic.contains("7_years"), "Diagnostic should contain retention policy");
+    assert!(diagnostic.contains("SOC2"), "Diagnostic should contain SOC2 compliance");
+    assert!(diagnostic.contains("FIPS_140_2"), "Diagnostic should contain FIPS 140-2 compliance");
+    assert!(diagnostic.contains("FISMA"), "Diagnostic should contain FISMA compliance");
+    assert!(diagnostic.contains("Common_Criteria"), "Diagnostic should contain Common Criteria compliance");
+    
+    // Verify diagnostic is human-readable (contains readable text, not just binary)
+    assert!(!diagnostic.chars().all(|c| c.is_ascii_control()), "Diagnostic should be human-readable");
+    
+    println!("✅ CBOR diagnostic output for universal auditability: SUCCESS");
+    Ok(())
+}
+
+/// Helper function to create test PravyomConfig
+fn create_test_pravyom_config() -> PravyomConfig {
+    PravyomConfig {
+        auction_interval_seconds: 300,
+        audit_trail: AuditTrail {
+            audit_entries: vec![],
+            compliance_score: 1.0,
+            created_at: Utc::now(),
+            entry_id: "test_audit_001".to_string(),
+            government_compliance: GovernmentComplianceAudit {
+                audit_reference: "test_ref_001".to_string(),
+                compliance_tags: vec!["soc2".to_string()],
+                jurisdiction: "US-CA".to_string(),
+            },
+            integrity_hash: "test_hash".to_string(),
+            retention_policy: RetentionPolicy {
+                auto_delete_after_years: 7,
+                compliance_requirements: vec!["SOC2".to_string()],
+                legal_hold: false,
+                policy_id: "test_policy_001".to_string(),
+                retention_years: 7,
+            },
+            retention_years: 7,
+            witness_signatures: vec![],
+        },
+        bundle_size_limit: 5000,
+        compliance_metadata: ComplianceMetadata {
+            retention_policy: "7_years".to_string(),
+            classification: "government_enterprise".to_string(),
+            audit_requirements: vec!["SOC2".to_string()],
+            created_at: Utc::now(),
+            last_reviewed: Utc::now(),
+            last_updated: Utc::now(),
+        },
+        config_id: "test_config_001".to_string(),
+        created_at: Utc::now(),
+        max_segments: 1000,
+        performance_metrics: crate::cbor_pipeline_foundation::PerformanceMetrics {
+            throughput_records_per_second: 100.0,
+            latency_ms: 10.0,
+            memory_usage_mb: 50.0,
+            cpu_usage_percent: 25.0,
+            created_at: Utc::now(),
+            last_updated: Utc::now(),
+        },
+        pipeline_id: "test_pipeline_001".to_string(),
+        segment_size_threshold: 1000,
+        segment_threshold: 100,
+        time_threshold_seconds: 60,
+    }
+}
+
+/// Helper function to create test AuditRecord
+fn create_test_audit_record() -> AuditRecord {
+    AuditRecord {
+        record_id: "test_record_001".to_string(),
+        record_type: AuditRecordType::RuntimeExecution,
+        component: ComponentType::BpiActionVM,
+        runtime_event: RuntimeEvent {
+            event_id: "test_event_001".to_string(),
+            process_id: 12345,
+            binary_path: "/usr/bin/test_binary".to_string(),
+            binary_hash: "sha256:test_hash_001".to_string(),
+            command_line: vec!["test_binary".to_string(), "--arg1".to_string(), "value1".to_string()],
+            system_calls: vec![],
+            memory_operations: vec![],
+            file_operations: vec![],
+            network_operations: vec![
+                NetworkOperation {
+                    operation_type: "TCP_CONNECT".to_string(),
+                    local_address: "127.0.0.1".to_string(),
+                    remote_address: "192.168.1.100".to_string(),
+                    data_hash: "sha256:abc123def456".to_string(),
+                    timestamp_ns: 1640995200000000000,
+                }
+            ],
+            execution_flow: vec![],
+            performance_metrics: PerformanceMetrics {
+                cpu_usage: 15.5,
+                memory_usage: 1024,
+                disk_io: 512,
+                network_io: 256,
+            },
+        },
+        security_event: SecurityEvent {
+            event_id: "test_security_event_001".to_string(),
+            security_level: SecurityLevel::High,
+            threat_classification: vec!["test_threat".to_string()],
+            indicators_of_compromise: vec![],
+            mitre_attack_techniques: vec![],
+            security_policies_violated: vec![],
+            behavioral_anomalies: vec![],
+        },
+        vulnerability_event: None,
+        attack_event: None,
+        bug_event: None,
+        system_state: SystemState {
+            state_id: "test_system_state_001".to_string(),
+            cpu_state: CpuState {
+                usage_percent: 25.5,
+                load_average: vec![1.2, 1.1, 1.0],
+            },
+            memory_state: MemoryState {
+                total_bytes: 8589934592, // 8GB
+                used_bytes: 2147483648,  // 2GB
+                available_bytes: 6442450944, // 6GB
+            },
+            process_state: ProcessState {
+                running_processes: 150,
+                zombie_processes: 0,
+            },
+            network_state: NetworkState {
+                active_connections: 25,
+                bytes_sent: 1048576,
+                bytes_received: 2097152,
+            },
+            timestamp: 1640995200000000000,
+            state_hash: "sha256:system_state_hash_001".to_string(),
+        },
+        immutable_proof: ImmutableProof {
+            proof_type: "government_enterprise_audit".to_string(),
+            cryptographic_hash: "sha256:test_merkle_root_hash".to_string(),
+            digital_signature: "test_digital_signature".to_string(),
+        },
+        timestamp: 1640995200000000000,
+    }
+}
+
+/// Run all Stage 1.3 Action Record Adapter tests
+pub async fn run_stage_1_3_tests() -> Result<()> {
+    println!("🚀 Running Stage 1.3 Action Record Adapter CBOR Integration Tests...");
+    
+    test_action_record_adapter_creation_and_cbor()?;
+    test_audit_record_conversion_with_impossible_to_hide_events()?;
+    test_government_compliance_and_retention()?;
+    test_multiple_conversions_and_performance_metrics()?;
+    test_vm_type_mapping_and_component_conversion()?;
+    test_cbor_diagnostic_universal_auditability()?;
+    
+    println!("🎉 All Stage 1.3 Action Record Adapter tests PASSED!");
+    Ok(())
+}

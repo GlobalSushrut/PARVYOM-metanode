@@ -1,0 +1,26 @@
+# BPI Core Configuration - Generated for pilot environment
+[network]
+domain = "localhost"
+vm_port = 8080
+bpci_port = 8545
+db_port = 27017
+orchestrator_port = 9090
+
+[security]
+quantum_safe = true
+audit_enabled = true
+compliance_mode = "pilot"
+
+[storage]
+data_dir = "./data/pilot"
+backup_enabled = true
+
+[logging]
+level = "info"
+format = "json"
+output = "./logs/pilot.log"
+
+[pilot]
+enabled = true
+auto_setup = true
+health_checks = true

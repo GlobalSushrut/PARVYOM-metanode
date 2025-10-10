@@ -1,0 +1,62 @@
+{
+  "ziplock_bundle_v2": {
+    "version": "1.1",
+    "window": {
+      "from": "2025-10-06T05:17:38.247505974Z",
+      "to": "2025-10-06T05:18:38.247505974Z"
+    },
+    "date": "2025-10-06",
+    "super_root": "99f777ae",
+    "previous_super_root": "12abef45",
+    "session_threads": [],
+    "anomalies": {
+      "spikes": [
+        {
+          "vmid": "vmapp01",
+          "factor": 11.8,
+          "records": 1000
+        }
+      ],
+      "clock": [],
+      "replay": [],
+      "leak": [
+        {
+          "thread_id": "TH-13:04:55.331Z-0027",
+          "heuristic": "exfil-mismatch",
+          "details": {
+            "bytes_out": 5242880,
+            "dst_geo": "did:geo:xx:offgrid",
+            "policy_cap": 1048576
+          },
+          "vm_path": [
+            "VM-APP",
+            "VM-STORAGE"
+          ],
+          "status": "flagged"
+        }
+      ],
+      "port_scans": [
+        {
+          "src": "2001:db8:rogue::7777",
+          "hits": 231
+        }
+      ]
+    },
+    "per_vm_segments": [],
+    "cids_index": {
+      "tickets": [
+        "cid://tickets/ZT-20251006-05:18:38Z-batch-000123.cbor"
+      ],
+      "poe_candidates": [
+        "cid://poe/POE-20251006-05:18:38Z-000567.cbor"
+      ]
+    },
+    "signatures": {
+      "bundle_bls": "bls:aggregate:99f777ae",
+      "bundle_pqc_multi": [
+        "dilithium2:aa11bb22",
+        "dilithium2:cc33dd44"
+      ]
+    }
+  }
+}

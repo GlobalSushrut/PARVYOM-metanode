@@ -12,7 +12,7 @@ use chrono::Utc;
 use pravyom_enterprise::{
     bpi_ledger_integration::BpiLedgerClient,
     bpci_auction_mempool_minimal::BpciAuctionMempool,
-    testnet_config::BpciConfig,
+    // BSO ICO world testnet - no separate config needed
     bpci_penetration_testing::{BpciPenetrationTesting, PenetrationTestReport, SecuritySeverity},
 };
 
@@ -42,7 +42,8 @@ async fn main() -> Result<()> {
     // Initialize components
     info!("🔧 Initializing penetration testing components");
     
-    let config: Arc<BpciConfig> = Arc::new(BpciConfig::from_env()?);
+    // BSO ICO world testnet - configuration handled by CUE deployment
+    let bso_ico_enabled = true;
     info!("✅ BPCI configuration loaded");
 
     let bpi_client: Arc<BpiLedgerClient> = Arc::new(BpiLedgerClient::new().await?);

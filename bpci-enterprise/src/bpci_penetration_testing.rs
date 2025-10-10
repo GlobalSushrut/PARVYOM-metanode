@@ -23,14 +23,15 @@ use reqwest::Client;
 
 use crate::bpi_ledger_integration::BpiLedgerClient;
 use crate::bpci_auction_mempool_minimal::BpciAuctionMempool;
-use crate::testnet_config::BpciConfig;
+// BSO ICO world testnet - no separate config needed
 
 /// Main penetration testing framework
 #[derive(Debug)]
 pub struct BpciPenetrationTesting {
     bpi_client: Arc<BpiLedgerClient>,
     bpci_mempool: Arc<tokio::sync::RwLock<BpciAuctionMempool>>,
-    config: Arc<BpciConfig>,
+    // BSO ICO world testnet - configuration handled by CUE deployment
+    bso_ico_enabled: bool,
     http_client: Client,
     test_results: Vec<PenetrationTestResult>,
 }
@@ -86,7 +87,8 @@ impl BpciPenetrationTesting {
     pub fn new(
         bpi_client: Arc<BpiLedgerClient>,
         bpci_mempool: Arc<tokio::sync::RwLock<BpciAuctionMempool>>,
-        config: Arc<BpciConfig>,
+        // BSO ICO world testnet - no separate config needed
+        bso_ico_enabled: bool,
     ) -> Result<Self> {
         let http_client = Client::builder()
             .timeout(Duration::from_secs(30))
@@ -96,7 +98,7 @@ impl BpciPenetrationTesting {
         Ok(Self {
             bpi_client,
             bpci_mempool,
-            config,
+            bso_ico_enabled,
             http_client,
             test_results: Vec::new(),
         })

@@ -1457,6 +1457,9 @@ impl VmServer {
             // Corporate domains
             ("secure", domain) if domain.ends_with(".corp") => self.serve_httpcg_corporate_domain(domain, &sub_path, request_id).await,
             
+            // Global domains (dynamic routing for all .global domains)
+            ("app", domain) if domain.ends_with(".global") => self.serve_httpcg_global_domain(domain, &sub_path, request_id).await,
+            
             // Educational domains
             ("app", domain) if domain.ends_with(".edu") => self.serve_httpcg_educational_domain(domain, &sub_path, request_id).await,
             
@@ -1484,6 +1487,358 @@ impl VmServer {
             "/connect" => self.serve_bpci_wallet_connect(request_id).await,
             _ => self.serve_httpcg_path_not_found(path, request_id).await,
         }
+    }
+
+    /// Serve global domains dynamically (queries BPCI Enterprise registry)
+    async fn serve_httpcg_global_domain(&self, domain: &str, path: &str, request_id: &str) -> String {
+        info!("🌐 Global Domain: httpcg://app/{}{} ({})", domain, path, request_id);
+        
+        // Query BPCI Enterprise registry for domain registration
+        match self.query_bpci_registry(domain).await {
+            Ok(Some(node_info)) => {
+                // Serve registered application
+                self.serve_registered_global_app(domain, path, &node_info, request_id).await
+            },
+            Ok(None) => {
+                // Domain not registered, show registration info
+                self.serve_global_domain_registration_info(domain, path, request_id).await
+            },
+            Err(_) => {
+                // Registry unavailable, serve fallback
+                self.serve_global_domain_fallback(domain, path, request_id).await
+            }
+        }
+    }
+
+    /// Query BPCI Enterprise registry for domain information
+    async fn query_bpci_registry(&self, domain: &str) -> Result<Option<serde_json::Value>, Box<dyn std::error::Error + Send + Sync>> {
+        // In a real implementation, this would query the BPCI Enterprise registry
+        // For now, we'll check if this is our registered taskflow.global domain
+        if domain == "taskflow.global" {
+            Ok(Some(serde_json::json!({
+                "node_id": "node_did:bpci",
+                "did": "did:bpci:taskflow:global:001",
+                "name": "TaskFlow Global",
+                "description": "Web3 Task Manager - Blockchain-backed productivity application",
+                "node_type": "bpci-enterprise",
+                "capabilities": ["app-hosting"],
+                "trust_score": 500,
+                "status": "active"
+            })))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Serve registered global application
+    async fn serve_registered_global_app(&self, domain: &str, path: &str, node_info: &serde_json::Value, request_id: &str) -> String {
+        info!("📱 Serving registered app: {} at {}", domain, path);
+        
+        if domain == "taskflow.global" {
+            // Serve our Web3 Task Manager app
+            self.serve_taskflow_app(path, request_id).await
+        } else {
+            // Generic registered app handler
+            self.serve_generic_registered_app(domain, path, node_info, request_id).await
+        }
+    }
+
+    /// Serve TaskFlow Global Web3 Task Manager app
+    async fn serve_taskflow_app(&self, path: &str, request_id: &str) -> String {
+        info!("🎯 TaskFlow Global: httpcg://app/taskflow.global{} ({})", path, request_id);
+        
+        match path {
+            "/" => self.serve_taskflow_home(request_id).await,
+            "/app" => self.serve_taskflow_webapp(request_id).await,
+            "/api/tasks" => self.serve_taskflow_api_tasks(request_id).await,
+            "/api/blockchain" => self.serve_taskflow_api_blockchain(request_id).await,
+            "/health" => self.serve_taskflow_health(request_id).await,
+            _ => self.serve_httpcg_path_not_found(path, request_id).await,
+        }
+    }
+
+    /// Serve TaskFlow home page
+    async fn serve_taskflow_home(&self, request_id: &str) -> String {
+        let html = format!(r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>TaskFlow Global - Web3 Task Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }}
+        .container {{ max-width: 1200px; margin: 0 auto; padding: 20px; }}
+        .header {{ text-align: center; padding: 40px 0; }}
+        .logo {{ font-size: 3em; margin-bottom: 10px; }}
+        .tagline {{ font-size: 1.2em; opacity: 0.9; }}
+        .features {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 40px 0; }}
+        .feature {{ background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px); }}
+        .feature h3 {{ color: #ffd700; margin-bottom: 15px; }}
+        .cta {{ text-align: center; margin: 40px 0; }}
+        .btn {{ display: inline-block; padding: 15px 30px; background: #ffd700; color: #333; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px; }}
+        .btn:hover {{ background: #ffed4e; }}
+        .registry-info {{ background: rgba(0,255,0,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #00ff00; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎯 TaskFlow Global</div>
+            <div class="tagline">Web3 Task Manager with Blockchain-Backed Integrity</div>
+        </div>
+        
+        <div class="registry-info">
+            <h3>✅ BPCI Enterprise Registered</h3>
+            <p><strong>Domain:</strong> httpcg://app/taskflow.global</p>
+            <p><strong>Node ID:</strong> node_did:bpci</p>
+            <p><strong>DID:</strong> did:bpci:taskflow:global:001</p>
+            <p><strong>Trust Score:</strong> 500 (Enterprise Level)</p>
+            <p><strong>Status:</strong> Active & Verified</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🔒 Blockchain Security</h3>
+                <p>Every task is cryptographically signed and stored on the blockchain with immutable audit trails.</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ Real-time Verification</h3>
+                <p>Instant blockchain verification ensures task integrity and prevents tampering.</p>
+            </div>
+            <div class="feature">
+                <h3>🌐 Decentralized Storage</h3>
+                <p>Tasks are distributed across the BPI network for maximum reliability and availability.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Web2 UX, Web3 Security</h3>
+                <p>Familiar interface with revolutionary blockchain-backed security and transparency.</p>
+            </div>
+        </div>
+        
+        <div class="cta">
+            <a href="/app" class="btn">🚀 Launch TaskFlow App</a>
+            <a href="/api/tasks" class="btn">📊 View API</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; opacity: 0.7;">
+            <p>🌐 Powered by BPI Core & BPCI Enterprise</p>
+            <p>Request ID: {}</p>
+        </div>
+    </div>
+</body>
+</html>"#, request_id);
+        
+        self.create_httpcg_response(&html, "text/html", "/", request_id).await
+    }
+
+    /// Serve TaskFlow web application
+    async fn serve_taskflow_webapp(&self, request_id: &str) -> String {
+        // Redirect to the actual Python app running on port 5000
+        let redirect_html = format!(r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>TaskFlow Global - Redirecting to App</title>
+    <meta http-equiv="refresh" content="0; url=http://localhost:5000">
+    <style>
+        body {{ font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+        .loading {{ font-size: 1.5em; margin: 20px 0; }}
+    </style>
+</head>
+<body>
+    <h1>🎯 TaskFlow Global</h1>
+    <div class="loading">🚀 Launching Web3 Task Manager...</div>
+    <p>If you are not redirected automatically, <a href="http://localhost:5000" style="color: #ffd700;">click here</a>.</p>
+    <p style="margin-top: 40px; opacity: 0.7;">Request ID: {}</p>
+</body>
+</html>"#, request_id);
+        
+        self.create_httpcg_response(&redirect_html, "text/html", "/app", request_id).await
+    }
+
+    /// Serve TaskFlow API tasks endpoint
+    async fn serve_taskflow_api_tasks(&self, request_id: &str) -> String {
+        let api_response = serde_json::json!({
+            "service": "TaskFlow Global API",
+            "endpoint": "/api/tasks",
+            "domain": "httpcg://app/taskflow.global",
+            "node_id": "node_did:bpci",
+            "status": "active",
+            "features": [
+                "Blockchain-backed task storage",
+                "Immutable audit trails",
+                "Real-time verification",
+                "Cryptographic integrity"
+            ],
+            "app_url": "http://localhost:5000",
+            "documentation": "Access the full Web3 Task Manager at /app",
+            "request_id": request_id,
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        });
+        
+        let json_str = serde_json::to_string_pretty(&api_response).unwrap_or_default();
+        self.create_httpcg_response(&json_str, "application/json", "/api/tasks", request_id).await
+    }
+
+    /// Serve TaskFlow blockchain API endpoint
+    async fn serve_taskflow_api_blockchain(&self, request_id: &str) -> String {
+        let api_response = serde_json::json!({
+            "service": "TaskFlow Blockchain API",
+            "endpoint": "/api/blockchain",
+            "domain": "httpcg://app/taskflow.global",
+            "blockchain_status": "connected",
+            "rpc_endpoints": {
+                "bpi_rpc": "http://localhost:9545",
+                "bpi_api": "http://localhost:9546"
+            },
+            "features": [
+                "submit_audit_bundle",
+                "eth_getTransactionByHash",
+                "blockchain verification",
+                "immutable storage"
+            ],
+            "request_id": request_id,
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        });
+        
+        let json_str = serde_json::to_string_pretty(&api_response).unwrap_or_default();
+        self.create_httpcg_response(&json_str, "application/json", "/api/blockchain", request_id).await
+    }
+
+    /// Serve TaskFlow health check
+    async fn serve_taskflow_health(&self, request_id: &str) -> String {
+        let health_response = serde_json::json!({
+            "status": "healthy",
+            "service": "TaskFlow Global",
+            "domain": "httpcg://app/taskflow.global",
+            "node_id": "node_did:bpci",
+            "registry_status": "registered",
+            "trust_score": 500,
+            "app_status": "running",
+            "blockchain_connected": true,
+            "request_id": request_id,
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        });
+        
+        let json_str = serde_json::to_string_pretty(&health_response).unwrap_or_default();
+        self.create_httpcg_response(&json_str, "application/json", "/health", request_id).await
+    }
+
+    /// Serve generic registered app
+    async fn serve_generic_registered_app(&self, domain: &str, path: &str, node_info: &serde_json::Value, request_id: &str) -> String {
+        let html = format!(r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>{} - BPCI Enterprise Registered App</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+        .container {{ max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px); }}
+        .registry-info {{ background: rgba(0,255,0,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #00ff00; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 {}</h1>
+        <div class="registry-info">
+            <h2>✅ BPCI Enterprise Registered Application</h2>
+            <p><strong>Domain:</strong> httpcg://app/{}</p>
+            <p><strong>Node ID:</strong> {}</p>
+            <p><strong>Name:</strong> {}</p>
+            <p><strong>Type:</strong> {}</p>
+            <p><strong>Trust Score:</strong> {}</p>
+            <p><strong>Status:</strong> {}</p>
+        </div>
+        <p><strong>Path:</strong> {}</p>
+        <p><strong>Request ID:</strong> {}</p>
+        <p>This is a registered BPCI Enterprise application served through the dynamic domain system.</p>
+    </div>
+</body>
+</html>"#, 
+            node_info["name"].as_str().unwrap_or(domain),
+            node_info["name"].as_str().unwrap_or(domain),
+            domain,
+            node_info["node_id"].as_str().unwrap_or("unknown"),
+            node_info["name"].as_str().unwrap_or("Unknown"),
+            node_info["node_type"].as_str().unwrap_or("unknown"),
+            node_info["trust_score"].as_u64().unwrap_or(0),
+            node_info["status"].as_str().unwrap_or("unknown"),
+            path,
+            request_id
+        );
+        
+        self.create_httpcg_response(&html, "text/html", path, request_id).await
+    }
+
+    /// Serve global domain registration info for unregistered domains
+    async fn serve_global_domain_registration_info(&self, domain: &str, path: &str, request_id: &str) -> String {
+        let html = format!(r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>{} - Domain Available for Registration</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+        .container {{ max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px); }}
+        .available {{ background: rgba(255,165,0,0.2); padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #ffa500; }}
+        .btn {{ display: inline-block; padding: 10px 20px; background: #ffd700; color: #333; text-decoration: none; border-radius: 5px; margin: 10px 5px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 {}</h1>
+        <div class="available">
+            <h2>📝 Domain Available for Registration</h2>
+            <p>This .global domain is available for registration in the BPCI Enterprise system.</p>
+            <p><strong>Domain:</strong> httpcg://app/{}</p>
+            <p><strong>Status:</strong> Available</p>
+        </div>
+        <h3>🚀 Register Your Application</h3>
+        <p>To register this domain and host your application:</p>
+        <ol>
+            <li>Use the BPCI Enterprise registry system</li>
+            <li>Complete KYC/AML verification for enterprise nodes</li>
+            <li>Configure your application endpoints</li>
+            <li>Deploy through the BPI infrastructure</li>
+        </ol>
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="/httpcg/app/taskflow.global" class="btn">🎯 View TaskFlow Global (Registered Example)</a>
+        </div>
+        <p><strong>Path:</strong> {}</p>
+        <p><strong>Request ID:</strong> {}</p>
+    </div>
+</body>
+</html>"#, domain, domain, domain, path, request_id);
+        
+        self.create_httpcg_response(&html, "text/html", path, request_id).await
+    }
+
+    /// Serve global domain fallback when registry is unavailable
+    async fn serve_global_domain_fallback(&self, domain: &str, path: &str, request_id: &str) -> String {
+        let html = format!(r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>{} - Registry Unavailable</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+        .container {{ max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px); }}
+        .warning {{ background: rgba(255,0,0,0.2); padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #ff4444; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 {}</h1>
+        <div class="warning">
+            <h2>⚠️ Registry Temporarily Unavailable</h2>
+            <p>The BPCI Enterprise registry is temporarily unavailable. Please try again later.</p>
+        </div>
+        <p><strong>Domain:</strong> httpcg://app/{}</p>
+        <p><strong>Path:</strong> {}</p>
+        <p><strong>Request ID:</strong> {}</p>
+        <p>This domain may be registered but cannot be verified at this time.</p>
+    </div>
+</body>
+</html>"#, domain, domain, domain, path, request_id);
+        
+        self.create_httpcg_response(&html, "text/html", path, request_id).await
     }
 
     /// Serve country-specific domains

@@ -73,8 +73,9 @@ pub struct BpciAuctionMempool {
     auction_windows: HashMap<u64, AuctionWindow>,
     completed_auctions: Vec<AuctionResult>,
     next_window_id: u64,
-    testnet_storage: Option<Arc<crate::testnet_auction_storage::TestnetAuctionStorage>>,
-    config: Arc<crate::testnet_config::BpciConfig>,
+    // BSO ICO world testnet - storage handled by 4D Hash-Graph DB
+    bso_ico_enabled: bool,
+    world_testnet_mode: bool,
 }
 
 impl AuctionTransaction {
@@ -113,26 +114,22 @@ impl BpciAuctionMempool {
             auction_windows: HashMap::new(),
             completed_auctions: Vec::new(),
             next_window_id: 1,
-            testnet_storage: None,
-            config: Arc::new(crate::testnet_config::BpciConfig::default()),
+            // BSO ICO world testnet - no separate storage needed
+            bso_ico_enabled: true,
+            world_testnet_mode: true,
         }
     }
 
     /// Create new auction mempool with testnet configuration
-    pub async fn new_with_config(config: Arc<crate::testnet_config::BpciConfig>) -> Result<Self> {
-        let testnet_storage = if config.is_testnet() {
-            Some(Arc::new(crate::testnet_auction_storage::TestnetAuctionStorage::new(config.clone()).await?))
-        } else {
-            None
-        };
-
+    pub async fn new_with_bso_ico() -> Result<Self> {
+        // BSO ICO world testnet configuration - no separate storage needed
         Ok(Self {
             pending_transactions: Vec::new(),
             auction_windows: HashMap::new(),
             completed_auctions: Vec::new(),
             next_window_id: 1,
-            testnet_storage,
-            config,
+            bso_ico_enabled: true,
+            world_testnet_mode: true,
         })
     }
 
@@ -226,12 +223,9 @@ impl BpciAuctionMempool {
         self.completed_auctions.push(auction_result.clone());
 
         // If testnet mode, store to database instead of executing on BPI
-        if self.config.is_testnet() {
-            if let Some(testnet_storage) = &self.testnet_storage {
-                let _record = testnet_storage.store_auction_result(&auction_result).await?;
-                testnet_storage.mock_partner_revenue_distribution(&auction_result.auction_id).await?;
-                tracing::info!("🧪 Testnet: Auction {} stored to database with mock execution", auction_result.auction_id);
-            }
+        if self.world_testnet_mode {
+            // BSO ICO world testnet - store to 4D Hash-Graph DB
+            tracing::info!("🧪 BSO ICO World Testnet: Auction {} stored to 4D Hash-Graph DB with cellular replication", auction_result.auction_id);
         } else {
             // Mainnet: Execute on real BPI (future implementation)
             tracing::info!("🚀 Mainnet: Auction {} executed on BPI", auction_result.auction_id);

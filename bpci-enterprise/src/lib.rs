@@ -16,9 +16,7 @@ pub mod bpci_auction_mempool_minimal;
 pub use bpci_auction_mempool_minimal as bpci_auction_mempool;
 pub mod round_table_oracle;
 pub mod community_installer_os;
-pub mod testnet_config;
-pub mod testnet_auction_storage;
-pub mod bpi_testnet_integration;
+// Testnet modules removed - using BSO ICO world testnet instead
 pub mod bpci_penetration_testing;
 pub mod bpci_auth_wallet_endpoints;
 
@@ -37,6 +35,9 @@ pub mod metanode_cluster_manager;
 pub mod smartcontract_policy_agreement;
 pub mod stamped_wallet_api_access;
 pub mod unified_audit_system;
+
+// Revolutionary 4D Hash-Graph Database Storage System
+pub mod storage;
 
 // Specialized modules
 pub mod autonomous_economy;

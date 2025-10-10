@@ -6,8 +6,7 @@ use axum::{
     Router,
 };
 use pravyom_enterprise::community_installer_os::{CommunityInstallerOS, InstallerConfig, InstallationPhase};
-use pravyom_enterprise::testnet_config::{BpciConfig, init_config, get_config};
-use pravyom_enterprise::testnet_auction_storage::{TestnetAuctionStorage, TestnetAuctionStats};
+// BSO ICO world testnet - configuration handled by CUE deployment config
 use pravyom_enterprise::bpci_auction_mempool::BpciAuctionMempool;
 use pravyom_enterprise::bpi_ledger_integration::BpiLedgerClient;
 use pravyom_enterprise::bpci_auth_wallet_endpoints::*;

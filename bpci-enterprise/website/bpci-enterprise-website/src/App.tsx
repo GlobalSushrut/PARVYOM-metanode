@@ -10,6 +10,11 @@ import Enterprise from './pages/Enterprise/Enterprise';
 import Community from './pages/Community/Community';
 import Blog from './pages/Blog/Blog';
 import GetStarted from './pages/GetStarted/GetStarted';
+import Contact from './pages/Contact/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService/TermsOfService';
+import Legal from './pages/Legal/Legal';
+import Research from './pages/Research/Research';
 import AuthContainer from './components/Auth/AuthContainer';
 import { RegistryDashboard } from './components/Registry/RegistryDashboard';
 import { WalletManager } from './components/Wallet/WalletManager';
@@ -60,6 +65,11 @@ function App() {
             <Route path="/community" element={<Community />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/get-started" element={<GetStarted />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/legal" element={<Legal />} />
+            <Route path="/research" element={<Research />} />
           </Routes>
         </MainLayout>
       </Router>

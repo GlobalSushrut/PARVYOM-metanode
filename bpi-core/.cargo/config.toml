@@ -1,0 +1,17 @@
+[build]
+jobs = 2  # BALANCED: 2 jobs to prevent crashes but maintain speed
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    "-C", "opt-level=0",           # No optimization to save memory
+    "-C", "debuginfo=0",           # No debug info to save memory
+    "-C", "codegen-units=4"        # Balanced codegen units
+]
+
+[profile.dev]
+opt-level = 0
+debug = false
+incremental = true   # Re-enable incremental for speed
+codegen-units = 4    # Balanced codegen units
+lto = false          # No link-time optimization
+panic = "abort"      # Faster panics

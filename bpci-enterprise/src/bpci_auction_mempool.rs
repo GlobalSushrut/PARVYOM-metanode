@@ -342,8 +342,9 @@ pub struct BpciAuctionMempool {
     completed_auctions: Vec<CompletedAuction>,
     chain_stats: HashMap<u64, ChainStats>,
     next_window_id: u64,
-    testnet_storage: Option<Arc<crate::testnet_auction_storage::TestnetAuctionStorage>>,
-    config: Arc<crate::testnet_config::BpciConfig>,
+    // BSO ICO world testnet - storage handled by 4D Hash-Graph DB
+    bso_ico_enabled: bool,
+    world_testnet_mode: bool,
 }
 
 impl BpciAuctionMempool {
@@ -355,17 +356,15 @@ impl BpciAuctionMempool {
             chain_stats: HashMap::new(),
             next_window_id: 1,
             testnet_storage: None,
-            config: Arc::new(crate::testnet_config::BpciConfig::default()),
+            bso_ico_enabled: true,
+            world_testnet_mode: true,
         }
     }
 
     /// Create new auction mempool with testnet configuration
-    pub async fn new_with_config(config: Arc<crate::testnet_config::BpciConfig>) -> Result<Self> {
-        let testnet_storage = if config.is_testnet() {
-            Some(Arc::new(crate::testnet_auction_storage::TestnetAuctionStorage::new(config.clone()).await?))
-        } else {
-            None
-        };
+    pub async fn new_with_bso_ico() -> Result<Self> {
+        // BSO ICO world testnet configuration
+        let testnet_storage = None;
 
         Ok(Self {
             merkle_tree: AuctionMerkleTree::new(),

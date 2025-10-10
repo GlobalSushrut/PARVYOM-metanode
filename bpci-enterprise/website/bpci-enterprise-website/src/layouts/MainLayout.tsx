@@ -467,18 +467,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
                   <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', padding: 0, margin: 0 }}>
                     <li><Link to="/dashboard" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Dashboard</Link></li>
                     <li><Link to="/blog" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Blog</Link></li>
-                    <li><a href="#" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Documentation</a></li>
-                    <li><a href="#" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Support</a></li>
+                    <li><a href="https://globalsushrut.github.io/PARVYOM-metanode/" target="_blank" rel="noopener noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Documentation</a></li>
+                    <li><Link to="/research" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Research</Link></li>
                   </ul>
                 </div>
 
-                {/* Contact */}
+                {/* Legal & Contact */}
                 <div>
-                  <h3 style={{ fontWeight: '600', fontSize: '1.125rem', marginBottom: '16px', color: '#ffffff' }}>Contact</h3>
+                  <h3 style={{ fontWeight: '600', fontSize: '1.125rem', marginBottom: '16px', color: '#ffffff' }}>Legal & Contact</h3>
                   <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', padding: 0, margin: 0 }}>
-                    <li><a href="#" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Contact Us</a></li>
-                    <li><a href="#" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Privacy Policy</a></li>
-                    <li><a href="#" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Terms of Service</a></li>
+                    <li><Link to="/contact" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Contact Us</Link></li>
+                    <li><Link to="/privacy-policy" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Privacy Policy</Link></li>
+                    <li><Link to="/terms-of-service" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Terms of Service</Link></li>
+                    <li><Link to="/legal" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Legal</Link></li>
                   </ul>
                 </div>
               </div>

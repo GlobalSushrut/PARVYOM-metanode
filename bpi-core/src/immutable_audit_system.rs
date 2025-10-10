@@ -79,6 +79,8 @@ pub enum ComponentType {
     BpiActionVM,
     UniversalAuditVM,
     OrchestrationVM,
+    LogbookTo6DBridge,
+    SystemAnomaly,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,0 +1,242 @@
+/* Legal Page Styles */
+.legal-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #475569 100%);
+}
+
+.legal-hero {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  padding: 80px 24px 60px;
+  text-align: center;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.legal-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.legal-hero-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.legal-hero-logo img {
+  height: 60px;
+  width: auto;
+  filter: brightness(1.1) contrast(1.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+
+.legal-content {
+  padding: 60px 24px;
+}
+
+.legal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Legal Cards */
+.legal-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.legal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.legal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.legal-icon {
+  font-size: 32px;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.legal-card h2 {
+  color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.legal-card p {
+  color: #e2e8f0 !important;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* Legal Document Cards */
+.legal-doc-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.legal-doc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.legal-doc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.legal-doc-icon {
+  font-size: 24px;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.legal-doc-card h3 {
+  color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.legal-doc-card p {
+  color: #cbd5e1 !important;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.legal-doc-link {
+  color: #60a5fa !important;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.legal-doc-link:hover {
+  color: #3b82f6 !important;
+  border-bottom-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+/* Legal Notices */
+.legal-card h4 {
+  color: #ffffff !important;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 12px !important;
+  border-left: 3px solid #3b82f6;
+  padding-left: 16px;
+}
+
+/* Legal Contact Card */
+.legal-contact-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+}
+
+.legal-contact-card h3 {
+  color: #ffffff !important;
+  margin-bottom: 16px !important;
+}
+
+.legal-contact-card p {
+  color: #e2e8f0 !important;
+  margin-bottom: 20px;
+}
+
+.legal-contact-info {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.8;
+}
+
+.legal-contact-info a {
+  color: #60a5fa !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.legal-contact-info a:hover {
+  color: #3b82f6 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .legal-hero {
+    padding: 60px 16px 40px;
+  }
+  
+  .legal-hero-logo img {
+    height: 48px;
+  }
+  
+  .legal-content {
+    padding: 40px 16px;
+  }
+  
+  .legal-card-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .legal-doc-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .legal-icon,
+  .legal-doc-icon {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .legal-hero {
+    padding: 40px 12px 30px;
+  }
+  
+  .legal-content {
+    padding: 30px 12px;
+  }
+  
+  .legal-hero-logo h1 {
+    font-size: 1.75rem !important;
+  }
+}

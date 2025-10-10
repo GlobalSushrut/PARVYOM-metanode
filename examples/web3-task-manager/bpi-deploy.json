@@ -1,0 +1,27 @@
+{
+  "name": "web3-task-manager",
+  "version": "1.0.0",
+  "description": "Web3 Task Manager dApp with real BPI blockchain integration",
+  "image": "web3-task-manager:latest",
+  "ports": {
+    "8000": "8000"
+  },
+  "environment": {
+    "BPI_VM_URL": "http://host.docker.internal:7777",
+    "BPCI_BRIDGE_URL": "http://host.docker.internal:8545", 
+    "STORAGE_URL": "http://host.docker.internal:27017",
+    "ORCHESTRATOR_URL": "http://host.docker.internal:9090",
+    "BPI_NETWORK": "mainnet",
+    "BPI_NODE_ID": "web3-task-manager-node"
+  },
+  "resources": {
+    "memory": "512m",
+    "cpu": "0.5"
+  },
+  "network": "bpi-mainnet",
+  "security": {
+    "post_quantum": true,
+    "audit_enabled": true,
+    "immutable_storage": true
+  }
+}
