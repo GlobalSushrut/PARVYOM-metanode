@@ -147,6 +147,12 @@ impl BpciAuctionMempool {
         Ok(())
     }
 
+    /// Get pending transactions from mempool
+    pub async fn get_pending_transactions(&mut self) -> Result<Vec<AuctionTransaction>> {
+        // Return a copy of pending transactions
+        Ok(self.pending_transactions.clone())
+    }
+
     /// Create new auction window
     pub fn create_auction_window(&mut self, duration_secs: u64, max_transactions: u32, 
                                 max_gas: u64, auction_type: AuctionType) -> u64 {

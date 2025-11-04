@@ -1,427 +1,601 @@
-import React from 'react';
-import { Typography, Card, Row, Col, Button, List, Badge, Steps, Divider } from 'antd';
-import { Link } from 'react-router-dom';
-import { 
-  RocketOutlined, 
-  SecurityScanOutlined, 
-  GlobalOutlined, 
-  BankOutlined,
-  TeamOutlined,
-  AuditOutlined,
-  LockOutlined,
-  ApiOutlined,
-  SafetyOutlined,
-  CloudServerOutlined,
-  CheckCircleOutlined,
-  SettingOutlined
-} from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Typography, Button, Row, Col } from 'antd';
+import './Enterprise.css';
 
 const { Title, Paragraph } = Typography;
 
+// Reusable 5-Level Component
+const FiveLevelSection = ({ title, color, what, whyNow, whatYouGet, required, howToStart }: any) => (
+  <div style={{
+    background: 'rgba(10, 22, 40, 0.9)',
+    border: `2px solid ${color}33`,
+    borderRadius: '12px',
+    padding: '3rem',
+    marginBottom: '2rem',
+    backdropFilter: 'blur(10px)'
+  }}>
+    <Title level={3} style={{ color, marginBottom: '1.5rem' }}>{title}</Title>
+    
+    <div style={{ marginBottom: '2rem' }}>
+      <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>1. What</Title>
+      <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>{what}</Paragraph>
+    </div>
+
+    <div style={{ marginBottom: '2rem' }}>
+      <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>2. Why Now</Title>
+      <div style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>{whyNow}</div>
+    </div>
+
+    <div style={{ marginBottom: '2rem' }}>
+      <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>3. What You Get</Title>
+      <div style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>{whatYouGet}</div>
+    </div>
+
+    <div style={{ marginBottom: '2rem' }}>
+      <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>4. What's Required</Title>
+      <div style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>{required}</div>
+    </div>
+
+    <div>
+      <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>5. How to Start</Title>
+      {howToStart}
+    </div>
+  </div>
+);
+
 const Enterprise: React.FC = () => {
-  const enterpriseFeatures = [
-    {
-      icon: <SecurityScanOutlined className="text-3xl text-blue-600" />,
-      title: "Military-Grade Security",
-      description: "Post-quantum cryptography with 9.8/10 security rating, ENC Lock + QLOCK protection, and infinite noise response."
-    },
-    {
-      icon: <BankOutlined className="text-3xl text-green-600" />,
-      title: "Banking Compliance",
-      description: "Basel III, PCI DSS, SOX compliance with dedicated banking APIs and settlement infrastructure."
-    },
-    {
-      icon: <GlobalOutlined className="text-3xl text-purple-600" />,
-      title: "Government Ready",
-      description: "FedRAMP, FISMA, NIST frameworks with jurisdiction-aware governance and regulatory compliance."
-    },
-    {
-      icon: <ApiOutlined className="text-3xl text-orange-600" />,
-      title: "Enterprise APIs",
-      description: "Production-ready REST APIs, WebSocket streaming, and comprehensive SDKs for seamless integration."
-    }
-  ];
+  const [activeSection, setActiveSection] = useState<number>(0);
 
-  const useCases = [
-    {
-      sector: "Banking & Finance",
-      icon: <BankOutlined className="text-2xl text-blue-600" />,
-      applications: [
-        "Cross-border payment infrastructure",
-        "Central Bank Digital Currency (CBDC) systems",
-        "Trade finance and settlement networks",
-        "Regulatory compliance and audit trails",
-        "Anti-money laundering (AML) monitoring"
-      ],
-      benefits: "Reduce settlement times from days to minutes while maintaining full regulatory compliance."
-    },
-    {
-      sector: "Government & Defense",
-      icon: <SafetyOutlined className="text-2xl text-green-600" />,
-      applications: [
-        "Secure government communications",
-        "Digital identity and citizenship systems",
-        "Healthcare data management",
-        "Supply chain transparency",
-        "Emergency response coordination"
-      ],
-      benefits: "Ensure data sovereignty and citizen privacy with quantum-resistant security."
-    },
-    {
-      sector: "Enterprise & Corporate",
-      icon: <CloudServerOutlined className="text-2xl text-purple-600" />,
-      applications: [
-        "Supply chain management",
-        "Document verification systems",
-        "Inter-company settlements",
-        "Audit and compliance tracking",
-        "Intellectual property protection"
-      ],
-      benefits: "Streamline operations with transparent, immutable business processes."
-    }
-  ];
-
-  const implementationSteps = [
-    {
-      title: "Assessment & Planning",
-      description: "Analyze your current infrastructure and define integration requirements."
-    },
-    {
-      title: "Pilot Deployment",
-      description: "Deploy a limited testnet environment for evaluation and testing."
-    },
-    {
-      title: "Integration Development",
-      description: "Develop custom integrations using our enterprise APIs and SDKs."
-    },
-    {
-      title: "Security Validation",
-      description: "Comprehensive security audits and compliance verification."
-    },
-    {
-      title: "Production Deployment",
-      description: "Full-scale deployment with monitoring and support infrastructure."
-    },
-    {
-      title: "Ongoing Support",
-      description: "24/7 monitoring, maintenance, and continuous optimization."
-    }
+  const sections = [
+    { id: 0, label: 'Overview', emoji: '📋' },
+    { id: 1, label: 'Contributors', emoji: '👨‍💻' },
+    { id: 2, label: 'Pilot Partners', emoji: '🧪' },
+    { id: 3, label: 'Institutional', emoji: '🏛️' },
+    { id: 4, label: 'Pre-Fundable', emoji: '💰' },
+    { id: 5, label: 'IP Investors', emoji: '🔬' },
+    { id: 6, label: 'Web3 Vision', emoji: '🌐' }
   ];
 
   return (
     <div className="enterprise-page">
       {/* Hero Section */}
-      <section className="hero-gradient py-20">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <Title level={1} className="text-white text-5xl font-bold mb-6">
-            Enterprise Solutions
+      <section className="hero-gradient" style={{ padding: '8rem 0 6rem 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+          <Title level={1} style={{ color: '#ffffff', fontSize: '3rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            Contribution & Partnership Opportunities
           </Title>
-          <Paragraph className="text-blue-100 text-xl max-w-4xl mx-auto mb-8">
-            Military-grade blockchain infrastructure for banks, governments, and enterprises 
-            requiring the highest levels of security, compliance, and reliability.
+          <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', maxWidth: '48rem', margin: '0 auto 2rem auto', lineHeight: '1.8' }}>
+            75% operational infrastructure seeking validation partners. Clear value propositions for each contribution type.
           </Paragraph>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/get-started">
-              <Button 
-                type="primary" 
-                size="large" 
-                icon={<RocketOutlined />}
-                className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-12 px-8 font-semibold border-0"
+          
+          {/* 7 Section Selector */}
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+            {sections.map((section) => (
+              <Button
+                key={section.id}
+                size="large"
+                style={{
+                  background: activeSection === section.id ? 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)' : 'rgba(255, 255, 255, 0.1)',
+                  border: activeSection === section.id ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                  color: activeSection === section.id ? '#0A1628' : '#ffffff',
+                  fontWeight: '600',
+                  padding: '0 1.5rem',
+                  height: '48px'
+                }}
+                onClick={() => setActiveSection(section.id)}
               >
-                Start Enterprise Trial
+                {section.emoji} {section.label}
               </Button>
-            </Link>
-            <Link to="/dashboard">
-              <Button 
-                size="large" 
-                icon={<ApiOutlined />}
-                className="text-white border-white hover:bg-white hover:text-blue-600 text-lg h-12 px-8 font-semibold"
-              >
-                View Live Demo
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Enterprise Features */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Enterprise-Grade Features</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Built for the most demanding institutional requirements
-            </Paragraph>
-          </div>
-
-          <Row gutter={[32, 32]}>
-            {enterpriseFeatures.map((feature, index) => (
-              <Col xs={24} md={12} key={index}>
-                <Card className="h-full p-6 hover:shadow-lg transition-shadow">
-                  <div className="flex items-start space-x-4">
-                    {feature.icon}
-                    <div>
-                      <Title level={3} className="text-xl font-semibold mb-3">
-                        {feature.title}
-                      </Title>
-                      <Paragraph className="text-gray-700">
-                        {feature.description}
-                      </Paragraph>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
             ))}
-          </Row>
+          </div>
         </div>
       </section>
 
-      {/* Use Cases by Sector */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Industry Solutions</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Tailored blockchain infrastructure for specific industry needs
-            </Paragraph>
-          </div>
+      {/* Section 0: Overview */}
+      {activeSection === 0 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              📋 Overview: Why This Page Exists
+            </Title>
+            
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', padding: '3rem', backdropFilter: 'blur(10px)' }}>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.125rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+                <strong style={{ color: '#E8B44F' }}>75% operational infrastructure:</strong> 15 services, 4 databases, dynamic networking. Not vaporware—operational code on testnet. Not selling a product—seeking validation partners.
+              </Paragraph>
 
-          <Row gutter={[32, 32]}>
-            {useCases.map((useCase, index) => (
-              <Col xs={24} lg={8} key={index}>
-                <Card className="h-full">
-                  <div className="text-center mb-6">
-                    {useCase.icon}
-                    <Title level={3} className="text-xl font-semibold mt-4 mb-4">
-                      {useCase.sector}
-                    </Title>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <Title level={5} className="mb-3">Key Applications:</Title>
-                    <List
-                      size="small"
-                      dataSource={useCase.applications}
-                      renderItem={(item) => (
-                        <List.Item>
-                          <CheckCircleOutlined className="text-green-600 mr-2" />
-                          {item}
-                        </List.Item>
-                      )}
-                    />
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <Title level={5} className="text-blue-800 mb-2">Business Impact:</Title>
-                    <Paragraph className="text-blue-700 mb-0">
-                      {useCase.benefits}
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>The Wave (Why Now)</Title>
+              <Row gutter={[24, 24]} style={{ marginBottom: '2rem' }}>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                    <Title level={4} style={{ color: '#10B981', marginBottom: '0.5rem' }}>75% Complete</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      Not 0% (vaporware) and not 100% (too late). Early contributors shape the platform.
                     </Paragraph>
                   </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </section>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(124, 58, 237, 0.1)', borderRadius: '8px', border: '1px solid rgba(124, 58, 237, 0.3)' }}>
+                    <Title level={4} style={{ color: '#7C3AED', marginBottom: '0.5rem' }}>Testnet → Mainnet</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      Testnet operational. Mainnet depends on traction. Early contributors trigger GEN coin.
+                    </Paragraph>
+                  </div>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    <Title level={4} style={{ color: '#F59E0B', marginBottom: '0.5rem' }}>Shape vs Use</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      Early contributors shape. Late adopters use what's built. Your choice.
+                    </Paragraph>
+                  </div>
+                </Col>
+              </Row>
 
-      {/* Technical Specifications */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Technical Specifications</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Enterprise-grade performance and reliability metrics
-            </Paragraph>
-          </div>
-
-          <Row gutter={[32, 32]}>
-            <Col xs={24} md={12}>
-              <Card title="Performance Metrics" className="h-full">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Transaction Throughput:</span>
-                    <Badge count="10,000+ TPS" style={{ backgroundColor: '#52c41a' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Network Latency:</span>
-                    <Badge count="<100ms" style={{ backgroundColor: '#1890ff' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Uptime SLA:</span>
-                    <Badge count="99.9%" style={{ backgroundColor: '#722ed1' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Data Availability:</span>
-                    <Badge count="99.99%" style={{ backgroundColor: '#fa8c16' }} />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Card title="Security & Compliance" className="h-full">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Security Rating:</span>
-                    <Badge count="9.8/10" style={{ backgroundColor: '#52c41a' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Encryption:</span>
-                    <Badge count="Post-Quantum" style={{ backgroundColor: '#1890ff' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Compliance:</span>
-                    <Badge count="Multi-Standard" style={{ backgroundColor: '#722ed1' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Audit Trail:</span>
-                    <Badge count="Immutable" style={{ backgroundColor: '#fa8c16' }} />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      </section>
-
-      {/* Implementation Process */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Implementation Process</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Structured approach to enterprise blockchain deployment
-            </Paragraph>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <Steps
-              direction="vertical"
-              current={-1}
-              items={implementationSteps.map((step, index) => ({
-                title: step.title,
-                description: step.description,
-                icon: index === 0 ? <AuditOutlined /> : 
-                      index === 1 ? <SettingOutlined /> :
-                      index === 2 ? <ApiOutlined /> :
-                      index === 3 ? <LockOutlined /> :
-                      index === 4 ? <CloudServerOutlined /> :
-                      <TeamOutlined />
-              }))}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Enterprise Support */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <Row gutter={[48, 48]} align="middle">
-            <Col xs={24} lg={12}>
-              <Title level={2} className="text-4xl font-bold mb-6">Enterprise Support</Title>
-              <Paragraph className="text-lg text-gray-700 mb-6">
-                Dedicated support infrastructure for mission-critical deployments with 
-                24/7 monitoring, maintenance, and expert consultation.
-              </Paragraph>
-              
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <CheckCircleOutlined className="text-green-600" />
-                  <span>24/7 technical support and monitoring</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircleOutlined className="text-green-600" />
-                  <span>Dedicated customer success manager</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircleOutlined className="text-green-600" />
-                  <span>Custom integration development</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircleOutlined className="text-green-600" />
-                  <span>Priority security updates and patches</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircleOutlined className="text-green-600" />
-                  <span>Compliance consulting and audit support</span>
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <Card className="p-8 bg-gradient-to-r from-blue-50 to-purple-50">
-                <Title level={3} className="text-center mb-6">Ready to Get Started?</Title>
-                <Paragraph className="text-center text-gray-700 mb-6">
-                  Contact our enterprise team to discuss your specific requirements 
-                  and explore how BPCI can transform your infrastructure.
+              <div style={{ background: 'rgba(232, 180, 79, 0.1)', border: '1px solid rgba(232, 180, 79, 0.3)', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', marginBottom: 0 }}>
+                  <strong style={{ color: '#E8B44F' }}>Select your category above.</strong> Each section: What → Why Now → What You Get → Required → How to Start
                 </Paragraph>
-                
-                <div className="space-y-4">
-                  <Link to="/get-started">
-                    <Button 
-                      type="primary" 
-                      size="large" 
-                      block
-                      icon={<RocketOutlined />}
-                      className="font-semibold"
-                    >
-                      Start Enterprise Trial
-                    </Button>
-                  </Link>
-                  <Button 
-                    size="large" 
-                    block
-                    icon={<TeamOutlined />}
-                    className="font-semibold"
-                  >
-                    Schedule Consultation
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 1: Contributors */}
+      {activeSection === 1 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#10B981', textAlign: 'center' }}>
+              👨‍💻 Contributors: Code & Research
+            </Title>
+
+            <FiveLevelSection
+              title="💻 Code Contributors"
+              color="#10B981"
+              what="Contribute to Rust codebase: consensus (LCCD), networking (DynaRoute), cryptography, storage (4D hash-graph), or 15 backend services."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li><strong>75% complete:</strong> See what's real (not starting from zero)</li>
+                  <li><strong>25% remaining:</strong> Your contribution matters (not just bug fixes)</li>
+                  <li><strong>Early contributors:</strong> Recognition, influence, potential equity/tokens</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Deep technical learning (LCCD, DynaRoute, 6D blockchain, quantum crypto)</li>
+                  <li>Contributor recognition + architecture influence</li>
+                  <li>Potential equity/tokens (significant contributions)</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Rust proficiency (async/await, tokio, distributed systems)</li>
+                  <li>Time commitment (varies by contribution)</li>
+                  <li>Production-grade code + tests + docs</li>
+                </ul>
+              }
+              howToStart={
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #10B981 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                    GitHub
+                  </Button>
+                  <Button size="large" style={{ background: 'transparent', border: '2px solid #10B981', color: '#10B981', fontWeight: '600' }}>
+                    umesh@pravyom.com
                   </Button>
                 </div>
+              }
+            />
 
-                <Divider />
-
-                <div className="text-center">
-                  <Paragraph className="text-sm text-gray-600 mb-2">
-                    Enterprise inquiries:
-                  </Paragraph>
-                  <Paragraph className="text-sm font-medium">
-                    enterprise@bpci.dev
-                  </Paragraph>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      </section>
-
-      {/* Current Status */}
-      <section className="py-12 bg-blue-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <Title level={3} className="text-white mb-4">Current Development Status</Title>
-          <Paragraph className="text-blue-100 text-lg mb-6">
-            BPCI Enterprise is currently in active development with testnet operational. 
-            Mainnet deployment scheduled for 6 months with enterprise-ready features.
-          </Paragraph>
-          <div className="flex flex-wrap justify-center gap-6 text-blue-100">
-            <div className="text-center">
-              <div className="text-2xl font-bold">95%</div>
-              <div className="text-sm">Security Layer</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">90%</div>
-              <div className="text-sm">Core Infrastructure</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">85%</div>
-              <div className="text-sm">Enterprise APIs</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">80%</div>
-              <div className="text-sm">Compliance Framework</div>
-            </div>
+            <FiveLevelSection
+              title="🔬 Research Contributors"
+              color="#10B981"
+              what="Research on consensus, quantum cryptography, distributed systems. Access operational testnet for validation."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Experimental infrastructure = real research opportunities</li>
+                  <li>Operational testnet to test theories</li>
+                  <li>Academic papers + co-authorship opportunities</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Full testnet access</li>
+                  <li>Co-authorship on papers</li>
+                  <li>Research grants (when available)</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Academic background (CS, cryptography, distributed systems)</li>
+                  <li>Research proposal + methodology</li>
+                  <li>Collaboration commitment</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #10B981 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Section 2: Pilot Partners */}
+      {activeSection === 2 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#3B82F6', textAlign: 'center' }}>
+              🧪 Pilot Partners: Testing & Validation
+            </Title>
+
+            <FiveLevelSection
+              title="⚙️ Technical Pilots"
+              color="#3B82F6"
+              what="Test infrastructure with real workloads. Provide feedback. Validate performance, security, reliability."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Infrastructure operational (not vaporware)</li>
+                  <li>Early pilots get preferential mainnet terms</li>
+                  <li>Influence feature roadmap</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Free testnet access + dedicated support</li>
+                  <li>Influence roadmap</li>
+                  <li>Early mainnet access (discounted)</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Real use case + technical team</li>
+                  <li>Monthly feedback reports</li>
+                  <li>3-6 month pilot period</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+
+            <FiveLevelSection
+              title="💼 Business Pilots"
+              color="#3B82F6"
+              what="Test business models. Validate market fit. Explore revenue opportunities."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Infrastructure ready for business testing</li>
+                  <li>Shape pricing, features, partnerships</li>
+                  <li>First-mover advantage</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Free testnet + business development support</li>
+                  <li>Revenue sharing opportunities</li>
+                  <li>Early mainnet access</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Business plan + revenue strategy</li>
+                  <li>Market validation with real users</li>
+                  <li>6-12 month pilot</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Section 3: Institutional */}
+      {activeSection === 3 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              🏛️ Institutional Pilots
+            </Title>
+
+            <FiveLevelSection
+              title="🏢 Enterprise Pilots"
+              color="#E8B44F"
+              what="Deploy for enterprise use cases: supply chain, audit, compliance. 6D blockchain = government-grade audit trails."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Post-quantum ready = future-proof</li>
+                  <li>Early enterprises get custom features</li>
+                  <li>Impossible-to-hide audit trails</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Dedicated support + custom features</li>
+                  <li>White-label options</li>
+                  <li>Enterprise SLA (mainnet)</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Enterprise use case + budget</li>
+                  <li>12+ month commitment</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+
+            <FiveLevelSection
+              title="🏛️ Government Pilots"
+              color="#E8B44F"
+              what="Deploy for government: digital identity, land registry, voting, compliance. Impossible-to-hide audit trails (CBOR pipeline)."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Quantum-ready security</li>
+                  <li>Early governments shape compliance features</li>
+                  <li>Sovereign deployment options</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Government-grade security</li>
+                  <li>Compliance support + regulatory framework</li>
+                  <li>Sovereign deployment</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Government mandate + regulatory approval</li>
+                  <li>Multi-year commitment</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Section 4: Pre-Fundable */}
+      {activeSection === 4 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#7C3AED', textAlign: 'center' }}>
+              💰 Pre-Fundable Pilots
+            </Title>
+
+            <FiveLevelSection
+              title="👼 Angel/Seed Investors"
+              color="#7C3AED"
+              what="Invest in pilot phase. Get equity/tokens before formal rounds. Pre-seed valuation."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>75% complete = de-risked</li>
+                  <li>Pre-mainnet = early valuation</li>
+                  <li>Help trigger GEN coin launch</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Equity/token allocation (pre-seed valuation)</li>
+                  <li>Board observer seat (significant investment)</li>
+                  <li>Influence tokenomics</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Investment: $50K - $500K</li>
+                  <li>Strategic value (not just capital)</li>
+                  <li>3-5 year vision</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+
+            <FiveLevelSection
+              title="🤝 Strategic Partners"
+              color="#7C3AED"
+              what="Provide strategic value (distribution, partnerships, expertise) + capital."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Infrastructure ready for partnerships</li>
+                  <li>Shape go-to-market</li>
+                  <li>Mainnet depends on ecosystem</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Equity/token allocation</li>
+                  <li>Partnership agreement + co-marketing</li>
+                  <li>Revenue sharing</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Strategic value proposition</li>
+                  <li>Investment: $100K - $1M</li>
+                  <li>Active partnership</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Section 5: IP Investors */}
+      {activeSection === 5 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#F59E0B', textAlign: 'center' }}>
+              🔬 IP Investors
+            </Title>
+
+            <FiveLevelSection
+              title="💡 Technology IP Investors"
+              color="#F59E0B"
+              what="Invest in technology IP: LCCD consensus, DynaRoute, 6D blockchain, quantum systems. Patent-pending."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Novel technologies (not derivatives)</li>
+                  <li>Patent-pending systems</li>
+                  <li>Early IP investors get licensing rights</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>IP licensing rights</li>
+                  <li>Technology transfer agreements</li>
+                  <li>Royalty sharing</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>IP investment: $500K - $5M</li>
+                  <li>Technology expertise</li>
+                  <li>Long-term IP strategy</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+
+            <FiveLevelSection
+              title="📜 Patent/Licensing Partners"
+              color="#F59E0B"
+              what="Partner on patent filings, licensing, technology commercialization."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Novel systems ready for patenting</li>
+                  <li>Shape IP strategy</li>
+                  <li>Licensing opportunities (multiple industries)</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Co-ownership of patents</li>
+                  <li>Licensing revenue share</li>
+                  <li>Commercialization rights</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Patent expertise</li>
+                  <li>Investment in patent filings</li>
+                  <li>Commercialization strategy</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Section 6: Web3 Vision */}
+      {activeSection === 6 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#06B6D4', textAlign: 'center' }}>
+              🌐 Web3 Decentralized Vision
+            </Title>
+
+            <FiveLevelSection
+              title="🛠️ Decentralized Ecosystem Builders"
+              color="#06B6D4"
+              what="Build decentralized applications, tools, infrastructure on top of platform."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Infrastructure 75% ready</li>
+                  <li>Early builders shape ecosystem</li>
+                  <li>GEN coin launch rewards early builders</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Free testnet access</li>
+                  <li>Developer grants (when available)</li>
+                  <li>GEN coin allocation (significant contributions)</li>
+                  <li>Ecosystem fund access</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Decentralized vision</li>
+                  <li>Technical capability</li>
+                  <li>Community commitment</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+
+            <FiveLevelSection
+              title="🗳️ Community Governance Contributors"
+              color="#06B6D4"
+              what="Participate in governance. Help shape decentralized future."
+              whyNow={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Governance model being designed</li>
+                  <li>Early contributors shape governance</li>
+                  <li>Decentralization roadmap depends on community</li>
+                </ul>
+              }
+              whatYouGet={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Governance tokens (when launched)</li>
+                  <li>Voting rights</li>
+                  <li>Community recognition</li>
+                  <li>Influence platform direction</li>
+                </ul>
+              }
+              required={
+                <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+                  <li>Long-term commitment</li>
+                  <li>Governance expertise</li>
+                  <li>Community building skills</li>
+                </ul>
+              }
+              howToStart={
+                <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                  umesh@pravyom.com
+                </Button>
+              }
+            />
+          </div>
+        </section>
+      )}
     </div>
   );
 };

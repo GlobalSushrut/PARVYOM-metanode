@@ -10,10 +10,23 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{info, warn, error};
-use uuid::Uuid;
+use tracing::{info, warn};
 
 use crate::bpi_ledger_integration::BpiLedgerClient;
+
+/// Bundle proposal for consensus rounds
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BundleProposal {
+    pub bundle_id: String,
+    pub proposer_id: String,
+    pub bid_amount: u64,
+    pub gas_limit: u64,
+    pub priority_fee: u64,
+    pub timestamp: DateTime<Utc>,
+    pub transaction_count: u32,
+    pub total_fees: u64,
+    pub priority_score: f64,
+}
 
 /// Auction mode configuration for testnet vs mainnet
 #[derive(Debug, Clone, Serialize, Deserialize)]

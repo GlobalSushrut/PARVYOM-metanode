@@ -7,12 +7,13 @@ use anyhow::Result;
 // BSO ICO world testnet - using integrated modules directly
 use pravyom_enterprise::storage::unified_orchestrator::{UnifiedStorageOrchestrator as StorageManager, UnifiedStorageConfig};
 use pravyom_enterprise::bpi_ledger_integration::BpiLedgerClient as NetworkManager;
+// Fixed imports for BPCI enterprise
 use pravyom_enterprise::bpci_auction_mempool::BpciAuctionMempool as ConsensusEngine;
 use pravyom_enterprise::bpci_auction_mempool_minimal::BpciAuctionMempool as TransactionPool;
 use pravyom_enterprise::storage::{Transaction, StorageOperation};
 use pravyom_enterprise::dbyml_config::{StorageConfig, StorageEngineConfig, ReplicationConfig, ArchivalConfig};
 use pravyom_enterprise::autonomous_economy::TransactionType as EconomyTransactionType;
-use pravyom_enterprise::triple_consensus_coordinator::VoteType;
+// use pravyom_enterprise::triple_consensus_coordinator::VoteType; // Module not available
 use rust_decimal::Decimal;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};

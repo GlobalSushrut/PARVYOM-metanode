@@ -26,7 +26,7 @@ const NetworkStatus: React.FC<NetworkStatusProps> = ({
     const pingTest = async () => {
       const start = Date.now();
       try {
-        await fetch('http://127.0.0.1:8081/api/economy/status', { 
+        await fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/economy/status`, { 
           method: 'HEAD',
           cache: 'no-cache'
         });

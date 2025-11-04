@@ -345,7 +345,7 @@ impl KappaCirculatorySystem {
 }
 
 /// Triple confidence coefficients for NxTri immune system
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, serde::Serialize, serde::Deserialize)]
 pub struct TriCoeff {
     pub alpha: f64,   // Network confidence
     pub beta: f64,    // Computational confidence  

@@ -41,7 +41,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       const request: VerifyOTPRequest = {
         email,
         otp_code: values.otp_code,
-        purpose,
+        purpose: purpose === 'Registration' ? 'email_verification' as const : 'password_reset' as const,
       };
 
       const response = await apiService.verifyOTP(request);

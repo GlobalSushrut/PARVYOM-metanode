@@ -1,0 +1,63 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "pravyom-frontend-backend-cluster",
+    "labels": {
+      "app": "pravyom-enterprise",
+      "tier": "frontend-backend",
+      "instance": "1"
+    }
+  },
+  "spec": {
+    "type": "CustomBinary",
+    "binary_path": "/home/umesh/metanode/target/release/pravyom-enterprise",
+    "args": [
+      "--config", 
+      "/etc/parvyom-testnet/config.toml", 
+      "--network", 
+      "testnet", 
+      "web", 
+      "start", 
+      "--port", 
+      "8080", 
+      "--host", 
+      "0.0.0.0"
+    ],
+    "env_vars": {
+      "RUST_LOG": "info",
+      "PRAVYOM_NETWORK": "testnet",
+      "PRAVYOM_CHAIN_ID": "1337"
+    },
+    "working_dir": "/home/umesh/metanode",
+    "vpods": 12,
+    "health_check": {
+      "endpoint": "/health",
+      "port": 8080,
+      "interval": 30
+    },
+    "resources": {
+      "memory_mb": 96,
+      "cpu_cores": 1.5,
+      "storage_gb": 2,
+      "network_bandwidth": "1Gbps"
+    },
+    "endpoints": [
+      {
+        "name": "bpci-api",
+        "port": 8080,
+        "path": "/health"
+      },
+      {
+        "name": "frontend",
+        "port": 80,
+        "path": "/"
+      },
+      {
+        "name": "dashboard",
+        "port": 3000,
+        "path": "/"
+      }
+    ]
+  }
+}

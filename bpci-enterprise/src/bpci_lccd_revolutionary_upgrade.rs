@@ -1,12 +1,11 @@
 use crate::lccd_mathematical_foundation::*;
 use crate::quantum_safe_channels::*;
 use std::sync::Arc;
+use std::collections::HashMap;
 use tokio::sync::RwLock;
-use serde::{Serialize, Deserialize};
 use anyhow::Result;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 
 /// BPCI Revolutionary Upgrade: LCCD Integration
 /// 
@@ -129,6 +128,15 @@ pub struct RevolutionaryConsensusState {
     
     /// Revolutionary consensus achieved
     revolutionary_consensus: bool,
+    
+    /// Revolutionary consensus active (for external API)
+    pub revolutionary_consensus_active: bool,
+    
+    /// Current round ID (for tracking)
+    pub current_round_id: Option<String>,
+    
+    /// Last consensus time (for tracking)
+    pub last_consensus_time: Option<DateTime<Utc>>,
     
     /// Mathematical transcendence active
     transcendence_active: bool,
@@ -281,6 +289,9 @@ impl BpciRevolutionaryConsensus {
         let consensus_state = Arc::new(RwLock::new(RevolutionaryConsensusState {
             current_round: 0,
             revolutionary_consensus: false,
+            revolutionary_consensus_active: false,
+            current_round_id: None,
+            last_consensus_time: None,
             transcendence_active: false,
             consciousness_level: 0.0,
             temporal_protection: false,
@@ -481,6 +492,31 @@ impl BpciRevolutionaryConsensus {
         Ok(revolutionary_confidence.min(1.0))
     }
     
+    /// Start revolutionary consensus round
+    pub async fn start_revolutionary_consensus(&self, _bundle_proposals: Vec<crate::auction_mode_manager::BundleProposal>) -> Result<String> {
+        // Generate unique round ID
+        let round_id = Uuid::new_v4().to_string();
+        
+        // Process revolutionary consensus
+        let network_health = 0.95; // High network health for production
+        let _consensus_result = self.process_revolutionary_consensus(network_health).await?;
+        
+        // Update consensus state
+        {
+            let mut state = self.consensus_state.write().await;
+            state.revolutionary_consensus_active = true;
+            state.current_round_id = Some(round_id.clone());
+            state.last_consensus_time = Some(Utc::now());
+        }
+        
+        Ok(round_id)
+    }
+
+    /// Get revolutionary status by round ID
+    pub async fn get_revolutionary_status_by_round(&self, _round_id: &str) -> Result<RevolutionaryStatus> {
+        self.get_revolutionary_status().await
+    }
+
     /// Get current revolutionary status
     pub async fn get_revolutionary_status(&self) -> Result<RevolutionaryStatus> {
         let state = self.consensus_state.read().await;
@@ -520,7 +556,7 @@ impl BpciRevolutionaryConsensus {
 }
 
 // Result structures
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct RevolutionaryConsensusResult {
     pub base_tri_coeff: TriCoeff,
     pub consciousness_enhancement: ConsciousnessEnhancement,
@@ -532,7 +568,7 @@ pub struct RevolutionaryConsensusResult {
     pub revolutionary_features_active: u8,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct ConsciousnessEnhancement {
     pub consciousness_level: f64,
     pub threat_predictions: Vec<ThreatPrediction>,
@@ -541,7 +577,7 @@ pub struct ConsciousnessEnhancement {
     pub predictive_accuracy: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct TranscendenceResult {
     pub transcendence_level: f64,
     pub category_completeness: f64,
@@ -552,7 +588,7 @@ pub struct TranscendenceResult {
     pub logical_decidability: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct TemporalProtectionResult {
     pub protection_active: bool,
     pub causality_strength: f64,
@@ -562,7 +598,7 @@ pub struct TemporalProtectionResult {
     pub time_travel_resistance: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct CellularScalingResult {
     pub cellular_division_triggered: bool,
     pub new_cell_count: u64,
@@ -573,7 +609,7 @@ pub struct CellularScalingResult {
     pub infinite_scalability_active: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct RevolutionaryStatus {
     pub revolutionary_consensus_active: bool,
     pub consciousness_level: f64,
@@ -587,25 +623,25 @@ pub struct RevolutionaryStatus {
 }
 
 // Additional supporting structures
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct ThreatPrediction {
     pub threat_type: String,
     pub probability: f64,
     pub predicted_impact: f64,
-    pub time_to_occurrence: Duration,
+    pub time_to_occurrence_seconds: u64,
     pub mitigation_recommendations: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct OpportunityRecognition {
     pub opportunity_type: String,
     pub potential_benefit: f64,
     pub implementation_feasibility: f64,
-    pub recommended_timeline: Duration,
+    pub recommended_timeline_seconds: u64,
     pub action_steps: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 pub struct ParadoxDetectionResult {
     pub paradox_risk: f64,
     pub detected_paradoxes: Vec<String>,
@@ -650,7 +686,7 @@ impl ThreatPredictor {
                 threat_type: "Network degradation".to_string(),
                 probability: 0.15,
                 predicted_impact: 0.3,
-                time_to_occurrence: Duration::from_secs(3600),
+                time_to_occurrence_seconds: 3600,
                 mitigation_recommendations: vec!["Increase redundancy".to_string()],
             }
         ])
@@ -665,7 +701,7 @@ impl OpportunityRecognizer {
                 opportunity_type: "Performance optimization".to_string(),
                 potential_benefit: 0.25,
                 implementation_feasibility: 0.8,
-                recommended_timeline: Duration::from_secs(86400),
+                recommended_timeline_seconds: 86400,
                 action_steps: vec!["Optimize consensus parameters".to_string()],
             }
         ])

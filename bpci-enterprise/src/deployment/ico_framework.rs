@@ -652,20 +652,8 @@ macro_rules! impl_ico_component_new {
     ($type:ty) => {
         impl $type {
             async fn new() -> Result<Self, IcoError> {
-                // Use Default::default() for Arc-containing structs to prevent runtime panic
-                // Use std::mem::zeroed() for simple structs without Arc types
-                match stringify!($type) {
-                    "CellularLifecycleManager" | "CellularNodeRegistry" | "AutonomousReplicationEngine" | 
-                    "InterCellularMesh" | "CellularResourceAllocator" => {
-                        Ok(Self::default())
-                    },
-                    _ => {
-                        // For other types without Arc, use zeroed initialization (safe)
-                        unsafe {
-                            Ok(std::mem::zeroed())
-                        }
-                    }
-                }
+                // Always use Default::default() for safety - no unsafe code
+                Ok(Self::default())
             }
         }
     };

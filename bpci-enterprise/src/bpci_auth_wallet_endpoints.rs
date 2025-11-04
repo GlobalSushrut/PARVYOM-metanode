@@ -12,6 +12,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::{Arc, RwLock, Mutex};
+use std::sync::atomic::{AtomicU32, Ordering};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 use ed25519_dalek::{SigningKey, VerifyingKey, Signer};
@@ -112,24 +114,26 @@ pub struct VoteRequest {
 }
 
 // In-memory storage for demo (in production, use a database)
-static mut VOTER_COUNT: u32 = 0;
-static mut VOTERS: Vec<CommunityVoter> = Vec::new();
+// Thread-safe global state for community voting
+static VOTER_COUNT: AtomicU32 = AtomicU32::new(0);
+lazy_static::lazy_static! {
+    static ref VOTERS: Arc<RwLock<Vec<CommunityVoter>>> = Arc::new(RwLock::new(Vec::new()));
+}
 
 pub async fn get_voter_count() -> Result<Json<serde_json::Value>, StatusCode> {
-    unsafe {
-        Ok(Json(serde_json::json!({
-            "count": VOTER_COUNT,
-            "success": true
-        })))
-    }
+    Ok(Json(serde_json::json!({
+        "count": VOTER_COUNT.load(Ordering::Relaxed),
+        "success": true
+    })))
 }
 
 pub async fn register_vote(Json(req): Json<VoteRequest>) -> Result<Json<ApiResponse<String>>, StatusCode> {
     info!("Registering community vote from: {}", req.name);
     
     // Check if email already voted (simple duplicate prevention)
-    unsafe {
-        let already_voted = VOTERS.iter().any(|v| v.email == req.email);
+    {
+        let voters = VOTERS.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        let already_voted = voters.iter().any(|v| v.email == req.email);
         if already_voted {
             return Ok(Json(ApiResponse {
                 success: false,
@@ -137,37 +141,39 @@ pub async fn register_vote(Json(req): Json<VoteRequest>) -> Result<Json<ApiRespo
                 error: Some("Email has already voted".to_string()),
             }));
         }
-        
-        // Add new voter
-        let voter = CommunityVoter {
-            id: Uuid::new_v4().to_string(),
-            name: req.name.clone(),
-            email: req.email,
-            voted_at: Utc::now(),
-            ip_address: None, // Could extract from request headers
-        };
-        
-        VOTERS.push(voter);
-        VOTER_COUNT += 1;
-        
-        info!("Vote registered successfully. Total votes: {}", VOTER_COUNT);
     }
+    
+    // Add new voter
+    let voter = CommunityVoter {
+        id: Uuid::new_v4().to_string(),
+        name: req.name.clone(),
+        email: req.email,
+        voted_at: Utc::now(),
+        ip_address: None, // Could extract from request headers
+    };
+    
+    {
+        let mut voters = VOTERS.write().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        voters.push(voter);
+    }
+    
+    let new_count = VOTER_COUNT.fetch_add(1, Ordering::Relaxed) + 1;
+    info!("Vote registered successfully. Total votes: {}", new_count);
     
     Ok(Json(ApiResponse {
         success: true,
-        data: Some(format!("Vote registered successfully! Total votes: {}", unsafe { VOTER_COUNT })),
+        data: Some(format!("Vote registered successfully! Total votes: {}", new_count)),
         error: None,
     }))
 }
 
 pub async fn get_voters() -> Result<Json<ApiResponse<Vec<CommunityVoter>>>, StatusCode> {
-    unsafe {
-        Ok(Json(ApiResponse {
-            success: true,
-            data: Some(VOTERS.clone()),
-            error: None,
-        }))
-    }
+    let voters = VOTERS.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(ApiResponse {
+        success: true,
+        data: Some(voters.clone()),
+        error: None,
+    }))
 }
 
 /// Login page HTML

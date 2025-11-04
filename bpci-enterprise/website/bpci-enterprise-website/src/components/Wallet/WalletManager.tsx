@@ -8,7 +8,7 @@ import {
   CrownOutlined,
   TeamOutlined
 } from '@ant-design/icons';
-import { registryService, WalletInfo } from '../../services/registryService';
+import { registryService, type WalletInfo } from '../../services/registryService';
 import { authService } from '../../services/authService';
 
 const { Title, Text } = Typography;

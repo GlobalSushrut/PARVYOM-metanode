@@ -36,6 +36,22 @@ pub enum TransactionStatus {
     Aborted,
 }
 
+impl Transaction {
+    pub fn new(id: Uuid, data: Vec<u8>, fee: u64) -> Self {
+        Self {
+            id,
+            start_time: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+            logical_timestamp: 0,
+            status: TransactionStatus::Active,
+            read_set: Vec::new(),
+            write_set: Vec::new(),
+        }
+    }
+}
+
 /// Version entry for MVCC
 #[derive(Debug, Clone)]
 pub struct VersionEntry {

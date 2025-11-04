@@ -1,11 +1,11 @@
 use axum::{
-    extract::{Query, State, Path},
+    extract::{State, Path},
     http::{StatusCode, HeaderMap},
     response::{Html, Json},
     routing::{get, post},
     Router,
 };
-use pravyom_enterprise::community_installer_os::{CommunityInstallerOS, InstallerConfig, InstallationPhase};
+use pravyom_enterprise::community_installer_os::{CommunityInstallerOS, InstallerConfig};
 // BSO ICO world testnet - configuration handled by CUE deployment config
 use pravyom_enterprise::bpci_auction_mempool::BpciAuctionMempool;
 use pravyom_enterprise::bpi_ledger_integration::BpiLedgerClient;
@@ -18,11 +18,18 @@ use tower_http::cors::CorsLayer;
 use tracing::{info, error, warn};
 use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
-use sha2::{Sha256, Digest};
-use ed25519_dalek::{SigningKey, VerifyingKey, Signer};
+use sha2::Digest;
+use ed25519_dalek::SigningKey;
 use rand::rngs::OsRng;
-use anyhow::{Result, anyhow};
 use hex;
+
+// 🌐 Pure Virtual Addressing Mode - NO STATIC PORTS!
+use pravyom_enterprise::{
+    virtual_addressing::{VirtualAddressingConfig, VirtualAddressingManager},
+    dynaroute_integration::UnifiedNetworkingLayer,
+    config::env_ini_parser::EnvIniParser,
+    commute_lock::CommuteLockRuntime,
+};
 
 /// Enhanced BPCI Web Interface with User Authentication and Wallet Management
 /// Provides comprehensive user dashboard, BPI wallet creation, and activation
@@ -81,7 +88,51 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     tracing_subscriber::fmt::init();
     
-    info!("🚀 Starting BPCI Community Installer OS Web Interface");
+    info!("🚀 Starting BPCI Community Installer OS Web Interface (Component 9)");
+    
+    // 🌐 Initialize Pure Virtual Addressing Mode (NO STATIC PORTS!)
+    info!("🌐 Initializing Pure Virtual Addressing Mode for Web Server...");
+    let virtual_config = VirtualAddressingConfig::pure_virtual("web");
+    let virtual_mgr = VirtualAddressingManager::new(virtual_config);
+    info!("✅ Virtual addressing initialized - NO static ports!");
+    info!("   Service name: {}", virtual_mgr.service_name());
+    info!("   IAAv6: {}", virtual_mgr.virtual_address().iaav6);
+    
+    // Initialize CommuteLock Runtime
+    let parser = EnvIniParser::new("config");
+    let env_config = match parser.parse_env_ini() {
+        Ok(config) => config,
+        Err(_) => {
+            use pravyom_enterprise::config::env_ini_parser::EnvIniConfig;
+            EnvIniConfig {
+                sections: HashMap::new(),
+                globals: HashMap::new(),
+                vpod_env: None,
+                bso_k8_config: None,
+                commute_lock_config: None,
+            }
+        }
+    };
+    let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+    info!("✅ CommuteLock runtime initialized");
+    
+    // Initialize UnifiedNetworkingLayer (Pure Virtual - Dynamic Port!)
+    let networking = Arc::new(
+        UnifiedNetworkingLayer::new_virtual(commute_runtime).await?
+    );
+    info!("✅ UnifiedNetworkingLayer initialized (Pure Virtual Mode)");
+    info!("   Dynamic port assigned: {}", networking.local_addr().port());
+    info!("   NO static port configuration required!");
+    
+    // Register service in discovery (by name only!)
+    networking.register_service(
+        virtual_mgr.service_name(),
+        vec![networking.local_addr()],
+    ).await;
+    info!("✅ Service registered: '{}' → {}", virtual_mgr.service_name(), networking.local_addr());
+    
+    info!("🚀 Web Server (Component 9) initialized in Pure Virtual Mode");
+    info!("   ✅ Can communicate with all other components by service name");
     
     // Initialize installer and user management
     let installer = Arc::new(RwLock::new(CommunityInstallerOS::new(None)));

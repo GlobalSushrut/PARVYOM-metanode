@@ -203,7 +203,7 @@ const BpiWalletSystem: React.FC = () => {
     }
     
     try {
-      const response = await fetch('http://127.0.0.1:8080/api/bpci/wallets', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/bpci/wallets`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
@@ -310,7 +310,7 @@ const BpiWalletSystem: React.FC = () => {
         verification_level: 'Enhanced'
       };
 
-      const response = await fetch('http://127.0.0.1:8080/api/bpci/wallets/create', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/bpci/wallets/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -384,7 +384,7 @@ const BpiWalletSystem: React.FC = () => {
   // Process PoE mining
   const processPoEMining = async (walletId: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8080/api/bpci/wallets/poe-mining', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/bpci/wallets/poe-mining`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

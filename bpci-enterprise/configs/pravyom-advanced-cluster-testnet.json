@@ -1,0 +1,137 @@
+{
+  "service_name": "pravyom-advanced-cluster",
+  "service_type": "MultiService",
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "pravyom-advanced-cluster",
+    "labels": {
+      "app": "pravyom-enterprise",
+      "tier": "advanced-infrastructure",
+      "instance": "4"
+    }
+  },
+  "spec": {
+    "type": "MultiService",
+    "instances": 2,
+    "total_memory_gb": 4,
+    "total_cpu_cores": 4,
+    "services": [
+      {
+        "name": "bpci-consensus-server",
+        "type": "CustomBinary",
+        "binary_path": "/home/umesh/metanode/target/release/bpci-consensus-server",
+        "args": ["--config", "/etc/parvyom-testnet/config.toml", "--network", "testnet"],
+        "memory_mb": 512,
+        "cpu_cores": 0.5,
+        "health_check": {
+          "endpoint": "/consensus/health",
+          "port": 9001
+        }
+      },
+      {
+        "name": "bpci-blockchain-server",
+        "type": "CustomBinary", 
+        "binary_path": "/home/umesh/metanode/target/release/bpci_blockchain_server",
+        "args": ["--config", "/etc/parvyom-testnet/config.toml", "--network", "testnet"],
+        "memory_mb": 512,
+        "cpu_cores": 0.5,
+        "health_check": {
+          "endpoint": "/blockchain/health",
+          "port": 9002
+        }
+      },
+      {
+        "name": "bpci-xtmp-server",
+        "type": "CustomBinary",
+        "binary_path": "/home/umesh/metanode/target/release/bpci-xtmp-server", 
+        "args": ["--config", "/etc/parvyom-testnet/config.toml", "--network", "testnet"],
+        "memory_mb": 768,
+        "cpu_cores": 0.75,
+        "health_check": {
+          "endpoint": "/xtmp/health",
+          "port": 9003
+        }
+      },
+      {
+        "name": "bso-k8-production-server",
+        "type": "CustomBinary",
+        "binary_path": "/home/umesh/metanode/target/release/bso_k8_production_server",
+        "args": ["--port", "9090", "--enable-cellular"],
+        "memory_mb": 384,
+        "cpu_cores": 0.5,
+        "health_check": {
+          "endpoint": "/orchestrator/health",
+          "port": 9090
+        }
+      },
+      {
+        "name": "token-server",
+        "type": "CustomBinary",
+        "binary_path": "/home/umesh/metanode/target/release/token_server",
+        "args": ["--config", "/etc/parvyom-testnet/config.toml"],
+        "memory_mb": 256,
+        "cpu_cores": 0.25,
+        "health_check": {
+          "endpoint": "/token/health", 
+          "port": 9004
+        }
+      },
+      {
+        "name": "httpcg-services",
+        "type": "CustomBinary",
+        "binary_path": "/home/umesh/metanode/target/release/httpcg_admin_server",
+        "args": ["--config", "/etc/parvyom-testnet/config.toml"],
+        "memory_mb": 640,
+        "cpu_cores": 0.75,
+        "health_check": {
+          "endpoint": "/httpcg/health",
+          "port": 9005
+        }
+      },
+      {
+        "name": "shadowregistry",
+        "type": "Service",
+        "service_name": "shadow_registry",
+        "memory_mb": 384,
+        "cpu_cores": 0.5,
+        "health_check": {
+          "endpoint": "/shadow-registry/health",
+          "port": 9006
+        }
+      },
+      {
+        "name": "health-monitor",
+        "type": "Service", 
+        "service_name": "health_monitor",
+        "memory_mb": 256,
+        "cpu_cores": 0.25,
+        "health_check": {
+          "endpoint": "/health/system",
+          "port": 9007
+        }
+      }
+    ],
+    "env_vars": {
+      "RUST_LOG": "info",
+      "PRAVYOM_NETWORK": "testnet",
+      "PRAVYOM_CHAIN_ID": "1337",
+      "LCCD_CONSENSUS": "enabled",
+      "MATHEMATICAL_FOUNDATION": "enabled"
+    },
+    "working_dir": "/home/umesh/metanode",
+    "deployment_strategy": "distributed",
+    "resource_allocation": {
+      "instance_1": {
+        "memory_gb": 2,
+        "cpu_cores": 2,
+        "services": ["bpci-consensus-server", "bpci-blockchain-server", "bpci-xtmp-server", "bso-k8-production-server"]
+      },
+      "instance_2": {
+        "memory_gb": 2, 
+        "cpu_cores": 2,
+        "services": ["token-server", "httpcg-services", "shadowregistry", "health-monitor"]
+      }
+    }
+  }
+}

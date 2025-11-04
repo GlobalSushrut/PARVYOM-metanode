@@ -1,50 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Button, 
-  Modal, 
-  Form, 
-  Select, 
-  notification, 
-  Tabs, 
-  Statistic, 
-  Progress, 
-  Descriptions,
-  Badge,
-  Typography,
-  Space
-} from 'antd';
-import { 
-  WalletOutlined, 
-  PlusOutlined, 
-  SafetyOutlined,
+import { Card, Button, Form, Select, Spin, Alert, Modal, Statistic, Progress, Badge, Typography, Space, Tabs, Descriptions, notification, Tag } from 'antd';
+import {
+  WalletOutlined,
+  PlusOutlined,
+  BankOutlined,
+  GlobalOutlined,
+  CrownOutlined,
   ThunderboltOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  InfoCircleOutlined
+  SafetyOutlined,
+  TeamOutlined,
+  ApiOutlined
 } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
 const { Option } = Select;
-
-// Real Rust Implementation Types - Exact Match
-interface RegisteredWallet {
-  registration_id: string; // UUID
-  wallet_address: string; // BPI address
-  wallet_type: WalletType;
-  owner_type?: OwnerType;
-  network_type: NetworkType;
-  stamp_type?: StampType;
-  mother_coin_allocation: number;
-  baby_coin_balance: number;
-  poe_stats: PoEMiningStats;
-  compliance_status: ComplianceStatus;
-  billing_config: BillingConfig;
-  created_at: string;
-  updated_at: string;
-  migration_count: number;
-}
 
 // Real Rust Implementation Types - Exact Match with Rust Code
 const WalletType = {
@@ -58,7 +28,8 @@ const WalletType = {
   Owner: "Owner",
   ESOP: "ESOP",
   Treasury: "Treasury",
-  Company: "Company"
+  Company: "Company",
+  NewWalletType: "NewWalletType"
 } as const;
 type WalletType = typeof WalletType[keyof typeof WalletType];
 
@@ -74,38 +45,21 @@ interface ServiceId {
 // BPI Wallet structure matching Rust implementation exactly
 interface BpiWallet {
   id: string;
+  registration_id: string;
+  wallet_address: string;
   wallet_type: WalletType;
-  address: WalletAddress;
-  service_id?: ServiceId;
-  verification_level: string;
-  public_key: Uint8Array;
-  private_key_encrypted: string;
-  key_type: KeyType;
-  bpci_endpoint?: string;
-  bci_endpoint?: string;
-  capabilities: {
-    mining: boolean;
-    wallet: boolean;
-    registry: boolean;
-    encryption_schemes: string[];
-  };
-  registered_at: number;
-  last_activity: number;
-  status: WalletStatus;
-  metadata: {
-    node_type: string;
-    version: string;
-    capabilities: string;
-  };
-  signature?: string;
-  node_id: string;
-  bpi_address: string;
-  activation_tx_hash?: string;
-  // Additional fields for UI display
-  mother_coin_balance?: number;
+  owner_type?: OwnerType;
+  network_type: NetworkType;
+  stamp_type?: StampType;
+  mother_coin_allocation: number;
   baby_coin_balance?: number;
-  mining_efficiency?: number;
-  compliance_score?: number;
+  poe_stats: PoEMiningStats;
+  compliance_status: ComplianceStatus;
+  billing_config: BillingConfig;
+  created_at: string;
+  updated_at: string;
+  migration_count: number;
+  new_field: string;
 }
 
 const KeyType = {
@@ -127,7 +81,8 @@ const OwnerType = {
   EarlyInvestor: 2,  // 100 coins each
   CommunityLeader: 3, // variable allocation
   StrategicPartner: 4, // negotiated allocation
-  PublicInvestor: 5   // market-based allocation
+  PublicInvestor: 5,   // market-based allocation
+  NewOwnerType: 6      // new owner type
 } as const;
 type OwnerType = typeof OwnerType[keyof typeof OwnerType];
 
@@ -243,7 +198,7 @@ export const AdvancedWalletSystem: React.FC = () => {
     setLoading(true);
     try {
       // Try real backend first - matching Rust API endpoints
-      const response = await fetch('http://127.0.0.1:8080/api/registry/wallets', {
+      const response = await fetch(`${process.env.REACT_APP_SHADOW_REGISTRY_URL || 'https://registry.pravyom.com'}/api/registry/wallets`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
       });
       
@@ -259,39 +214,32 @@ export const AdvancedWalletSystem: React.FC = () => {
       const demoWallets: BpiWallet[] = [
         {
           id: 'demo-wallet-001',
+          registration_id: 'demo-wallet-001',
+          wallet_address: 'bpi1qxyz123abc789def456ghi789jkl012mno345pqr678stu901vwx234yz',
           wallet_type: WalletType.Personal,
-          address: { address: 'bpi1qxyz123abc789def456ghi789jkl012mno345pqr678stu901vwx234yz' },
-          service_id: { id: 'service_demo_001' },
-          verification_level: 'Enhanced',
-          public_key: new Uint8Array(32),
-          private_key_encrypted: 'encrypted_demo_key_001',
-          key_type: KeyType.Ed25519,
-          bpci_endpoint: 'http://127.0.0.1:8080',
-          bci_endpoint: 'http://127.0.0.1:8081',
-          capabilities: {
-            mining: true,
-            wallet: true,
-            registry: true,
-            encryption_schemes: ['Ed25519', 'AES256']
-          },
-          registered_at: Math.floor(Date.now() / 1000) - 86400,
-          last_activity: Math.floor(Date.now() / 1000) - 3600,
-          status: WalletStatus.Active,
-          metadata: {
-            node_type: 'mining_bridge',
-            version: '1.0.0',
-            capabilities: 'mining,wallet,registry'
-          },
-          signature: 'demo_signature_001',
-          node_id: 'node_demo_001',
-          bpi_address: 'bpi1qxyz123abc789def456ghi789jkl012mno345pqr678stu901vwx234yz',
-          activation_tx_hash: 'tx_demo_001',
-          mother_coin_balance: 50,
+          owner_type: OwnerType.PublicInvestor,
+          network_type: NetworkType.Testnet,
+          stamp_type: StampType.Government,
+          mother_coin_allocation: 50,
           baby_coin_balance: 125,
-          mining_efficiency: 85,
-          compliance_score: 75
+          poe_stats: {
+            mining_efficiency: 85,
+            compliance_score: 75,
+            total_mined: 125
+          } as any,
+          compliance_status: 'compliant' as any,
+          billing_config: {
+            plan: 'basic',
+            rate: 0.01,
+            currency: 'BPI'
+          } as any,
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          updated_at: new Date(Date.now() - 3600000).toISOString(),
+          migration_count: 0,
+          new_field: 'new field value'
         }
-      ]);
+      ];
+      setWallets(demoWallets);
     }
     setLoading(false);
   };
@@ -325,7 +273,7 @@ export const AdvancedWalletSystem: React.FC = () => {
         verification_level: 'Enhanced'
       };
 
-      const response = await fetch('http://127.0.0.1:8080/api/bpci/wallets/create', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/bpci/wallets/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -361,33 +309,29 @@ export const AdvancedWalletSystem: React.FC = () => {
       
       const newWallet: BpiWallet = {
         id: walletId,
+        registration_id: `reg_${walletId}`,
+        wallet_address: bpiAddress,
         wallet_type: values.walletType || WalletType.Personal,
-        address: { address: bpiAddress },
-        service_id: { id: `service_${nodeId}` },
-        verification_level: 'Enhanced',
-        public_key: keyPair.publicKey,
-        private_key_encrypted: encryptPrivateKey(keyPair.privateKey, 'demo_password'),
-        key_type: KeyType.Ed25519,
-        bpci_endpoint: 'http://127.0.0.1:8080',
-        bci_endpoint: 'http://127.0.0.1:8081',
-        capabilities: {
-          mining: true,
-          wallet: true,
-          registry: true,
-          encryption_schemes: ['Ed25519', 'AES256']
-        },
-        registered_at: Math.floor(Date.now() / 1000),
-        last_activity: Math.floor(Date.now() / 1000),
-        status: WalletStatus.Active,
-        metadata: {
-          node_type: 'mining_bridge',
-          version: '1.0.0',
-          capabilities: 'mining,wallet,registry'
-        },
-        signature: signature,
-        node_id: nodeId,
-        bpi_address: bpiAddress,
-        activation_tx_hash: `tx_${Math.random().toString(36).substring(2, 15)}`
+        owner_type: OwnerType.PublicInvestor,
+        network_type: NetworkType.Testnet,
+        stamp_type: StampType.Government,
+        mother_coin_allocation: 100,
+        baby_coin_balance: 0,
+        poe_stats: {
+          mining_efficiency: 0,
+          compliance_score: 100,
+          total_mined: 0
+        } as any,
+        compliance_status: 'compliant' as any,
+        billing_config: {
+          plan: 'basic',
+          rate: 0.01,
+          currency: 'BPI'
+        } as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        migration_count: 0,
+        new_field: 'new field value'
       };
       
       setWallets(prev => [...prev, newWallet]);
@@ -399,7 +343,7 @@ export const AdvancedWalletSystem: React.FC = () => {
   // Process PoE mining activity
   const processPoEMining = async (registrationId: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8080/api/registry/wallets/poe-mining', {
+      const response = await fetch(`${process.env.REACT_APP_SHADOW_REGISTRY_URL || 'https://registry.pravyom.com'}/api/registry/wallets/poe-mining`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -425,42 +369,10 @@ export const AdvancedWalletSystem: React.FC = () => {
     } catch (err) {
       notification.error({
         message: 'Mining Failed',
-  }
-};
-
-// Process PoE mining activity
-const processPoEMining = async (registrationId: string) => {
-  try {
-    const response = await fetch('http://127.0.0.1:8080/api/registry/wallets/poe-mining', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-      },
-      body: JSON.stringify({ 
-        registration_id: registrationId,
-        poe_activities: 10,
-        network_load: 0.75
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      notification.success({
-        message: 'PoE Mining Processed',
-        description: `Earned ${data.baby_coins_earned} baby coins!`
+        description: 'Failed to process PoE mining. Check backend connection.'
       });
-      fetchWalletData();
-    } else {
-      throw new Error('Failed to process PoE mining');
     }
-  } catch (err) {
-    notification.error({
-      message: 'Mining Failed',
-      description: 'Failed to process PoE mining. Check backend connection.'
-    });
-  }
-};
+  };
 
 // Helper functions for wallet type icons and colors
 const getWalletTypeIcon = (walletType: WalletType) => {
@@ -470,6 +382,7 @@ const getWalletTypeIcon = (walletType: WalletType) => {
     case WalletType.Government: return <GlobalOutlined />;
     case WalletType.Community: return <TeamOutlined />;
     case WalletType.ESOP: return <SafetyOutlined />;
+    case WalletType.NewWalletType: return <ApiOutlined />;
     default: return <WalletOutlined />;
   }
 };
@@ -481,13 +394,14 @@ const getWalletTypeColor = (walletType: WalletType) => {
     case WalletType.Government: return 'purple';
     case WalletType.Community: return 'green';
     case WalletType.ESOP: return 'orange';
+    case WalletType.NewWalletType: return 'pink';
     default: return 'default';
   }
 };
 
-const getComplianceColor = (score: number) => {
+const getComplianceColor = (score: number): 'success' | 'active' | 'exception' => {
   if (score >= 80) return 'success';
-  if (score >= 60) return 'warning';
+  if (score >= 60) return 'active';
   return 'exception';
 };
 
@@ -546,9 +460,7 @@ return (
                     {getWalletTypeIcon(wallet.wallet_type)}
                     <span className="ml-2">{wallet.wallet_type} Wallet</span>
                   </div>
-                  <Tag color={getWalletTypeColor(wallet.wallet_type)}>
-                    {wallet.network_type}
-                  </Tag>
+                  <Tag color={wallet.network_type === NetworkType.Mainnet ? 'green' : 'blue'}>{wallet.network_type}</Tag>
                 </div>
               }
               actions={[
@@ -556,7 +468,7 @@ return (
                   key="mining"
                   type="link" 
                   icon={<ThunderboltOutlined />}
-                  onClick={() => processPoEMining(wallet.registration_id)}
+                  onClick={() => processPoEMining(wallet.id)}
                 >
                   Process PoE Mining
                 </Button>,
@@ -567,21 +479,18 @@ return (
             >
               <Descriptions size="small" column={1}>
                 <Descriptions.Item label="Registration ID">
-                  <Text code>{wallet.registration_id}</Text>
+                  <Text strong>ID:</Text> {wallet.id}
                 </Descriptions.Item>
                 <Descriptions.Item label="BPI Address">
-                  <Text code className="text-xs">{wallet.wallet_address}</Text>
+                  <Text strong>Address:</Text> {wallet.wallet_address}
                 </Descriptions.Item>
                 {wallet.owner_type && (
                   <Descriptions.Item label="Owner Type">
-                    <Tag color="gold">Type {wallet.owner_type}</Tag>
+                    <Tag color={wallet.owner_type === OwnerType.PublicInvestor ? 'green' : 'blue'}>{wallet.owner_type}</Tag>
                   </Descriptions.Item>
                 )}
                 <Descriptions.Item label="Mother Coins">
-                  <Statistic 
-                    value={wallet.mother_coin_allocation} 
-                    valueStyle={{ fontSize: '16px', color: '#1890ff' }}
-                  />
+                  <Text strong>Mother Coins:</Text> {wallet.mother_coin_allocation} 
                 </Descriptions.Item>
                 <Descriptions.Item label="Baby Coins">
                   <Statistic 
@@ -624,7 +533,7 @@ return (
                     <div>Rate: ${wallet.billing_config.billing_rate_per_bpi}/BPI</div>
                     <div>Cap: ${wallet.billing_config.monthly_cap}/month</div>
                     {wallet.billing_config.is_refundable && (
-                      <Tag color="green" size="small">Refundable</Tag>
+                      <Tag color="green">Refundable</Tag>
                     )}
                   </div>
                 </Descriptions.Item>
@@ -653,7 +562,7 @@ return (
           <Card className="text-center">
             <Statistic
               title="Total Baby Coins"
-              value={wallets.reduce((sum, w) => sum + w.baby_coin_balance, 0)}
+              value={wallets.reduce((sum, w) => sum + (w.baby_coin_balance || 0), 0)}
               precision={2}
               prefix={<ThunderboltOutlined />}
             />

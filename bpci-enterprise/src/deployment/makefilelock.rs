@@ -365,19 +365,19 @@ impl MakefileLock {
         let makefilelock = Self {
             zero_copy_buffers: Arc::new(ZeroCopyBufferPool::new().await?),
             lock_free_queues: Arc::new(LockFreeDeploymentQueue::new().await?),
-            memory_mapped_artifacts: Arc::new(MemoryMappedStorage::new().await?),
-            stack_canaries: Arc::new(StackProtection::new().await?),
-            heap_guard_pages: Arc::new(HeapProtection::new().await?),
-            memory_isolation: Arc::new(IsolationBoundaries::new().await?),
-            compile_time_checks: Arc::new(CompileTimeVerification::new().await?),
-            bounds_checker: Arc::new(BoundsCheckEngine::new().await?),
-            overflow_protection: Arc::new(IntegerOverflowGuard::new().await?),
-            llvm_optimizer: Arc::new(LLVMOptimizationEngine::new().await?),
-            syscall_interface: Arc::new(DirectSyscallInterface::new().await?),
-            minimal_runtime: Arc::new(MinimalRuntimeOverhead::new().await?),
-            crypto_signer: Arc::new(CryptographicSigner::new().await?),
-            artifact_verifier: Arc::new(ArtifactVerifier::new().await?),
-            rollback_manager: Arc::new(RollbackManager::new().await?),
+            memory_mapped_artifacts: Arc::new(MemoryMappedStorage::new()?),
+            stack_canaries: Arc::new(StackProtection::new()?),
+            heap_guard_pages: Arc::new(HeapProtection::new()?),
+            memory_isolation: Arc::new(IsolationBoundaries::new()?),
+            compile_time_checks: Arc::new(CompileTimeVerification::new()?),
+            bounds_checker: Arc::new(BoundsCheckEngine::new()?),
+            overflow_protection: Arc::new(IntegerOverflowGuard::new()?),
+            llvm_optimizer: Arc::new(LLVMOptimizationEngine::new()?),
+            syscall_interface: Arc::new(DirectSyscallInterface::new()?),
+            minimal_runtime: Arc::new(MinimalRuntimeOverhead::new()?),
+            crypto_signer: Arc::new(CryptographicSigner::new()?),
+            artifact_verifier: Arc::new(ArtifactVerifier::new()?),
+            rollback_manager: Arc::new(RollbackManager::new()?),
             deployment_state: Arc::new(RwLock::new(DeploymentState::new())),
         };
         
@@ -733,27 +733,13 @@ impl DeploymentState {
     }
 }
 
-// Placeholder implementations for all security and efficiency components
+// Safe placeholder implementations for all security and efficiency components
 macro_rules! impl_placeholder_new {
     ($type:ident) => {
         impl $type {
-            async fn new() -> Result<Self, MakefileLockError> {
-                // Use Default::default() for Arc-containing structs to prevent runtime panic
-                // Use std::mem::zeroed() for simple structs without Arc types
-                match stringify!($type) {
-                    "MemoryMappedStorage" | "StackProtection" | "HeapProtection" | 
-                    "IsolationBoundaries" | "CompileTimeVerification" | "BoundsCheckEngine" |
-                    "IntegerOverflowGuard" | "DirectSyscallInterface" | "LLVMOptimizationEngine" |
-                    "MinimalRuntimeOverhead" | "CryptographicSigner" | "ArtifactVerifier" | "RollbackManager" => {
-                        Ok(Self::default())
-                    },
-                    _ => {
-                        // For other types without Arc, use zeroed initialization (safe)
-                        unsafe {
-                            Ok(std::mem::zeroed())
-                        }
-                    }
-                }
+            pub fn new() -> Result<Self, MakefileLockError> {
+                // Always use Default implementation for safety - no unsafe code
+                Ok(Self::default())
             }
         }
     };

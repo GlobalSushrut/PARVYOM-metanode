@@ -32,8 +32,8 @@ const Hero: React.FC = () => {
   const fetchRealTimeData = async () => {
     try {
       const [economyResponse, registryResponse] = await Promise.all([
-        fetch('http://127.0.0.1:8081/api/economy/status'),
-        fetch('http://127.0.0.1:8081/api/registry/stats')
+        fetch(`${process.env.REACT_APP_API_URL || 'https://api.pravyom.com'}/api/economy/status`),
+        fetch(`${process.env.REACT_APP_SHADOW_REGISTRY_URL || 'https://registry.pravyom.com'}/api/registry/stats`)
       ]);
 
       if (economyResponse.ok && registryResponse.ok) {

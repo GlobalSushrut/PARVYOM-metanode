@@ -5,6 +5,8 @@
 
 pub mod types;
 pub mod network;
+pub mod types;
+pub mod vpod_types;
 pub mod storage;
 pub mod consensus;
 pub mod transaction;

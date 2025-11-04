@@ -1,0 +1,57 @@
+{
+  "service_name": "bpci-backend-cluster",
+  "service_type": "HttpcgApiGateway",
+  "resource_allocation": {
+    "vpods": 26,
+    "memory_mb": 216,
+    "cpu_cores": 1.5,
+    "storage_gb": 5,
+    "network_bandwidth": "500Mbps"
+  },
+  "endpoints": [
+    {
+      "name": "bpci-api",
+      "port": 8080,
+      "protocol": "Http",
+      "path": "/api"
+    },
+    {
+      "name": "blockchain-rpc",
+      "port": 8545,
+      "protocol": "Http",
+      "path": "/blockchain"
+    },
+    {
+      "name": "websocket-gateway",
+      "port": 8888,
+      "protocol": "WebSocket",
+      "path": "/ws"
+    }
+  ],
+  "health_check": {
+    "path": "/api/v1/health",
+    "interval_seconds": 15,
+    "timeout_seconds": 5,
+    "retries": 3
+  },
+  "environment": {
+    "RUST_LOG": "info",
+    "DATABASE_URL": "postgresql://bpci:bpci123@157.230.238.92:5432/bpci_enterprise",
+    "MONGODB_URL": "mongodb://157.230.238.92:27017/bpci_blockchain",
+    "KEYCLOAK_URL": "http://localhost:8080/auth",
+    "BLOCKCHAIN_NETWORK": "testnet",
+    "ENABLE_CORS": "true",
+    "MAX_CONNECTIONS": "1000"
+  },
+  "scaling": {
+    "min_vpods": 10,
+    "max_vpods": 50,
+    "target_cpu_percent": 75,
+    "target_memory_percent": 85
+  },
+  "load_balancing": {
+    "strategy": "round_robin",
+    "health_check_enabled": true,
+    "session_affinity": false
+  }
+}

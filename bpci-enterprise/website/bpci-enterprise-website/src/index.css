@@ -20,54 +20,75 @@
 }
 
 :root {
-  /* Global CSS Variables */
-  --primary-blue: #3b82f6;
-  --primary-purple: #8b5cf6;
-  --dark-bg: #0f172a;
-  --darker-bg: #1e293b;
+  /* ========================================
+     PRAVYOM BRAND COLORS (from brand.design)
+     ======================================== */
+  
+  /* Primary Brand Colors */
+  --color-navy: #0A1628;
+  --color-gold: #E8B44F;
+  --color-white: #FFFFFF;
+  --color-cream: #F5F1E8;
+  
+  /* Secondary Brand Colors */
+  --color-indigo: #4F46E5;
+  --color-purple: #7C3AED;
+  --color-emerald: #10B981;
+  --color-amber: #F59E0B;
+  --color-rose: #EF4444;
+  
+  /* Semantic Colors */
+  --color-primary: var(--color-navy);
+  --color-accent: var(--color-gold);
+  --color-success: var(--color-emerald);
+  --color-warning: var(--color-amber);
+  --color-error: var(--color-rose);
+  --color-info: var(--color-indigo);
+  
+  /* Text Colors */
+  --text-primary: var(--color-navy);
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+  --text-inverse: var(--color-white);
+  
+  /* Background Colors */
+  --bg-primary: var(--color-white);
+  --bg-secondary: var(--color-cream);
+  --bg-dark: var(--color-navy);
+  --bg-surface: var(--color-white);
+  
+  /* Gradients (from brand.design) */
+  --gradient-transformation: linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%);
+  --gradient-depth: linear-gradient(135deg, #0A1628 0%, #1A2A48 100%);
+  --gradient-innovation: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --gradient-success: linear-gradient(135deg, #10B981 0%, #E8B44F 100%);
+  
+  /* Legacy Color Aliases (for backward compatibility) */
+  --primary-blue: var(--color-indigo);
+  --primary-purple: var(--color-purple);
+  --dark-bg: var(--color-navy);
+  --darker-bg: #1A2A48;
   --text-light: #e2e8f0;
   --text-muted: #94a3b8;
-  --border-light: rgba(59, 130, 246, 0.2);
+  --border-light: rgba(79, 70, 229, 0.2);
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
   --shadow-heavy: rgba(0, 0, 0, 0.3);
-
-  /* Primary Colors */
-  --primary-blue-light: #3b82f6;
-  --primary-blue-dark: #1e3a8a;
-  --primary-purple-light: #8b5cf6;
-  --primary-purple-dark: #6d28d9;
-
-  /* Secondary Colors */
-  --secondary-emerald: #10b981;
-  --secondary-emerald-light: #34d399;
-  --secondary-emerald-dark: #059669;
-  --secondary-amber: #f59e0b;
-  --secondary-amber-light: #fbbf24;
-  --secondary-amber-dark: #d97706;
-  --secondary-rose: #f43f5e;
-  --secondary-rose-light: #fb7185;
-  --secondary-rose-dark: #e11d48;
-
-  /* Semantic Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
-
-  /* Text Colors */
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
-  --text-inverse: #ffffff;
-
-  /* Background Colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --bg-dark: #1f2937;
-  --bg-gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
-  --bg-gradient-secondary: linear-gradient(135deg, var(--secondary-emerald) 0%, var(--secondary-amber) 100%);
+  
+  /* Secondary Colors (legacy) */
+  --secondary-emerald: var(--color-emerald);
+  --secondary-amber: var(--color-amber);
+  --secondary-rose: var(--color-rose);
+  
+  /* Semantic Colors (legacy) */
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --error: var(--color-error);
+  --info: var(--color-info);
+  
+  /* Background Gradients (legacy) */
+  --bg-gradient-primary: var(--gradient-innovation);
+  --bg-gradient-secondary: var(--gradient-success);
 
   --space-lg: 1.5rem;
   --space-xl: 2rem;
@@ -568,8 +589,12 @@ body {
   color: #ffffff !important;
 }
 
-/* Hero sections - white text */
-.hero-gradient,
+/* Hero sections - Navy gradient background with white text */
+.hero-gradient {
+  background: var(--gradient-depth) !important; /* Navy gradient from brand.design */
+  color: #ffffff !important;
+}
+
 .hero-gradient * {
   color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;

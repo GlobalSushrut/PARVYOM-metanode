@@ -3,14 +3,14 @@
 //! Core runtime system that manages vPod actors, scheduling, and resource allocation.
 //! Provides the foundation for replacing traditional container orchestration.
 
-use anyhow::{Result, anyhow};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
-use tokio::sync::{RwLock, Mutex};
+use std::time::Duration;
+use tokio::sync::RwLock;
 use tokio::time::interval;
 use uuid::Uuid;
+use anyhow::{Result, anyhow};
+use serde::{Serialize, Deserialize};
 
 use crate::vpod::{
     VPodActor, VPodScheduler, ActorId, SPSCRingBuffer, ActorSpecialization, Message, ActorStatus
@@ -156,7 +156,7 @@ pub enum RuntimeEvent {
 
 impl VPodRuntime {
     /// Create a new vPod runtime
-    pub async fn new(config: VPodConfig) -> Result<Self> {
+    pub async fn new(config: VPodConfig) -> Result<Self, anyhow::Error> {
         let (event_tx, _event_rx) = mpsc::unbounded_channel();
         
         let scheduler = Arc::new(VPodScheduler::new(
@@ -181,7 +181,7 @@ impl VPodRuntime {
     }
     
     /// Start the runtime
-    async fn start(&self) -> Result<()> {
+    async fn start(&self) -> Result<(), anyhow::Error> {
         // Update status to running
         {
             let mut status = self.status.write().await;
@@ -207,7 +207,7 @@ impl VPodRuntime {
     pub async fn create_actor(
         &self,
         specialization: Option<ActorSpecialization>
-    ) -> Result<ActorId> {
+    ) -> Result<ActorId, anyhow::Error> {
         // Check if we've reached the actor limit
         let actors_count = self.actors.read().await.len();
         if actors_count >= self.config.max_actors {
@@ -215,14 +215,10 @@ impl VPodRuntime {
         }
         
         // Generate unique actor ID
-        let actor_id = {
-            let mut counter = self.actor_counter.write().await;
-            *counter += 1;
-            format!("actor-{}", *counter)
-        };
+        let actor_id = Uuid::new_v4(); // Generate UUID instead of counter
         
         // Create the actor
-        let mut actor = VPodActor::new(actor_id.clone(), self.config.ring_buffer_size)?;
+        let mut actor = VPodActor::new(actor_id, self.config.ring_buffer_size)?;
         
         // Apply specialization if provided
         if let Some(spec) = specialization {
@@ -232,12 +228,12 @@ impl VPodRuntime {
         let actor = Arc::new(actor);
         
         // Register actor with scheduler
-        self.scheduler.register_actor(actor_id.clone(), actor.clone()).await?;
+        self.scheduler.register_actor(actor_id, actor.clone()).await?;
         
         // Add to actors registry
         {
             let mut actors = self.actors.write().await;
-            actors.insert(actor_id.clone(), actor);
+            actors.insert(actor_id, actor);
         }
         
         // Update metrics
@@ -249,14 +245,14 @@ impl VPodRuntime {
         
         // Emit actor created event
         let _ = self.event_tx.send(RuntimeEvent::ActorCreated { 
-            actor_id: actor_id.clone() 
+            actor_id 
         });
         
         Ok(actor_id)
     }
     
     /// Destroy an actor
-    pub async fn destroy_actor(&self, actor_id: &ActorId) -> Result<()> {
+    pub async fn destroy_actor(&self, actor_id: &ActorId) -> Result<(), anyhow::Error> {
         // Remove from scheduler first
         self.scheduler.unregister_actor(actor_id).await?;
         
@@ -285,7 +281,7 @@ impl VPodRuntime {
     }
     
     /// Send a message to an actor
-    pub async fn send_message(&self, message: Message) -> Result<()> {
+    pub async fn send_message(&self, message: Message) -> Result<(), anyhow::Error> {
         let actors = self.actors.read().await;
         let actor = actors.get(&message.to)
             .ok_or_else(|| anyhow!("Actor {} not found", message.to))?;
@@ -324,7 +320,7 @@ impl VPodRuntime {
     }
     
     /// Pause the runtime
-    pub async fn pause(&self) -> Result<()> {
+    pub async fn pause(&self) -> Result<(), anyhow::Error> {
         let old_status = {
             let mut status = self.status.write().await;
             let old = status.clone();
@@ -345,7 +341,7 @@ impl VPodRuntime {
     }
     
     /// Resume the runtime
-    pub async fn resume(&self) -> Result<()> {
+    pub async fn resume(&self) -> Result<(), anyhow::Error> {
         let old_status = {
             let mut status = self.status.write().await;
             let old = status.clone();
@@ -366,7 +362,7 @@ impl VPodRuntime {
     }
     
     /// Shutdown the runtime
-    pub async fn shutdown(&self) -> Result<()> {
+    pub async fn shutdown(&self) -> Result<(), anyhow::Error> {
         // Update status
         {
             let mut status = self.status.write().await;
@@ -473,7 +469,7 @@ impl VPodRuntime {
         &self,
         count: usize,
         specialization: ActorSpecialization
-    ) -> Result<Vec<ActorId>> {
+    ) -> Result<Vec<ActorId>, anyhow::Error> {
         let mut actor_ids = Vec::with_capacity(count);
         
         for _ in 0..count {
@@ -485,7 +481,7 @@ impl VPodRuntime {
     }
     
     /// Broadcast a message to all actors
-    pub async fn broadcast_message(&self, message: Message) -> Result<u64> {
+    pub async fn broadcast_message(&self, message: Message) -> Result<u64, anyhow::Error> {
         let actors = self.actors.read().await;
         let mut sent_count = 0;
         
@@ -561,7 +557,7 @@ impl Default for VPodConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::vpod::{MessagePayload, ActorSpecialization};
+    use crate::vpod::actor::MessagePayload;
 
     #[tokio::test]
     async fn test_runtime_creation() {
@@ -578,7 +574,7 @@ mod tests {
         let runtime = VPodRuntime::new(config).await.unwrap();
         
         let actor_id = runtime.create_actor(None).await.unwrap();
-        assert!(!actor_id.is_empty());
+        assert!(!actor_id.is_nil());
         
         let actors = runtime.list_actors().await;
         assert_eq!(actors.len(), 1);
@@ -592,9 +588,10 @@ mod tests {
         
         let actor_id = runtime.create_actor(None).await.unwrap();
         
+        let sender_id = uuid::Uuid::new_v4();
         let message = Message::new(
-            "sender".to_string(),
-            actor_id.clone(),
+            sender_id,
+            actor_id,
             MessagePayload::Text("Hello".to_string())
         );
         

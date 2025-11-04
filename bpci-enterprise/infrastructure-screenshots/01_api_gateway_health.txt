@@ -1,0 +1,76 @@
+=== SCREENSHOT 1: UNIFIED API GATEWAY HEALTH STATUS ===
+Purpose: Show the complete BPCI infrastructure health and all 12 services
+Timestamp: Mon 03 Nov 2025 07:53:46 PM EST
+
+{
+  "overall_status": "healthy",
+  "timestamp": "2025-11-04T00:53:46.761Z",
+  "services": {
+    "consensus": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Cluster Ledger"
+    },
+    "auction": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Auction Server"
+    },
+    "xtmp": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "XTMP Transaction Server",
+      "note": "TCP-based XTMP protocol (no HTTP health endpoint)"
+    },
+    "network": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "BPCI Network Server"
+    },
+    "bridge": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "BPI Bridge"
+    },
+    "shadow": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Shadow Registry"
+    },
+    "mojo": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Mojo Server"
+    },
+    "blockchain": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Blockchain Server"
+    },
+    "merkle": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Merkle Server"
+    },
+    "auctiondb": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Auction DB Maintainer"
+    },
+    "admin": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Admin Server"
+    },
+    "payment": {
+      "status": "healthy",
+      "statusCode": 200,
+      "name": "Payment Server"
+    }
+  },
+  "summary": {
+    "healthy": 12,
+    "total": 12,
+    "percentage": "100.0"
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Statistic, Progress, Badge, Button, Alert, Spin } from 'antd';
+import { Card, Row, Col, Statistic, Progress, Badge, Button, Alert, Spin, Modal, Form, Input, Typography, Space, Divider, message } from 'antd';
 import {
   DashboardOutlined,
   NodeIndexOutlined,
@@ -11,18 +11,76 @@ import {
   ReloadOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  KeyOutlined,
+  LinkOutlined,
+  CopyOutlined,
+  PlusOutlined,
+  CloudServerOutlined
 } from '@ant-design/icons';
 import { useRealTimeData } from '../services/realTimeService';
+import { apiService, type BpiConnection } from '../services/api';
+
+const { Title, Text, Paragraph } = Typography;
 
 const Dashboard: React.FC = () => {
   const { data, isConnected, refresh } = useRealTimeData();
   const [refreshing, setRefreshing] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [bpiConnections, setBpiConnections] = useState<BpiConnection[]>([]);
+  const [generatingToken, setGeneratingToken] = useState(false);
+  const [loadingConnections, setLoadingConnections] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await refresh();
     setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const generateBpiToken = async (values: { name: string; description?: string }) => {
+    setGeneratingToken(true);
+    try {
+      const response = await apiService.generateBpiConnection(values.name, values.description);
+      
+      if (response.success && response.data) {
+        setBpiConnections(prev => [...prev, response.data!]);
+        setShowTokenModal(false);
+        message.success('BPI OS connection token generated successfully!');
+      } else {
+        message.error(response.error || 'Failed to generate BPI OS connection token');
+      }
+    } catch (error) {
+      message.error('Failed to generate BPI OS connection token');
+    } finally {
+      setGeneratingToken(false);
+    }
+  };
+
+  const loadBpiConnections = async () => {
+    setLoadingConnections(true);
+    try {
+      const response = await apiService.listBpiConnections();
+      
+      if (response.success && response.data) {
+        setBpiConnections(response.data);
+      } else {
+        console.warn('Failed to load BPI connections:', response.error);
+      }
+    } catch (error) {
+      console.warn('Failed to load BPI connections:', error);
+    } finally {
+      setLoadingConnections(false);
+    }
+  };
+
+  // Load connections on component mount
+  React.useEffect(() => {
+    loadBpiConnections();
+  }, []);
+
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text);
+    message.success(`${type} copied to clipboard!`);
   };
 
   const getNetworkStatusColor = (status: string) => {
@@ -111,6 +169,120 @@ const Dashboard: React.FC = () => {
             style={{ marginBottom: '24px' }}
           />
         )}
+
+        {/* BPI OS Connection Management */}
+        <Card
+          title={
+            <Space>
+              <CloudServerOutlined style={{ color: '#3b82f6' }} />
+              <span style={{ color: 'white' }}>BPI OS Connection Management</span>
+            </Space>
+          }
+          extra={
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowTokenModal(true)}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                border: 'none'
+              }}
+            >
+              Generate New Token
+            </Button>
+          }
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            backdropFilter: 'blur(10px)',
+            marginBottom: '24px'
+          }}
+          headStyle={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
+        >
+          <div style={{ color: '#94a3b8', marginBottom: '16px' }}>
+            <Paragraph style={{ color: '#94a3b8', margin: 0 }}>
+              Generate tokens and addresses for connecting BPI OS instances to this BPCI server.
+              Each token provides secure authentication for BPI OS nodes.
+            </Paragraph>
+          </div>
+          
+          {bpiConnections.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
+              <CloudServerOutlined style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
+              <div>No BPI OS connections configured</div>
+              <div style={{ fontSize: '14px', marginTop: '8px' }}>Generate your first token to connect BPI OS instances</div>
+            </div>
+          ) : (
+            <Row gutter={[16, 16]}>
+              {bpiConnections.map((connection) => (
+                <Col xs={24} lg={12} key={connection.id}>
+                  <Card
+                    size="small"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text strong style={{ color: 'white' }}>{connection.name}</Text>
+                        <Badge 
+                          status={connection.status === 'active' ? 'success' : 'error'} 
+                          text={<span style={{ color: '#94a3b8' }}>{connection.status}</span>}
+                        />
+                      </div>
+                      <Text style={{ color: '#94a3b8', fontSize: '12px' }}>
+                        Created: {new Date(connection.created_at).toLocaleDateString()}
+                      </Text>
+                    </div>
+                    
+                    <div style={{ marginBottom: '8px' }}>
+                      <Text style={{ color: '#94a3b8', fontSize: '12px' }}>Connection Token:</Text>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                        <Input
+                          value={connection.token}
+                          readOnly
+                          size="small"
+                          style={{
+                            background: 'rgba(0, 0, 0, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: '#94a3b8'
+                          }}
+                        />
+                        <Button
+                          size="small"
+                          icon={<CopyOutlined />}
+                          onClick={() => copyToClipboard(connection.token, 'Token')}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Text style={{ color: '#94a3b8', fontSize: '12px' }}>BPI Address:</Text>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                        <Input
+                          value={connection.address}
+                          readOnly
+                          size="small"
+                          style={{
+                            background: 'rgba(0, 0, 0, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: '#94a3b8'
+                          }}
+                        />
+                        <Button
+                          size="small"
+                          icon={<CopyOutlined />}
+                          onClick={() => copyToClipboard(connection.address, 'Address')}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
+        </Card>
 
         {/* Key Metrics */}
         <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
@@ -374,6 +546,80 @@ const Dashboard: React.FC = () => {
           50% { opacity: 0.5; }
         }
       `}</style>
+      
+      {/* Generate BPI Token Modal */}
+      <Modal
+        title={
+          <Space>
+            <KeyOutlined style={{ color: '#3b82f6' }} />
+            <span>Generate BPI OS Connection Token</span>
+          </Space>
+        }
+        open={showTokenModal}
+        onCancel={() => setShowTokenModal(false)}
+        footer={null}
+        width={600}
+      >
+        <div style={{ marginBottom: '16px' }}>
+          <Paragraph>
+            Generate a secure token and address pair for connecting BPI OS instances to this BPCI server.
+            This will create the necessary credentials for BPI OS authentication and communication.
+          </Paragraph>
+        </div>
+        
+        <Form
+          layout="vertical"
+          onFinish={generateBpiToken}
+        >
+          <Form.Item
+            label="Connection Name"
+            name="name"
+            rules={[{ required: true, message: 'Please enter a connection name!' }]}
+          >
+            <Input 
+              placeholder="e.g., Production BPI OS, Development Node, etc."
+              prefix={<LinkOutlined />}
+            />
+          </Form.Item>
+          
+          <Form.Item
+            label="Description (Optional)"
+            name="description"
+          >
+            <Input.TextArea 
+              placeholder="Optional description for this BPI OS connection"
+              rows={3}
+            />
+          </Form.Item>
+          
+          <Divider />
+          
+          <div style={{ background: '#f6ffed', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
+            <Text style={{ fontSize: '12px', color: '#52c41a' }}>
+              ✅ This will generate:
+              <br />• A secure connection token for BPI OS authentication
+              <br />• A unique BPI address for this connection
+              <br />• Automatic registration in the BPCI server registry
+            </Text>
+          </div>
+          
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => setShowTokenModal(false)}>
+                Cancel
+              </Button>
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={generatingToken}
+                icon={<KeyOutlined />}
+              >
+                {generatingToken ? 'Generating...' : 'Generate Token & Address'}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

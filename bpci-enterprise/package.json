@@ -38,6 +38,10 @@
     "npm": ">=9.0.0"
   },
   "dependencies": {
-    "vercel": "^47.0.5"
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "vercel": "^47.0.5",
+    "ws": "^8.18.3"
   }
 }

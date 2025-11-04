@@ -1,0 +1,177 @@
+# cargo.portal - BPI Portal OS Distribution Configuration
+# Like Cargo.toml but for entire operating systems + SDK
+
+[package]
+name = "bpi-portal-os"
+version = "1.0.0"
+edition = "2025"
+authors = ["BPI Team"]
+description = "BPI Portal OS with integrated SDK and 32-component architecture"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bpi/portal-os"
+homepage = "https://portal.bpi.com"
+
+# OS Distribution Metadata
+[os]
+kernel_version = "6.1.0-bpi"
+architecture = ["x86_64", "aarch64"]
+base_image = "alpine:3.18"
+filesystem = "immutable-overlay"
+init_system = "systemd"
+package_manager = "apk"
+
+# BPI OS SDK Configuration
+[sdk]
+version = "1.0.0"
+language = "rust"
+min_rust_version = "1.70.0"
+features = ["full", "async", "vpod", "wallet-networking", "lock-based-comm"]
+default_features = true
+
+# SDK Components (All 32+ Components with Lock-Based Communication)
+[sdk.components]
+bpi_core = { version = "1.0.0", path = "../bpi-core" }
+bpi_vm = { version = "1.0.0", features = ["quantum-safe", "lock-based-comm"] }
+vpod_runtime = { version = "1.0.0", features = ["actor-model", "lock-based-comm"] }
+enc_cluster = { version = "1.0.0", features = ["cbor", "wallet-routing", "lock-based-comm"] }
+docklock = { version = "1.0.0", features = ["deterministic", "lock-based-comm"] }
+vm_server = { version = "1.0.0", features = ["lock-based-inter-vm", "dynamic-portals"] }
+blockchain_logbook = { version = "1.0.0", features = ["lock-based-logging", "immutable-audit"] }
+dynamic_portals = { version = "1.0.0", features = ["lock-based-instantiation", "portal-mesh"] }
+commute_lock = { version = "1.0.0", features = ["shared-memory", "microsecond-latency"] }
+
+# OS-Level Dependencies
+[dependencies]
+# Core System Libraries
+libc = "0.2"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# BPI-Specific Dependencies
+bpi-consensus = { version = "1.0.0", registry = "bpi-registry" }
+bpi-blockchain = { version = "1.0.0", registry = "bpi-registry" }
+bpi-wallet = { version = "1.0.0", registry = "bpi-registry" }
+
+# Lock-Based Communication
+commute-lock = { version = "1.0.0", features = ["shared-memory", "event-system"] }
+dynaroute = { version = "2.0.0", features = ["cloud-transport", "wallet-routing"] }
+
+# Cryptography
+ed25519-dalek = "2.0"
+blake3 = "1.5"
+sha2 = "0.10"
+
+# Networking
+hyper = { version = "0.14", features = ["full"] }
+axum = "0.6"
+tokio-tungstenite = "0.20"
+
+# vPod Infrastructure
+vpod-coordinator = { version = "1.0.0", registry = "bpi-registry" }
+arena-allocator = { version = "1.0.0", registry = "bpi-registry" }
+spsc-ring-buffer = { version = "1.0.0", registry = "bpi-registry" }
+
+# Development Dependencies
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.0"
+tokio-test = "0.4"
+
+# Build Dependencies
+[build-dependencies]
+cc = "1.0"
+
+# Component Configuration (All 32+ Components)
+[components]
+# All 32+ components configuration
+active_in_dev = true
+lazy_loading_prod = true
+hot_services = ["bpi_action_vm", "cluster_ledger"]
+
+# Lock-Based Infrastructure Services
+lock_based_services = [
+    "enc_cluster",
+    "docklock", 
+    "vm_server",
+    "blockchain_logbook",
+    "dynamic_portals"
+]
+
+[orchestration]
+bso_k8_internal = true
+enc_cluster_external = true
+wallet_address_networking = true
+use_bpci_generated_addresses = true
+# Lock-based communication for ALL components
+lock_based_communication = true
+commute_lock_api = true
+no_http_communication = true
+# Infrastructure orchestration
+dynamic_portal_support = true
+vm_server_orchestration = true
+docklock_container_orchestration = true
+blockchain_logbook_integration = true
+enc_cluster_lock_coordination = true
+
+[network]
+http_range = "18080-18120"   # Dynamic port allocation
+grpc_range = "19100-19150"
+internal_range = "25000-25100"
+# Wallet address-based networking (NOT domain-based)
+wallet_address_networking = true
+use_bpci_generated_addresses = true
+dns_suffix = ".pmesh.local"    # Internal service mesh only
+public_base = "portal.local"   # Fallback for development
+
+[memory]
+min_constraint = "1GB"
+dev_constraint = "2GB"
+adaptive_scaling = true
+
+[storage]
+docklock_root = "~/.bpio/docklock"
+enc_root = "~/.bpio/enc"
+cache_root = "~/.bpio/cache"
+logs_root = "~/.bpio/logs"
+
+# BPCI Component Ports (for existing integration)
+[bpci_components]
+consensus_server = 9001
+blockchain_server = 8080
+auction_mempool = 7002
+bso_k8_orchestrator = 9090
+bpi_bpci_bridge = 6001
+cluster_ledger_server = 7000
+xtmp_server = 8889
+shadow_registry = 8081
+web_interface = 8080
+
+# BPI OS Component Ports (for existing integration)
+[bpi_components]
+bpi_vm_server = 7777
+http_cage = 8888
+zklock_mobile = 8081
+enc_cluster = 0  # Dynamic allocation
+docklock_platform = 0  # Dynamic allocation
+oracle_nodes = 0  # Dynamic allocation
+
+[profiles]
+[profiles.production]
+memory_limit = "1GB"
+hot_services_only = true
+lazy_loading = true
+security_level = "military_grade"
+
+[profiles.development]
+memory_limit = "2GB"
+all_components_active = true
+debug_logging = true
+security_level = "development"
+
+[profiles.testing]
+memory_limit = "1.5GB"
+test_components_active = true
+mock_external_services = true
+security_level = "testing"

@@ -1,0 +1,24 @@
+=== SCREENSHOT 15: FRONTEND INTEGRATION - ENVIRONMENT CONFIGURATION ===
+Timestamp: Mon 03 Nov 2025 07:57:54 PM EST
+
+=== Production Environment Configuration ===
+# BPCI Enterprise - Production Environment Configuration
+# Integrated with Keycloak-Cloudflare SSO Pipeline
+
+# =============================================================================
+# API Configuration - Production Ready
+# =============================================================================
+
+# Production API (BPCI Enterprise Cloud Instance)
+REACT_APP_API_URL=https://api.pravyom.com
+
+# BPCI Infrastructure Endpoints (Production)
+REACT_APP_CONSENSUS_URL=https://consensus.pravyom.com
+REACT_APP_BLOCKCHAIN_URL=https://blockchain.pravyom.com
+REACT_APP_AUCTION_URL=https://auction.pravyom.com
+REACT_APP_ORCHESTRATOR_URL=https://orchestrator.pravyom.com
+REACT_APP_BRIDGE_URL=https://bridge.pravyom.com
+REACT_APP_CLUSTER_LEDGER_URL=https://cluster.pravyom.com
+REACT_APP_XTMP_URL=https://xtmp.pravyom.com
+REACT_APP_SHADOW_REGISTRY_URL=https://registry.pravyom.com
+REACT_APP_WEB_URL=https://api.pravyom.com

@@ -1,0 +1,19 @@
+=== REAL BLOCKCHAIN RECORDS & ZKL DATA ===
+Timestamp: Mon 03 Nov 2025 08:02:26 PM EST
+
+=== SEARCHING FOR ZKL AND BLOCKCHAIN FILES ===
+/bpi/apps/task-manager/ziplock_test.zkl
+/bpi/config/node_credentials.json
+
+=== BPI CONFIGURATION AND DATA ===
+total 20
+drwxr-xr-x 2 root root 4096 Nov  1 03:34 .
+drwxr-xr-x 6 root root 4096 Nov  1 04:04 ..
+-rwxr-xr-x 1 root root  903 Nov  1 03:34 activate.sh
+-rw------- 1 root root  508 Nov  1 03:34 node_credentials.json
+-rw------- 1 root root  119 Nov  1 03:34 node_key.pem
+
+=== BPI DATA DIRECTORIES ===
+/bpi/data
+/bpi/logs
+/bpi/logs/vm-server.log

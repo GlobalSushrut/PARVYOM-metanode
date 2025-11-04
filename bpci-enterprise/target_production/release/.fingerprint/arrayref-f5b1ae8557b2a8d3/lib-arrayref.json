@@ -1,0 +1,1 @@
+{"rustc":11410426090777951712,"features":"[]","declared_features":"[]","target":14855336370480542997,"profile":2040997289075261528,"path":15322449302571315698,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/arrayref-f5b1ae8557b2a8d3/dep-lib-arrayref","checksum":false}}],"rustflags":["-C","opt-level=0"],"config":2069994364910194474,"compile_kind":0}

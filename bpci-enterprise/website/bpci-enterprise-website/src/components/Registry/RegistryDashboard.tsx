@@ -8,7 +8,7 @@ import {
   ReloadOutlined,
   EyeOutlined
 } from '@ant-design/icons';
-import { registryService, RegistryStats, NodeInfo, WalletInfo } from '../../services/registryService';
+import { registryService, type RegistryStats, type NodeInfo, type WalletInfo } from '../../services/registryService';
 
 const { Title, Text } = Typography;
 
@@ -131,7 +131,7 @@ export const RegistryDashboard: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record: NodeInfo) => (
+      render: (_: any, record: NodeInfo) => (
         <Button 
           type="link" 
           icon={<EyeOutlined />}

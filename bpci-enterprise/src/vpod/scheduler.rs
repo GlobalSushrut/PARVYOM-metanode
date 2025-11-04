@@ -1100,22 +1100,26 @@ mod tests {
     async fn test_edge_coloring() {
         let coloring = EdgeColoring::new(16);
         
+        let actor_a = uuid::Uuid::new_v4();
+        let actor_b = uuid::Uuid::new_v4();
+        let actor_c = uuid::Uuid::new_v4();
+        
         let edges = vec![
-            ("a".to_string(), "b".to_string()),
-            ("b".to_string(), "c".to_string()),
-            ("a".to_string(), "c".to_string()),
+            (actor_a, actor_b),
+            (actor_b, actor_c),
+            (actor_a, actor_c),
         ];
         
         let result = coloring.color_edges(&edges).await.unwrap();
         
         // Verify no adjacent edges have the same color
         assert_ne!(
-            result.get(&("a".to_string(), "b".to_string())),
-            result.get(&("a".to_string(), "c".to_string()))
+            result.get(&(actor_a, actor_b)),
+            result.get(&(actor_a, actor_c))
         );
         assert_ne!(
-            result.get(&("b".to_string(), "c".to_string())),
-            result.get(&("a".to_string(), "c".to_string()))
+            result.get(&(actor_b, actor_c)),
+            result.get(&(actor_a, actor_c))
         );
     }
 
@@ -1143,9 +1147,12 @@ mod tests {
             service_rate: 1.0,
         };
         
+        let actor1 = uuid::Uuid::new_v4();
+        let actor2 = uuid::Uuid::new_v4();
+        
         let quanta = selector.choose_quanta(
-            "actor1".to_string(),
-            "actor2".to_string(),
+            actor1,
+            actor2,
             &budget,
             &queue_state,
         ).await;

@@ -1,0 +1,20 @@
+=== REAL ZKL JSON RECORDS & TRANSACTION DATA ===
+Timestamp: Mon 03 Nov 2025 08:03:00 PM EST
+
+=== SEARCHING FOR ACTUAL ZKL AND JSON FILES ===
+/bpi/apps/task-manager/ziplock_test.zkl
+/bpi/config/node_credentials.json
+
+=== ACTUAL BLOCKCHAIN DATA CONTENT ===
+{
+  "node_id": "d086278cba126be0576b360f8336bcb657ee0c2ad4b4c564b56296fceab13f35",
+  "wallet_address": "bpi://node/d086278cba126be0576b360f8336bcb657ee0c2ad4b4c564b56296fceab13f35",
+  "auth_token": "3Xt2O6m/3hVt2IefxTFh/dcO+V2u2bvWvt31aafI0DDmMqd0Q0aV6SgQq3DoPycxQO/DDx7tAQgsWJiRXvDMhA==",
+  "public_key": "MCowBQYDK2VwAyEA2heUSVmvTOJSW2SvycVs7DWbReiu0bxqtLBBEjyZmqU=",
+  "public_ip": "68.183.25.25",
+  "created_at": "2025-11-01T03:34:50Z",
+  "endpoints": {
+    "vm_server": "http://68.183.25.25:7777"
+  }
+
+=== BPI WALLET AND TRANSACTION DATA ===

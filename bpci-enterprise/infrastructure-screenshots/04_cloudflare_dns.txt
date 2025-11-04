@@ -1,0 +1,21 @@
+=== SCREENSHOT 4: CLOUDFLARE INTEGRATION & DNS RESOLUTION ===
+Timestamp: Mon 03 Nov 2025 07:55:17 PM EST
+
+=== DNS Resolution ===
+172.64.80.1
+
+=== Cloudflare Headers ===
+HTTP/2 200 
+date: Tue, 04 Nov 2025 00:55:17 GMT
+content-type: application/json
+access-control-allow-origin: *
+access-control-allow-headers: Content-Type, Authorization, X-API-Key
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-max-age: 86400
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=4lnBJZFkVO%2BDiK7AuWXUYAWx%2Bg6VsxO09PVH44AWsBKeTvvk1DcYs4zs8P7xhadsn7Lh0Z2xhY%2F6yGjH2qwP6q2zmAD%2B0uJZ4Zn5Rb5e8vrxqT6klvNqpfdOuQ%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 9990251cc93cebbd-YYZ
+alt-svc: h3=":443"; ma=86400
+

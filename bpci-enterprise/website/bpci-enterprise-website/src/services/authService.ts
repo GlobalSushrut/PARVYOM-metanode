@@ -230,6 +230,11 @@ class AuthService {
     return this.currentDeveloper?.wallet_info || null;
   }
 
+  getAuthHeaders() {
+    const token = this.getSessionToken();
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
   logout(): void {
     this.clearSession();
   }

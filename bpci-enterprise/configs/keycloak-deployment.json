@@ -1,0 +1,48 @@
+{
+  "service_name": "keycloak-auth-cluster",
+  "service_type": "HttpcgVmServer",
+  "resource_allocation": {
+    "vpods": 10,
+    "memory_mb": 84,
+    "cpu_cores": 0.5,
+    "storage_gb": 2,
+    "network_bandwidth": "100Mbps"
+  },
+  "endpoints": [
+    {
+      "name": "keycloak-admin",
+      "port": 8080,
+      "protocol": "Http",
+      "path": "/admin"
+    },
+    {
+      "name": "keycloak-auth",
+      "port": 8080,
+      "protocol": "Http",
+      "path": "/auth"
+    }
+  ],
+  "health_check": {
+    "path": "/auth/realms/master",
+    "interval_seconds": 30,
+    "timeout_seconds": 10,
+    "retries": 3
+  },
+  "environment": {
+    "KEYCLOAK_ADMIN": "admin",
+    "KEYCLOAK_ADMIN_PASSWORD": "admin123",
+    "KC_DB": "postgres",
+    "KC_DB_URL": "jdbc:postgresql://157.230.238.92:5432/keycloak",
+    "KC_DB_USERNAME": "keycloak",
+    "KC_DB_PASSWORD": "keycloak123",
+    "KC_HOSTNAME": "pravyom.com",
+    "KC_HTTP_ENABLED": "true",
+    "KC_PROXY": "edge"
+  },
+  "scaling": {
+    "min_vpods": 4,
+    "max_vpods": 20,
+    "target_cpu_percent": 70,
+    "target_memory_percent": 80
+  }
+}

@@ -1,0 +1,34 @@
+=== REAL BLOCKCHAIN TRANSACTION RECORDS & ZKL DATA ===
+Timestamp: Mon 03 Nov 2025 08:03:18 PM EST
+
+=== BPI NODE DIRECTORY STRUCTURE ===
+/bpi/config/node_credentials.json
+
+=== BPI CONFIG FILES ===
+{
+  "node_id": "d086278cba126be0576b360f8336bcb657ee0c2ad4b4c564b56296fceab13f35",
+  "wallet_address": "bpi://node/d086278cba126be0576b360f8336bcb657ee0c2ad4b4c564b56296fceab13f35",
+  "auth_token": "3Xt2O6m/3hVt2IefxTFh/dcO+V2u2bvWvt31aafI0DDmMqd0Q0aV6SgQq3DoPycxQO/DDx7tAQgsWJiRXvDMhA==",
+  "public_key": "MCowBQYDK2VwAyEA2heUSVmvTOJSW2SvycVs7DWbReiu0bxqtLBBEjyZmqU=",
+  "public_ip": "68.183.25.25",
+  "created_at": "2025-11-01T03:34:50Z",
+  "endpoints": {
+    "vm_server": "http://68.183.25.25:7777"
+  }
+}
+
+=== RECENT BPI ACTIVITY ===
+[2m2025-11-01T04:26:48.401455Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208401_7f9202e5) from 127.0.0.1:60950
+[2m2025-11-01T04:26:48.403412Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208403_776ab23f) from 127.0.0.1:60962
+[2m2025-11-01T04:31:24.568241Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484568_9b3026cb) from 127.0.0.1:33612
+[2m2025-11-01T04:31:24.580245Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484580_18ef562b) from 127.0.0.1:33626
+[2m2025-11-01T04:31:24.593162Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484593_30baf3f2) from 127.0.0.1:33642
+[2m2025-11-01T04:31:24.609451Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484609_f822f36) from 127.0.0.1:33656
+[2m2025-11-01T04:31:24.622585Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484622_a8881e8f) from 127.0.0.1:33664
+[2m2025-11-01T04:31:24.624417Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484624_d5d71fb) from 127.0.0.1:33676
+[2m2025-11-01T04:39:26.180084Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966180_afa1e202) from 127.0.0.1:52206
+[2m2025-11-01T04:39:26.195026Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966194_a3a71889) from 127.0.0.1:52216
+[2m2025-11-01T04:39:26.209887Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966209_1dcfa5d3) from 127.0.0.1:52226
+[2m2025-11-01T04:39:26.226459Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966226_458e33cc) from 127.0.0.1:52236
+[2m2025-11-01T04:39:26.238308Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966238_9dab8805) from 127.0.0.1:52238
+[2m2025-11-01T04:39:26.240513Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966240_e96a9103) from 127.0.0.1:52248

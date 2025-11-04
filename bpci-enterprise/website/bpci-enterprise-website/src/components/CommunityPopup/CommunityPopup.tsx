@@ -42,7 +42,7 @@ const CommunityPopup: React.FC<CommunityPopupProps> = ({ visible, onClose }) => 
   const loadVoterCount = async () => {
     try {
       // Try to get real voter count from backend
-      const response = await fetch('http://localhost:8080/api/community/voter-count');
+      const response = await fetch('https://api.pravyom.com/api/community/voter-count');
       if (response.ok) {
         const data = await response.json();
         setVoterCount(data.count || 0);
@@ -76,7 +76,7 @@ const CommunityPopup: React.FC<CommunityPopupProps> = ({ visible, onClose }) => 
       // Try to register with backend first
       let backendSuccess = false;
       try {
-        const response = await fetch('http://localhost:8080/api/community/vote', {
+        const response = await fetch('https://api.pravyom.com/api/community/vote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(values),

@@ -1,0 +1,17 @@
+=== SCREENSHOT 3: AVAILABLE API ENDPOINTS STRUCTURE ===
+Timestamp: Mon 03 Nov 2025 07:55:02 PM EST
+
+{
+  "error": "Not Found",
+  "message": "The requested endpoint does not exist",
+  "path": "/nonexistent",
+  "available_endpoints": [
+    "/api/v1/health",
+    "/api/v1/consensus/*",
+    "/api/v1/auction/*",
+    "/api/v1/xtmp/*",
+    "/api/v1/domains/*",
+    "/api/v1/nodes/*",
+    "/api/v1/docs"
+  ]
+}

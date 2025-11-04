@@ -33,6 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
     { key: '/', label: 'Home', path: '/' },
     { key: '/about', label: 'About', path: '/about' },
     { key: '/technology', label: 'Technology', path: '/technology' },
+    { key: '/proof', label: 'Proof', path: '/proof' },
     { key: '/enterprise', label: 'Enterprise', path: '/enterprise' },
     { key: '/community', label: 'Community', path: '/community' },
     { key: '/blog', label: 'Blog', path: '/blog' },
@@ -40,10 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
 
   // Authenticated menu items (only visible when logged in)
   const authMenuItems = [
-    { key: '/dashboard', label: 'Dashboard', path: '/dashboard' },
-    { key: '/registry', label: 'BPI Registry', path: '/registry' },
-    { key: '/wallet', label: 'Wallet Manager', path: '/wallet' },
-    { key: '/installer', label: 'BPI Installer', path: '/installer' },
+    { key: '/basic-dashboard', label: 'Dashboard', path: '/basic-dashboard' },
   ];
 
   const menuItems = isAuthenticated ? [...publicMenuItems, ...authMenuItems] : publicMenuItems;
@@ -65,36 +63,29 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
               key={item.key} 
               to={item.path}
               style={{
-                padding: '10px 18px',
-                borderRadius: '8px',
+                padding: '8px 16px',
+                borderRadius: '6px',
                 color: '#ffffff',
                 textDecoration: 'none',
-                fontSize: '15px',
-                fontWeight: '700',
-                transition: 'all 0.3s ease',
-                background: location.pathname === item.path ? 'rgba(34, 197, 94, 0.25)' : 'rgba(255, 255, 255, 0.15)',
-                border: location.pathname === item.path ? '2px solid rgba(34, 197, 94, 0.6)' : '2px solid rgba(255, 255, 255, 0.3)',
-                textShadow: '0 3px 6px rgba(0, 0, 0, 0.8)',
-                display: 'inline-block',
-                backdropFilter: 'blur(10px)',
-                boxShadow: location.pathname === item.path ? '0 4px 12px rgba(34, 197, 94, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.2)'
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease',
+                background: location.pathname === item.path ? 'rgba(232, 180, 79, 0.2)' : 'transparent',
+                border: location.pathname === item.path ? '1px solid rgba(232, 180, 79, 0.5)' : '1px solid transparent',
+                display: 'inline-block'
               }}
               onMouseEnter={(e) => {
                 if (location.pathname !== item.path) {
-                  e.currentTarget.style.background = 'rgba(34, 197, 94, 0.2)';
-                  e.currentTarget.style.border = '2px solid rgba(34, 197, 94, 0.5)';
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.3)';
+                  e.currentTarget.style.background = 'rgba(232, 180, 79, 0.15)';
+                  e.currentTarget.style.border = '1px solid rgba(232, 180, 79, 0.3)';
+                  e.currentTarget.style.color = '#E8B44F';
                 }
               }}
               onMouseLeave={(e) => {
                 if (location.pathname !== item.path) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                  e.currentTarget.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.border = '1px solid transparent';
                   e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
                 }
               }}
             >
@@ -132,11 +123,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
         left: 0,
         right: 0,
         zIndex: 1000,
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+        background: 'rgba(10, 22, 40, 0.95)', /* Pravyom Navy with transparency */
         backdropFilter: 'blur(20px)',
-        borderBottom: '3px solid rgba(59, 130, 246, 0.5)',
-        boxShadow: '0 4px 32px rgba(0, 0, 0, 0.6), 0 2px 12px rgba(59, 130, 246, 0.3)',
-        height: '80px',
+        borderBottom: '2px solid rgba(232, 180, 79, 0.3)', /* Gold accent */
+        boxShadow: '0 2px 16px rgba(0, 0, 0, 0.3)',
+        height: '64px', /* Reduced height for cleaner look */
         padding: 0,
         margin: 0,
         width: '100%'
@@ -158,39 +149,40 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
             color: 'white'
           }}>
             <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              borderRadius: '12px',
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)', /* Gold transformation gradient */
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginRight: '16px',
-              fontSize: '24px',
+              marginRight: '12px',
+              fontSize: '20px',
               fontWeight: 'bold',
-              color: 'white',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
-              border: '2px solid rgba(255, 255, 255, 0.1)'
+              color: '#0A1628', /* Navy text on gold */
+              boxShadow: '0 2px 8px rgba(232, 180, 79, 0.3)',
+              border: '1px solid rgba(232, 180, 79, 0.5)'
             }}>
               P
             </div>
             <div>
               <div style={{ 
-                fontSize: '20px', 
-                fontWeight: 'bold', 
+                fontSize: '18px', 
+                fontWeight: '700', 
                 lineHeight: '1.2',
-                color: '#ffffff',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+                color: '#FFFFFF',
+                letterSpacing: '0.5px'
               }}>
-                PARVYOM
+                PRAVYOM
               </div>
               <div style={{ 
-                fontSize: '12px', 
-                color: '#e2e8f0',
+                fontSize: '10px', 
+                color: '#E8B44F', /* Gold for subtitle */
                 lineHeight: '1.2',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                fontWeight: '500',
+                letterSpacing: '1px'
               }}>
-                BPCI ENTERPRISE
+                RESEARCH PLATFORM
               </div>
             </div>
           </Link>
@@ -381,28 +373,38 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
         </div>
       </Drawer>
 
-      {/* Content */}
+      {/* Background with blob pattern */}
       <div style={{
-        position: 'absolute',
-        top: '80px',
+        position: 'fixed',
+        top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #475569 100%)',
+        background: `
+          linear-gradient(135deg, #667eea 0%, #764ba2 100%),
+          radial-gradient(circle at 20% 30%, rgba(192, 192, 192, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(169, 169, 169, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 40% 70%, rgba(211, 211, 211, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 90% 60%, rgba(192, 192, 192, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 10% 80%, rgba(169, 169, 169, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 60% 40%, rgba(211, 211, 211, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 30% 50%, rgba(192, 192, 192, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 70% 80%, rgba(169, 169, 169, 0.03) 0%, transparent 50%)
+        `,
+        backgroundSize: '100% 100%, 800px 800px, 600px 600px, 900px 900px, 700px 700px, 1000px 1000px, 750px 750px, 850px 850px, 650px 650px',
+        zIndex: 0
+      }} />
+
+      {/* Content */}
+      <div style={{
+        position: 'absolute',
+        top: '64px',
+        left: 0,
+        right: 0,
+        bottom: 0,
         overflow: 'auto',
         zIndex: 1
       }}>
-        {/* Beautiful overlay for depth */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(ellipse at top, rgba(59, 130, 246, 0.1) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(124, 58, 237, 0.1) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          zIndex: 0
-        }} />
         
         <div style={{ 
           position: 'relative',
@@ -417,9 +419,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
           
           {/* Footer */}
           <footer style={{ 
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            backgroundColor: 'rgba(10, 22, 40, 0.98)', /* Pravyom Navy */
             backdropFilter: 'blur(20px)',
-            borderTop: '2px solid rgba(59, 130, 246, 0.3)',
+            borderTop: '2px solid rgba(232, 180, 79, 0.3)', /* Gold accent */
             color: 'white',
             marginTop: 'auto'
           }}>
@@ -431,22 +433,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
                     <div style={{
                       width: '32px',
                       height: '32px',
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)', /* Gold gradient */
+                      borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '16px',
                       fontWeight: 'bold',
-                      color: 'white'
+                      color: '#0A1628' /* Navy text on gold */
                     }}>
                       P
                     </div>
-                    <span style={{ fontWeight: 'bold', fontSize: '1.125rem', color: '#ffffff' }}>BPCI Enterprise</span>
+                    <span style={{ fontWeight: 'bold', fontSize: '1.125rem', color: '#ffffff' }}>Pravyom Research</span>
                   </div>
                   <p style={{ color: '#e2e8f0', fontSize: '0.875rem', lineHeight: '1.5' }}>
-                    Building the future of post-observation secure Internet infrastructure 
-                    with enterprise-grade blockchain solutions.
+                    Experimental research platform exploring distributed operating systems and blockchain infrastructure. 
+                    75% infrastructure ready, needs testing & pilot partnerships.
                   </p>
                 </div>
 
@@ -467,7 +469,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
                   <ul style={{ display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', padding: 0, margin: 0 }}>
                     <li><Link to="/dashboard" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Dashboard</Link></li>
                     <li><Link to="/blog" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Blog</Link></li>
-                    <li><a href="https://globalsushrut.github.io/PARVYOM-metanode/" target="_blank" rel="noopener noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Documentation</a></li>
+                    <li><Link to="/documentation" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Documentation</Link></li>
                     <li><Link to="/research" style={{ color: '#e2e8f0', textDecoration: 'none', transition: 'color 0.3s ease' }}>Research</Link></li>
                   </ul>
                 </div>
@@ -485,13 +487,38 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
               </div>
 
               {/* Bottom Bar */}
-              <div style={{ borderTop: '1px solid rgba(59, 130, 246, 0.2)', paddingTop: '32px', paddingBottom: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+              <div style={{ borderTop: '1px solid rgba(232, 180, 79, 0.2)', paddingTop: '32px', paddingBottom: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                  {/* Social Media Links */}
+                  <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                    <a href="https://github.com/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="GitHub">
+                      💻
+                    </a>
+                    <a href="https://twitter.com/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="Twitter">
+                      🐦
+                    </a>
+                    <a href="https://linkedin.com/company/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="LinkedIn">
+                      💼
+                    </a>
+                    <a href="https://discord.gg/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="Discord">
+                      💬
+                    </a>
+                    <a href="https://t.me/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="Telegram">
+                      ✈️
+                    </a>
+                    <a href="https://youtube.com/@pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="YouTube">
+                      📺
+                    </a>
+                    <a href="mailto:umesh@pravyom.com" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="Email">
+                      📧
+                    </a>
+                  </div>
+                  
                   <p style={{ color: '#e2e8f0', fontSize: '0.875rem', margin: 0 }}>
-                    © 2024 PARVYOM Metanode. All rights reserved.
+                    © 2025 Pravyom Research Platform. Experimental project.
                   </p>
-                  <p style={{ color: '#94a3b8', fontSize: '0.75rem', margin: 0 }}>
-                    Post-Observation Secure Internet • Web 3.5 Infrastructure
+                  <p style={{ color: '#E8B44F', fontSize: '0.75rem', margin: 0 }}>
+                    75% Infrastructure Ready • Single-Engineer Research • Needs Testing & Pilots
                   </p>
                 </div>
               </div>

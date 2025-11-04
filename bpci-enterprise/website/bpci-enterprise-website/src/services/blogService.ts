@@ -1,6 +1,6 @@
 import type { BlogPost, Comment, CreatePostRequest, CreateCommentRequest, BlogFilters, Message } from '../types/blog';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'https://api.pravyom.com/api';
 
 class BlogService {
   private getAuthHeaders(): HeadersInit {

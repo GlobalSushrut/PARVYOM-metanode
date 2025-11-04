@@ -1,0 +1,60 @@
+{
+  "service_name": "neural-blockchain-cluster",
+  "service_type": "CustomBinary",
+  "resource_allocation": {
+    "vpods": 46,
+    "memory_mb": 516,
+    "cpu_cores": 2.5,
+    "storage_gb": 20,
+    "network_bandwidth": "1Gbps"
+  },
+  "endpoints": [
+    {
+      "name": "consensus-api",
+      "port": 7777,
+      "protocol": "Http",
+      "path": "/consensus"
+    },
+    {
+      "name": "validator-rpc",
+      "port": 7778,
+      "protocol": "Http",
+      "path": "/validator"
+    },
+    {
+      "name": "neural-network",
+      "port": 9999,
+      "protocol": "Tcp",
+      "path": "/neural"
+    }
+  ],
+  "health_check": {
+    "path": "/consensus/health",
+    "interval_seconds": 20,
+    "timeout_seconds": 10,
+    "retries": 5
+  },
+  "environment": {
+    "CONSENSUS_MODE": "6D_CONSENSUS",
+    "VALIDATOR_COUNT": "8",
+    "NEURAL_NODES": "16",
+    "BLOCKCHAIN_NETWORK": "pravyom-testnet",
+    "LCCD_ENABLED": "true",
+    "SHADOW_REGISTRY": "true",
+    "CONSENSUS_TIMEOUT": "30",
+    "BLOCK_TIME": "5",
+    "MAX_TPS": "10000"
+  },
+  "scaling": {
+    "min_vpods": 20,
+    "max_vpods": 100,
+    "target_cpu_percent": 80,
+    "target_memory_percent": 85
+  },
+  "persistence": {
+    "enabled": true,
+    "storage_class": "fast-ssd",
+    "backup_enabled": true,
+    "backup_interval": "1h"
+  }
+}

@@ -1,516 +1,758 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Card, Row, Col, Button, Statistic, List, Avatar, Tag, Space, Alert, Spin, Divider } from 'antd';
-import { Link } from 'react-router-dom';
-import { 
-  TeamOutlined, 
-  GithubOutlined, 
-  MessageOutlined, 
-  BookOutlined,
-  RocketOutlined,
-  GlobalOutlined,
-  SafetyOutlined,
-  ApiOutlined,
-  UserOutlined,
-  StarOutlined,
-  CoffeeOutlined,
-  HeartOutlined,
-  MailOutlined,
-  TwitterOutlined,
-  DollarOutlined,
-  BulbOutlined,
-  WarningOutlined
-} from '@ant-design/icons';
-import { registryService } from '../../services/registryService';
+import { Typography, Button, Row, Col, Collapse, Modal, Input, Rate, message } from 'antd';
+import { getVoteStats, submitVote } from '../../services/voteService';
 import './Community.css';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
+const { Panel } = Collapse;
+const { TextArea } = Input;
 
 const Community: React.FC = () => {
-  const [communityStats, setCommunityStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<number>(0);
+  const [voteModalVisible, setVoteModalVisible] = useState(false);
+  const [voteEmail, setVoteEmail] = useState('');
+  const [voteComment, setVoteComment] = useState('');
+  const [voteRating, setVoteRating] = useState(0);
+  const [voteStats, setVoteStats] = useState({ total: 0, avgRating: 0 }); // Real data from DB
+  const [loading, setLoading] = useState(false);
+  
+  // Calculate days since project launch (October 1, 2024)
+  const projectLaunchDate = new Date('2024-10-01');
+  const today = new Date();
+  const daysLive = Math.floor((today.getTime() - projectLaunchDate.getTime()) / (1000 * 60 * 60 * 24));
 
+  // Load vote statistics from database on component mount
   useEffect(() => {
-    const fetchCommunityStats = async () => {
-      try {
-        const stats = await registryService.getRegistryStats();
-        setCommunityStats(stats);
-      } catch (error) {
-        console.error('Failed to fetch community stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCommunityStats();
+    loadVoteStats();
   }, []);
 
-  const communityResources = [
-    {
-      title: "GitHub Repository",
-      description: "Access the complete BPCI source code, contribute to development, and report issues.",
-      icon: <GithubOutlined style={{ fontSize: '24px', color: '#333' }} />,
-      link: "https://github.com/bpci-enterprise",
-      action: "View on GitHub"
-    },
-    {
-      title: "Developer Documentation",
-      description: "Comprehensive guides, API references, and tutorials for building on BPCI.",
-      icon: <BookOutlined style={{ fontSize: '24px', color: '#1890ff' }} />,
-      link: "/docs",
-      action: "Read Docs"
-    },
-    {
-      title: "Community Forum",
-      description: "Connect with other developers, ask questions, and share your projects.",
-      icon: <MessageOutlined style={{ fontSize: '24px', color: '#52c41a' }} />,
-      link: "https://forum.bpci.dev",
-      action: "Join Forum"
-    },
-    {
-      title: "BPI Node Installer",
-      description: "Install and run your own BPI community node to join the network.",
-      icon: <RocketOutlined style={{ fontSize: '24px', color: '#722ed1' }} />,
-      link: "/installer",
-      action: "Install Node"
+  const loadVoteStats = async () => {
+    try {
+      const stats = await getVoteStats();
+      setVoteStats(stats);
+    } catch (error) {
+      console.error('Failed to load vote stats:', error);
     }
-  ];
+  };
 
-  const contributionAreas = [
-    {
-      area: "🚀 Start Small & Learn",
-      description: "New to blockchain? Start with documentation, bug reports, or testing. No prior experience needed - we'll guide you!",
-      skills: ["Curiosity", "Basic Computer Skills", "Willingness to Learn"],
-      difficulty: "Beginner",
-      realTalk: "Perfect for students, career changers, or anyone wanting to break into Web3. We provide mentorship!"
-    },
-    {
-      area: "💻 Code Contributions",
-      description: "Ready to code? Help with frontend (React/TypeScript), backend (Rust), or smart contracts. All skill levels welcome.",
-      skills: ["Any Programming Language", "Git Basics", "Problem Solving"],
-      difficulty: "Intermediate",
-      realTalk: "Don't worry if you don't know Rust yet - we have learning resources and pair programming sessions."
-    },
-    {
-      area: "📝 Content & Community",
-      description: "Create tutorials, write blog posts, manage social media, or help with community support and onboarding.",
-      skills: ["Writing", "Communication", "Social Media", "Community Management"],
-      difficulty: "Beginner",
-      realTalk: "Great for building your portfolio while helping others. Flexible hours, work from anywhere."
-    },
-    {
-      area: "🔧 DevOps & Infrastructure",
-      description: "Help with deployment, monitoring, CI/CD, or running community nodes. Learn real-world infrastructure skills.",
-      skills: ["Linux", "Docker", "Cloud Platforms", "Networking"],
-      difficulty: "Advanced",
-      realTalk: "High-demand skills that translate directly to well-paying jobs. We'll teach you enterprise-grade practices."
+  const handleVoteSubmit = async () => {
+    if (!voteEmail || !voteEmail.includes('@')) {
+      message.error('Please enter a valid email address');
+      return;
     }
-  ];
+    if (voteRating === 0) {
+      message.error('Please select a rating');
+      return;
+    }
 
-  const recentUpdates = [
-    {
-      title: "BPCI v2.1.0 Released",
-      description: "New autonomous economy features with 4-coin system (GEN/NEX/FLX/AUR)",
-      date: "2024-01-15",
-      type: "release"
-    },
-    {
-      title: "Enhanced Security Module",
-      description: "Military-grade security with post-quantum cryptography support",
-      date: "2024-01-10",
-      type: "feature"
-    },
-    {
-      title: "Community Node Program",
-      description: "New incentive program for community node operators",
-      date: "2024-01-05",
-      type: "program"
+    setLoading(true);
+
+    try {
+      // Submit vote to backend API
+      const result = await submitVote({
+        email: voteEmail,
+        comment: voteComment,
+        rating: voteRating,
+        timestamp: new Date().toISOString()
+      });
+
+      // Update stats with response from server
+      setVoteStats(result.stats);
+
+      message.success('Thank you for your vote! Your feedback has been recorded.');
+      setVoteModalVisible(false);
+      setVoteEmail('');
+      setVoteComment('');
+      setVoteRating(0);
+    } catch (error) {
+      message.error('Failed to submit vote. Please try again.');
+      console.error('Vote submission error:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const sections = [
+    { id: 0, label: 'Overview', emoji: '🏠' },
+    { id: 1, label: 'Who This Is For', emoji: '👥' },
+    { id: 2, label: 'How to Contribute', emoji: '🤝' },
+    { id: 3, label: 'Resources', emoji: '📚' },
+    { id: 4, label: 'FAQ', emoji: '❓' }
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      {/* Hero Section */}
-      <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-        <Title level={1} style={{ marginBottom: '16px' }}>
-          <TeamOutlined style={{ marginRight: '12px', color: '#667eea' }} />
-          BPCI Community
-        </Title>
-        <Paragraph style={{ fontSize: '18px', maxWidth: '800px', margin: '0 auto 32px' }}>
-          Join a global community of developers, researchers, and innovators building the future 
-          of secure, decentralized Internet infrastructure. Contribute to open-source projects, 
-          run community nodes, and help shape the next generation of Web3 technology.
-        </Paragraph>
+    <div className="community-page">
+      {/* Vote Statistics Banner */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, rgba(232, 180, 79, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
+        borderBottom: '2px solid rgba(232, 180, 79, 0.3)',
+        padding: '1rem 0'
+      }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ color: '#7C3AED', fontSize: '2rem', fontWeight: 'bold' }}>{daysLive}</div>
+            <div style={{ color: '#ffffff', fontSize: '0.875rem' }}>Days Live</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ color: '#E8B44F', fontSize: '2rem', fontWeight: 'bold' }}>{voteStats.total}</div>
+            <div style={{ color: '#ffffff', fontSize: '0.875rem' }}>Total Votes</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ color: '#10B981', fontSize: '2rem', fontWeight: 'bold' }}>
+              {voteStats.total === 0 ? '0.0' : voteStats.avgRating.toFixed(1)} ⭐
+            </div>
+            <div style={{ color: '#ffffff', fontSize: '0.875rem' }}>Average Rating</div>
+          </div>
+          <Button 
+            type="primary"
+            size="large"
+            style={{
+              background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)',
+              border: 'none',
+              color: '#0A1628',
+              fontWeight: '600'
+            }}
+            onClick={() => setVoteModalVisible(true)}
+          >
+            👍 Vote Now
+          </Button>
+        </div>
       </div>
 
-      {/* Community Stats */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <Spin size="large" />
-          <div style={{ marginTop: '16px' }}>Loading community statistics...</div>
+      {/* Vote Modal */}
+      <Modal
+        title={<span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#E8B44F' }}>Vote for This Research</span>}
+        open={voteModalVisible}
+        onOk={handleVoteSubmit}
+        onCancel={() => {
+          setVoteModalVisible(false);
+          setVoteEmail('');
+          setVoteComment('');
+          setVoteRating(0);
+        }}
+        okText="Submit Vote"
+        cancelText="Cancel"
+        width={600}
+        confirmLoading={loading}
+        okButtonProps={{
+          style: {
+            background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)',
+            border: 'none',
+            color: '#0A1628',
+            fontWeight: '600'
+          }
+        }}
+      >
+        <div style={{ padding: '1rem 0' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#E8B44F' }}>
+              Email Address *
+            </label>
+            <Input
+              type="email"
+              placeholder="your.email@example.com"
+              value={voteEmail}
+              onChange={(e) => setVoteEmail(e.target.value)}
+              size="large"
+              required
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#E8B44F' }}>
+              Rating *
+            </label>
+            <Rate
+              value={voteRating}
+              onChange={setVoteRating}
+              style={{ fontSize: '2rem' }}
+            />
+            <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
+              {voteRating === 0 && 'Select a rating (1-5 stars)'}
+              {voteRating === 1 && '⭐ Poor'}
+              {voteRating === 2 && '⭐⭐ Fair'}
+              {voteRating === 3 && '⭐⭐⭐ Good'}
+              {voteRating === 4 && '⭐⭐⭐⭐ Very Good'}
+              {voteRating === 5 && '⭐⭐⭐⭐⭐ Excellent'}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#E8B44F' }}>
+              Comment (Optional)
+            </label>
+            <TextArea
+              placeholder="Share your thoughts about this research project..."
+              value={voteComment}
+              onChange={(e) => setVoteComment(e.target.value)}
+              rows={4}
+              maxLength={500}
+              showCount
+            />
+          </div>
+
+          <div style={{ padding: '1rem', background: 'rgba(232, 180, 79, 0.1)', borderRadius: '8px', fontSize: '0.875rem', color: '#666' }}>
+            <strong>Note:</strong> Your vote and feedback will be stored in our database for review. We use this information to improve the project and understand community interest.
+          </div>
         </div>
-      ) : communityStats ? (
-        <Row gutter={[16, 16]} style={{ marginBottom: '48px' }}>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Community Nodes"
-                value={communityStats.community_nodes}
-                prefix={<GlobalOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Active Developers"
-                value={communityStats.total_validators + communityStats.total_miners}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Network Health"
-                value={communityStats.network_health}
-                prefix={<SafetyOutlined />}
-                valueStyle={{ 
-                  color: communityStats.network_health === 'Excellent' ? '#52c41a' : '#1890ff'
+      </Modal>
+
+      {/* Hero Section */}
+      <section className="hero-gradient" style={{ padding: '8rem 0 6rem 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+          <Title level={1} style={{ color: '#ffffff', fontSize: '3rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            Community & Open Collaboration
+          </Title>
+          <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', maxWidth: '48rem', margin: '0 auto 2rem auto', lineHeight: '1.8' }}>
+            Open-source infrastructure built by a community of contributors. Join us to learn, build, and shape the future.
+          </Paragraph>
+          
+          {/* Section Selector */}
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+            {sections.map((section) => (
+              <Button
+                key={section.id}
+                size="large"
+                style={{
+                  background: activeSection === section.id ? 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)' : 'rgba(255, 255, 255, 0.1)',
+                  border: activeSection === section.id ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                  color: activeSection === section.id ? '#0A1628' : '#ffffff',
+                  fontWeight: '600',
+                  padding: '0 1.5rem',
+                  height: '48px'
                 }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Total Nodes"
-                value={communityStats.total_nodes}
-                prefix={<ApiOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-      ) : (
-        <Alert
-          message="Community Stats Unavailable"
-          description="Unable to load community statistics at this time."
-          type="warning"
-          style={{ marginBottom: '48px' }}
-        />
+                onClick={() => setActiveSection(section.id)}
+              >
+                {section.emoji} {section.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 0: Overview */}
+      {activeSection === 0 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              🏠 Welcome to the Community
+            </Title>
+            
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', padding: '3rem', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+                <strong style={{ color: '#E8B44F' }}>This is an open-source project.</strong> The infrastructure (75% complete) is built collaboratively. Whether you're a developer, researcher, student, or enthusiast—there's a place for you here.
+              </Paragraph>
+
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>What Makes This Community Different</Title>
+              <Row gutter={[24, 24]} style={{ marginBottom: '2rem' }}>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                    <Title level={4} style={{ color: '#10B981', marginBottom: '0.5rem' }}>🎓 Learn by Building</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      Real infrastructure to learn from. Not tutorials—actual production code (Rust, distributed systems, cryptography).
+                    </Paragraph>
+                  </div>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(124, 58, 237, 0.1)', borderRadius: '8px', border: '1px solid rgba(124, 58, 237, 0.3)' }}>
+                    <Title level={4} style={{ color: '#7C3AED', marginBottom: '0.5rem' }}>🤝 Collaborative</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      Not a corporate project. Community-driven development. Your contributions shape the platform.
+                    </Paragraph>
+                  </div>
+                </Col>
+                <Col xs={24} md={8}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    <Title level={4} style={{ color: '#F59E0B', marginBottom: '0.5rem' }}>🚀 Early Stage</Title>
+                    <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                      75% complete = your contribution matters. Not too early (vaporware) or too late (already built).
+                    </Paragraph>
+                  </div>
+                </Col>
+              </Row>
+
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>Current Status</Title>
+              <ul style={{ color: '#ffffff', fontSize: '1.125rem', lineHeight: '1.8', paddingLeft: '2rem', marginBottom: '2rem' }}>
+                <li><strong>Infrastructure:</strong> 15 backend services operational (Rust)</li>
+                <li><strong>Codebase:</strong> Open-source on GitHub (contributions welcome)</li>
+                <li><strong>Community:</strong> Growing (developers, researchers, students)</li>
+                <li><strong>Phase:</strong> Testnet operational, seeking contributors for mainnet readiness</li>
+              </ul>
+
+              <div style={{ background: 'rgba(232, 180, 79, 0.1)', border: '1px solid rgba(232, 180, 79, 0.3)', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>Select a section above to learn more:</strong> Who this is for → How to contribute → Resources → FAQ
+                </Paragraph>
+                
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Button 
+                    type="primary" 
+                    size="large"
+                    icon={<span style={{ marginRight: '0.5rem' }}>💻</span>}
+                    style={{
+                      background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)',
+                      border: 'none',
+                      color: '#0A1628',
+                      fontWeight: '600',
+                      height: '48px',
+                      padding: '0 2rem',
+                      fontSize: '1rem'
+                    }}
+                    onClick={() => window.open('https://github.com/pravyom', '_blank')}
+                  >
+                    View on GitHub
+                  </Button>
+                  <Button 
+                    size="large"
+                    icon={<span style={{ marginRight: '0.5rem' }}>👍</span>}
+                    style={{
+                      background: 'transparent',
+                      border: '2px solid #E8B44F',
+                      color: '#E8B44F',
+                      fontWeight: '600',
+                      height: '48px',
+                      padding: '0 2rem',
+                      fontSize: '1rem'
+                    }}
+                    onClick={() => setVoteModalVisible(true)}
+                  >
+                    Vote for This Research
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
-      {/* Community Resources */}
-      <div style={{ marginBottom: '48px' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: '32px' }}>
-          Community Resources
-        </Title>
-        <Row gutter={[24, 24]}>
-          {communityResources.map((resource, index) => (
-            <Col xs={24} sm={12} lg={6} key={index}>
-              <Card
-                hoverable
-                style={{ height: '100%', textAlign: 'center' }}
-                actions={[
-                  resource.link.startsWith('http') ? (
-                    <a href={resource.link} target="_blank" rel="noopener noreferrer">
-                      <Button type="primary">{resource.action}</Button>
-                    </a>
-                  ) : (
-                    <Link to={resource.link}>
-                      <Button type="primary">{resource.action}</Button>
-                    </Link>
-                  )
-                ]}
+      {/* Section 1: Who This Is For */}
+      {activeSection === 1 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#10B981', textAlign: 'center' }}>
+              👥 Who This Is For (Honest Complexity Assessment)
+            </Title>
+
+            {/* Complexity Warning */}
+            <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '2px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', padding: '2rem', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+              <Title level={3} style={{ color: '#EF4444', marginBottom: '1rem' }}>⚠️ Understanding the Complexity</Title>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                <strong style={{ color: '#EF4444' }}>This is not a simple project.</strong> The infrastructure crosses multiple complex domains: distributed systems theory, post-quantum cryptography, category theory, consensus mechanisms, operating systems design, and metaphysical computing models. Take time to understand the scope before diving in.
+              </Paragraph>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: 0 }}>
+                <strong style={{ color: '#E8B44F' }}>Cross-domain complexity:</strong> Mathematical (category theory, graph theory), Cryptographic (post-quantum, BLS signatures), Systems (distributed OS, consensus), Metaphysical (6D blockchain, quantum-inspired models). Choose your entry point based on your expertise and interests.
+              </Paragraph>
+            </div>
+
+            <Row gutter={[24, 24]}>
+              {/* OS & Infrastructure Builders */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>🖥️ OS & Infrastructure Builders</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you have:</strong> Deep systems programming (Rust, C++), OS internals knowledge, distributed systems experience
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> BPI OS layer, DynaRoute v2 networking, vPod orchestration, CommuteLock communication, 15 backend services
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> High. Requires understanding async Rust, tokio runtime, distributed OS concepts, dynamic networking
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> This isn't Docker or Kubernetes. It's a distributed OS with dynamic port allocation, mesh networking, and cellular division. Study the architecture first.
+                  </Paragraph>
+                </div>
+              </Col>
+
+              {/* Consensus & Cryptography Researchers */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>🔬 Consensus & Crypto Researchers</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you have:</strong> PhD-level cryptography, consensus mechanism research, formal verification background
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> LCCD consensus (Living Cellular Consensus Division), post-quantum cryptography integration, BLS signature aggregation, quantum entanglement proofs
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> Extreme. Bio-inspired consensus that divides like cells, post-quantum crypto (Dilithium), category theory foundations
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> LCCD is not PoW/PoS. It's cellular division-based. Quantum proofs are not blockchain hashes. Study the papers first.
+                  </Paragraph>
+                </div>
+              </Col>
+
+              {/* Auditors & Security Researchers */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>🔐 Security Auditors & Researchers</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you have:</strong> Security audit experience, cryptographic analysis, formal verification, penetration testing
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> Security audits (critical need), cryptographic validation, attack surface analysis, formal verification of consensus, penetration testing
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> Very High. Multiple attack surfaces: consensus, networking, cryptography, OS layer, 15 services
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> This is experimental research code (75% complete). Needs external validation. Standard blockchain security models may not apply.
+                  </Paragraph>
+                </div>
+              </Col>
+
+              {/* Mathematical & Theoretical Researchers */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>📐 Mathematical & Theoretical Researchers</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you have:</strong> Category theory, graph theory, topology, formal methods, mathematical modeling
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> 6D blockchain mathematical foundations, category theory models, 4D hash-graph geometry, quantum-inspired models, formal proofs
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> Extreme. Metaphysical computing models, 6D transaction space (sender, receiver, amount, time, proof, intent), cuboidal geometry
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> 6D blockchain is not marketing. It's actual dimensional modeling. Quantum entanglement proofs are mathematical constructs. Study the foundations.
+                  </Paragraph>
+                </div>
+              </Col>
+
+              {/* Documentation & Learning Contributors */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>📚 Documentation & Learning Contributors</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you:</strong> Want to learn by documenting, explain complex concepts, create educational content
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> Architecture documentation, tutorials, concept explanations, video guides, translating complex ideas
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> Medium. Requires understanding concepts deeply enough to explain them clearly
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> This isn't "blockchain for dummies." Document the actual complexity honestly. Help others understand what they're getting into.
+                  </Paragraph>
+                </div>
+              </Col>
+
+              {/* Testing & Validation Contributors */}
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>🧪 Testing & Validation Contributors</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Start here if you:</strong> Have testing experience, QA background, want to validate experimental systems
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Work on:</strong> Integration testing, load testing, bug reports, edge case discovery, testnet validation
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                    <strong style={{ color: '#E8B44F' }}>Complexity:</strong> Medium-High. Need to understand system architecture to test effectively
+                  </Paragraph>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0 }}>
+                    <strong style={{ color: '#E8B44F' }}>Good to know:</strong> This is experimental research code. Expect bugs, incomplete features, rough edges. Your job is to find them and report them clearly.
+                  </Paragraph>
+                </div>
+              </Col>
+            </Row>
+
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', padding: '2rem', marginTop: '2rem', backdropFilter: 'blur(10px)' }}>
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem', textAlign: 'center' }}>Still Not Sure Where You Fit?</Title>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem', textAlign: 'center' }}>
+                <strong style={{ color: '#E8B44F' }}>Don't guess.</strong> Contact <strong>umesh@pravyom.com</strong> with your background and interests. We'll help you find the right entry point based on your actual expertise, not what you think you can handle.
+              </Paragraph>
+              <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', marginBottom: 0, textAlign: 'center', fontStyle: 'italic' }}>
+                Remember: This is experimental research infrastructure crossing multiple complex domains. Honesty about your expertise level helps everyone—including you.
+              </Paragraph>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 2: How to Contribute */}
+      {activeSection === 2 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#3B82F6', textAlign: 'center' }}>
+              🤝 How to Contribute
+            </Title>
+
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', padding: '3rem', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+              <Title level={3} style={{ color: '#3B82F6', marginBottom: '1.5rem' }}>Step-by-Step Contribution Guide</Title>
+              
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>1. Explore the Codebase</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>GitHub:</strong> Browse the repository, read README files</li>
+                  <li><strong>Documentation:</strong> Understand the architecture</li>
+                  <li><strong>Issues:</strong> Check open issues tagged "good first issue"</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>2. Set Up Development Environment</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Install Rust:</strong> Follow setup guide in docs</li>
+                  <li><strong>Clone repo:</strong> Fork and clone the repository</li>
+                  <li><strong>Build locally:</strong> Compile and run tests</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>3. Make Your Contribution</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Pick an issue:</strong> Start with small, well-defined tasks</li>
+                  <li><strong>Create branch:</strong> Work on a feature branch</li>
+                  <li><strong>Write tests:</strong> Ensure code quality</li>
+                  <li><strong>Submit PR:</strong> Create pull request with clear description</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>4. Get Feedback & Iterate</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Code review:</strong> Maintainers will review your PR</li>
+                  <li><strong>Address feedback:</strong> Make requested changes</li>
+                  <li><strong>Merge:</strong> Once approved, your code is merged!</li>
+                </ul>
+              </div>
+
+              <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '1.5rem' }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.6', marginBottom: 0 }}>
+                  <strong style={{ color: '#3B82F6' }}>Need help?</strong> Don't hesitate to ask questions in GitHub issues or contact <strong>umesh@pravyom.com</strong>. We're here to help!
+                </Paragraph>
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', padding: '3rem', backdropFilter: 'blur(10px)' }}>
+              <Title level={3} style={{ color: '#3B82F6', marginBottom: '1.5rem' }}>Non-Code Contributions</Title>
+              <Row gutter={[24, 24]}>
+                <Col xs={24} md={12}>
+                  <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>📚 Documentation</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                    <li>Write tutorials</li>
+                    <li>Improve existing docs</li>
+                    <li>Create video guides</li>
+                    <li>Translate documentation</li>
+                  </ul>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>🐛 Testing & Bug Reports</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                    <li>Test new features</li>
+                    <li>Report bugs</li>
+                    <li>Suggest improvements</li>
+                    <li>Validate fixes</li>
+                  </ul>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>🎨 Design & UX</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                    <li>UI/UX improvements</li>
+                    <li>Logo and branding</li>
+                    <li>Website design</li>
+                    <li>User experience feedback</li>
+                  </ul>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Title level={4} style={{ color: '#E8B44F', marginBottom: '1rem' }}>🌐 Community Building</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                    <li>Answer questions</li>
+                    <li>Organize events</li>
+                    <li>Social media</li>
+                    <li>Community moderation</li>
+                  </ul>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 3: Community Resources */}
+      {activeSection === 3 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#7C3AED', textAlign: 'center' }}>
+              📚 Community Resources
+            </Title>
+
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(124, 58, 237, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#7C3AED', marginBottom: '1rem' }}>💻 GitHub Repository</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                    Complete source code, issues, pull requests, and contribution guidelines.
+                  </Paragraph>
+                  <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                    View on GitHub
+                  </Button>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(124, 58, 237, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#7C3AED', marginBottom: '1rem' }}>📖 Documentation</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                    Architecture guides, API references, tutorials, and setup instructions.
+                  </Paragraph>
+                  <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                    Read Docs
+                  </Button>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(124, 58, 237, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#7C3AED', marginBottom: '1rem' }}>💬 Community Chat</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                    Join our Discord/Telegram for real-time discussions, questions, and collaboration.
+                  </Paragraph>
+                  <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                    Join Chat
+                  </Button>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(124, 58, 237, 0.3)', borderRadius: '12px', padding: '2rem', height: '100%', backdropFilter: 'blur(10px)' }}>
+                  <Title level={3} style={{ color: '#7C3AED', marginBottom: '1rem' }}>📧 Direct Contact</Title>
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                    Have questions? Want to contribute? Reach out directly.
+                  </Paragraph>
+                  <Button type="primary" size="large" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #FFFFFF 100%)', border: 'none', color: '#0A1628', fontWeight: '600' }}>
+                    umesh@pravyom.com
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </section>
+      )}
+
+      {/* Section 4: FAQ */}
+      {activeSection === 4 && (
+        <section style={{ padding: '5rem 0' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#F59E0B', textAlign: 'center' }}>
+              ❓ Frequently Asked Questions
+            </Title>
+
+            <div style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(245, 158, 11, 0.3)', borderRadius: '12px', padding: '3rem', backdropFilter: 'blur(10px)' }}>
+              <Collapse 
+                bordered={false} 
+                style={{ background: 'transparent' }}
+                expandIconPosition="end"
               >
-                <div style={{ padding: '24px 16px' }}>
-                  <div style={{ marginBottom: '16px' }}>
-                    {resource.icon}
-                  </div>
-                  <Title level={4} style={{ marginBottom: '12px' }}>
-                    {resource.title}
-                  </Title>
-                  <Paragraph style={{ color: '#666', fontSize: '14px' }}>
-                    {resource.description}
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>Do I need to know Rust to contribute?</span>} 
+                  key="1"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    No! While the core infrastructure is written in Rust, you can contribute in many ways: documentation, testing, design, community building, content creation. If you want to learn Rust, we provide resources and mentorship.
                   </Paragraph>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
+                </Panel>
 
-      {/* How to Contribute - Reality-Based */}
-      <div style={{ marginBottom: '48px' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: '16px' }}>
-          How to Actually Contribute (No BS Guide)
-        </Title>
-        <Paragraph style={{ textAlign: 'center', fontSize: '16px', maxWidth: '800px', margin: '0 auto 32px', color: '#666' }}>
-          Real talk: We need help, and you can gain valuable experience. Here's how to get started without the usual corporate fluff.
-        </Paragraph>
-        
-        <Row gutter={[24, 24]}>
-          {contributionAreas.map((area, index) => (
-            <Col xs={24} md={12} key={index}>
-              <Card style={{ height: '100%' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <Title level={4} style={{ margin: 0 }}>
-                      {area.area}
-                    </Title>
-                    <Tag color={
-                      area.difficulty === 'Beginner' ? 'green' :
-                      area.difficulty === 'Intermediate' ? 'orange' : 'red'
-                    }>
-                      {area.difficulty}
-                    </Tag>
-                  </div>
-                  <Paragraph style={{ color: '#666', marginBottom: '16px' }}>
-                    {area.description}
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>Is this really open-source?</span>} 
+                  key="2"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Yes. The entire codebase is open-source on GitHub. Anyone can view, fork, and contribute. We follow standard open-source practices with transparent development and community governance.
                   </Paragraph>
-                  
-                  {/* Reality Check Section */}
-                  <div className="reality-section" style={{ 
-                    background: 'rgba(102, 126, 234, 0.1)', 
-                    border: '1px solid rgba(102, 126, 234, 0.2)', 
-                    borderRadius: '6px', 
-                    padding: '12px', 
-                    marginBottom: '16px' 
-                  }}>
-                    <Text strong style={{ color: '#667eea', display: 'block', marginBottom: '4px' }}>
-                      <BulbOutlined /> Reality Check:
-                    </Text>
-                    <Text style={{ fontSize: '14px', color: '#555' }}>
-                      {area.realTalk}
-                    </Text>
-                  </div>
+                </Panel>
 
-                  <div>
-                    <Text strong style={{ marginBottom: '8px', display: 'block' }}>What You Need:</Text>
-                    <Space wrap>
-                      {area.skills.map((skill, skillIndex) => (
-                        <Tag key={skillIndex} color="blue">{skill}</Tag>
-                      ))}
-                    </Space>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>Will I get paid for contributions?</span>} 
+                  key="3"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Currently, this is volunteer-based. However, significant contributors may receive equity/tokens when GEN coin launches (depends on traction and funding). Think of it as early-stage startup equity—high risk, high potential reward.
+                  </Paragraph>
+                </Panel>
 
-        {/* Getting Started Steps */}
-        <Card style={{ marginTop: '32px', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
-          <Title level={3} style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <RocketOutlined /> Ready to Start? Here's Your Action Plan
-          </Title>
-          <Row gutter={[24, 16]}>
-            <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', padding: '16px' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>1️⃣</div>
-                <Text strong>Join Our Discord</Text>
-                <br />
-                <Text style={{ fontSize: '14px', color: '#666' }}>
-                  Introduce yourself, ask questions, find mentors
-                </Text>
-              </div>
-            </Col>
-            <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', padding: '16px' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>2️⃣</div>
-                <Text strong>Pick Your First Task</Text>
-                <br />
-                <Text style={{ fontSize: '14px', color: '#666' }}>
-                  Browse "good first issue" labels on GitHub
-                </Text>
-              </div>
-            </Col>
-            <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', padding: '16px' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>3️⃣</div>
-                <Text strong>Get Support</Text>
-                <br />
-                <Text style={{ fontSize: '14px', color: '#666' }}>
-                  We'll pair you with a mentor and provide resources
-                </Text>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-      </div>
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>How much time do I need to commit?</span>} 
+                  key="4"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    As much or as little as you want. Contributions range from one-time (fix a typo) to ongoing (core maintainer). Start small, increase commitment as you get more involved. No pressure.
+                  </Paragraph>
+                </Panel>
 
-      {/* Recent Updates */}
-      <div style={{ marginBottom: '48px' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: '32px' }}>
-          Recent Community Updates
-        </Title>
-        <Card>
-          <List
-            itemLayout="horizontal"
-            dataSource={recentUpdates}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={
-                    <Avatar 
-                      icon={
-                        item.type === 'release' ? <RocketOutlined /> :
-                        item.type === 'feature' ? <StarOutlined /> :
-                        <TeamOutlined />
-                      }
-                      style={{ 
-                        backgroundColor: 
-                          item.type === 'release' ? '#52c41a' :
-                          item.type === 'feature' ? '#1890ff' :
-                          '#722ed1'
-                      }}
-                    />
-                  }
-                  title={item.title}
-                  description={item.description}
-                />
-                <div style={{ color: '#666', fontSize: '14px' }}>
-                  {new Date(item.date).toLocaleDateString()}
-                </div>
-              </List.Item>
-            )}
-          />
-        </Card>
-      </div>
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>What if I'm a complete beginner?</span>} 
+                  key="5"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Perfect! Start with documentation, testing, or asking questions. We have "good first issue" tags on GitHub for beginners. The community is supportive—everyone was a beginner once.
+                  </Paragraph>
+                </Panel>
 
-      {/* Business Pitch - Reality-Based */}
-      <div className="pitch-section" style={{ textAlign: 'center', padding: '48px 24px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', color: 'white', marginBottom: '48px' }}>
-        <Title level={2} style={{ color: 'white', marginBottom: '16px' }}>
-          <HeartOutlined /> Why BPCI Matters (The Real Story)
-        </Title>
-        <Paragraph style={{ fontSize: '18px', color: 'rgba(255,255,255,0.9)', marginBottom: '24px', maxWidth: '800px', margin: '0 auto 24px' }}>
-          We're not another crypto project promising to "revolutionize everything." We're building practical, 
-          secure infrastructure that actually works. Here's the honest pitch:
-        </Paragraph>
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>How do I stay updated on project developments?</span>} 
+                  key="6"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Follow the GitHub repository (watch for updates), join our community chat (Discord/Telegram), and subscribe to our newsletter. Major updates are announced across all channels.
+                  </Paragraph>
+                </Panel>
 
-        <Row gutter={[32, 24]} style={{ marginBottom: '32px' }}>
-          <Col xs={24} md={8}>
-            <div style={{ padding: '16px' }}>
-              <WarningOutlined style={{ fontSize: '32px', marginBottom: '12px', color: '#ffd700' }} />
-              <Title level={4} style={{ color: 'white', marginBottom: '8px' }}>The Problem</Title>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
-                Current blockchain infrastructure is slow, expensive, and hard to use. 
-                Most projects are overhyped and underdelivered.
-              </Text>
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>Can I use this for my own project?</span>} 
+                  key="7"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Yes! It's open-source. Fork it, modify it, build on top of it. Just follow the license terms. If you build something cool, let us know—we'd love to feature it!
+                  </Paragraph>
+                </Panel>
+
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>What's the long-term vision for this project?</span>} 
+                  key="8"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Build production-grade infrastructure for enterprise and government use cases. Current phase: testnet (75% complete). Next: pilot partnerships, testing, security audits. Final: mainnet launch with GEN coin (traction-based, not time-based).
+                  </Paragraph>
+                </Panel>
+
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>How can I get more involved beyond code?</span>} 
+                  key="9"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Organize meetups, create educational content, help with community moderation, translate documentation, provide design feedback, or become a community advocate. Many ways to contribute beyond code!
+                  </Paragraph>
+                </Panel>
+
+                <Panel 
+                  header={<span style={{ color: '#E8B44F', fontSize: '1.125rem', fontWeight: '600' }}>Who do I contact if I have more questions?</span>} 
+                  key="10"
+                  style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', marginBottom: '1rem' }}
+                >
+                  <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                    Email <strong>umesh@pravyom.com</strong> for direct questions. For technical questions, use GitHub issues. For general discussion, join our community chat. We're responsive and happy to help!
+                  </Paragraph>
+                </Panel>
+              </Collapse>
             </div>
-          </Col>
-          <Col xs={24} md={8}>
-            <div style={{ padding: '16px' }}>
-              <BulbOutlined style={{ fontSize: '32px', marginBottom: '12px', color: '#52c41a' }} />
-              <Title level={4} style={{ color: 'white', marginBottom: '8px' }}>Our Solution</Title>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
-                Fast, secure, and actually usable blockchain infrastructure. 
-                Built by developers, for developers. No marketing fluff.
-              </Text>
-            </div>
-          </Col>
-          <Col xs={24} md={8}>
-            <div style={{ padding: '16px' }}>
-              <RocketOutlined style={{ fontSize: '32px', marginBottom: '12px', color: '#1890ff' }} />
-              <Title level={4} style={{ color: 'white', marginBottom: '8px' }}>The Reality</Title>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
-                We're early stage, bootstrapped, and need your help. 
-                But we're building something real that you can use today.
-              </Text>
-            </div>
-          </Col>
-        </Row>
-
-        <Divider style={{ borderColor: 'rgba(255,255,255,0.3)', margin: '32px 0' }} />
-
-        <Title level={3} style={{ color: 'white', marginBottom: '24px' }}>
-          <DollarOutlined /> Support the Project
-        </Title>
-        <Paragraph style={{ fontSize: '16px', color: 'rgba(255,255,255,0.9)', marginBottom: '24px' }}>
-          We're bootstrapped and could use your support. Every contribution helps us build better infrastructure.
-        </Paragraph>
-
-        <div className="support-buttons" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
-          <a href="https://buymeacoffee.com/bpci" target="_blank" rel="noopener noreferrer">
-            <Button 
-              size="large" 
-              className="coffee-button"
-              style={{ background: '#ff813f', border: 'none', color: 'white', fontWeight: '600' }}
-            >
-              <CoffeeOutlined /> Buy Me Coffee
-            </Button>
-          </a>
-          <a href="https://github.com/sponsors/bpci-enterprise" target="_blank" rel="noopener noreferrer">
-            <Button 
-              size="large" 
-              className="github-button"
-              style={{ background: '#333', border: 'none', color: 'white', fontWeight: '600' }}
-            >
-              <GithubOutlined /> GitHub Sponsors
-            </Button>
-          </a>
-          <a href="mailto:support@bpci.dev" target="_blank" rel="noopener noreferrer">
-            <Button 
-              size="large" 
-              style={{ background: '#52c41a', border: 'none', color: 'white', fontWeight: '600' }}
-            >
-              <MailOutlined /> Contact Us
-            </Button>
-          </a>
-        </div>
-
-        <Title level={4} style={{ color: 'white', marginBottom: '16px' }}>
-          Connect With Us
-        </Title>
-        <Space size="large">
-          <a href="https://discord.gg/bpci" target="_blank" rel="noopener noreferrer">
-            <Button size="large" ghost style={{ fontWeight: '600' }}>
-              <MessageOutlined /> Discord
-            </Button>
-          </a>
-          <a href="https://twitter.com/bpci_dev" target="_blank" rel="noopener noreferrer">
-            <Button size="large" ghost style={{ fontWeight: '600' }}>
-              <TwitterOutlined /> Twitter
-            </Button>
-          </a>
-          <Link to="/installer">
-            <Button size="large" style={{ background: 'white', color: '#667eea', border: 'none', fontWeight: '600' }}>
-              <RocketOutlined /> Try It Now
-            </Button>
-          </Link>
-        </Space>
-      </div>
-
-      {/* Honest Expectations */}
-      <Card style={{ marginBottom: '48px', background: 'rgba(255, 193, 7, 0.1)', border: '1px solid rgba(255, 193, 7, 0.3)' }}>
-        <Title level={3} style={{ textAlign: 'center', marginBottom: '16px', color: '#d48806' }}>
-          <WarningOutlined /> Set Your Expectations Right
-        </Title>
-        <Row gutter={[24, 16]}>
-          <Col xs={24} md={12}>
-            <Title level={5} style={{ color: '#d48806', marginBottom: '8px' }}>✅ What We Promise:</Title>
-            <ul style={{ color: '#666', fontSize: '14px' }}>
-              <li>Honest communication about progress and challenges</li>
-              <li>Real mentorship and learning opportunities</li>
-              <li>Credit for your contributions</li>
-              <li>A supportive, drama-free community</li>
-              <li>Practical experience with cutting-edge tech</li>
-            </ul>
-          </Col>
-          <Col xs={24} md={12}>
-            <Title level={5} style={{ color: '#d48806', marginBottom: '8px' }}>❌ What We Don't Promise:</Title>
-            <ul style={{ color: '#666', fontSize: '14px' }}>
-              <li>Get-rich-quick schemes or token airdrops</li>
-              <li>Immediate job placement (but we'll help with skills)</li>
-              <li>Perfect code or zero bugs (we're human)</li>
-              <li>24/7 support (we have day jobs too)</li>
-              <li>Overnight success (good things take time)</li>
-            </ul>
-          </Col>
-        </Row>
-      </Card>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

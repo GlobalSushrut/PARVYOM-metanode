@@ -1,0 +1,57 @@
+{
+  "service_name": "frontend-cluster",
+  "service_type": "HttpcgVmServer",
+  "resource_allocation": {
+    "vpods": 16,
+    "memory_mb": 116,
+    "cpu_cores": 0.8,
+    "storage_gb": 3,
+    "network_bandwidth": "200Mbps"
+  },
+  "endpoints": [
+    {
+      "name": "web-app",
+      "port": 3000,
+      "protocol": "Http",
+      "path": "/"
+    },
+    {
+      "name": "dashboard-api",
+      "port": 3001,
+      "protocol": "Http",
+      "path": "/dashboard"
+    },
+    {
+      "name": "static-assets",
+      "port": 3002,
+      "protocol": "Http",
+      "path": "/assets"
+    }
+  ],
+  "health_check": {
+    "path": "/health",
+    "interval_seconds": 30,
+    "timeout_seconds": 5,
+    "retries": 3
+  },
+  "environment": {
+    "NODE_ENV": "production",
+    "REACT_APP_API_URL": "https://pravyom.com/api",
+    "REACT_APP_KEYCLOAK_URL": "https://pravyom.com/auth",
+    "REACT_APP_BLOCKCHAIN_RPC": "https://pravyom.com/blockchain",
+    "REACT_APP_WEBSOCKET_URL": "wss://pravyom.com/ws",
+    "ENABLE_PWA": "true",
+    "CACHE_STATIC_ASSETS": "true"
+  },
+  "scaling": {
+    "min_vpods": 6,
+    "max_vpods": 30,
+    "target_cpu_percent": 70,
+    "target_memory_percent": 75
+  },
+  "cdn": {
+    "enabled": true,
+    "cache_ttl": "1h",
+    "compression": "gzip"
+  }
+}

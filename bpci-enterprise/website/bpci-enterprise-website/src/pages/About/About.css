@@ -21,10 +21,11 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* CARDS - Force white background with BLACK text */
+/* CARDS - Navy background with white text (brand colors) */
 .about-page .ant-card {
-  background: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
+  background: rgba(10, 22, 40, 0.8) !important; /* Pravyom Navy with transparency */
+  border: 1px solid rgba(232, 180, 79, 0.3) !important; /* Gold border */
+  backdrop-filter: blur(10px) !important;
 }
 
 .about-page .ant-card,
@@ -40,8 +41,8 @@
 .about-page .ant-card span,
 .about-page .ant-card li,
 .about-page .ant-card ul {
-  color: #000000 !important;
-  text-shadow: none !important;
+  color: #ffffff !important; /* White text on navy */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* LIGHT SECTIONS - Force light background with BLACK text */

@@ -6,11 +6,12 @@
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  background: var(--gradient-depth); /* Navy gradient from brand.design */
   color: white;
   padding: 8rem 0 6rem 0; /* Extra top padding to account for fixed header */
   text-align: center;
   position: relative;
+  overflow: hidden; /* Prevent gradient cut-off */
 }
 
 .hero-container {

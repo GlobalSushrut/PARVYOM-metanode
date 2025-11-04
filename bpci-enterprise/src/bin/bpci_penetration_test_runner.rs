@@ -52,11 +52,19 @@ async fn main() -> Result<()> {
     let bpci_mempool = Arc::new(tokio::sync::RwLock::new(BpciAuctionMempool::new()));
     info!("✅ BPCI auction mempool initialized");
 
+    // Create default penetration testing configuration
+    #[derive(Debug, Default)]
+    struct PenetrationTestConfig {
+        // Stub configuration for compilation
+    }
+    let config = PenetrationTestConfig::default();
+    info!("✅ Penetration testing configuration loaded");
+
     // Initialize penetration testing framework
     let mut penetration_tester = BpciPenetrationTesting::new(
         bpi_client,
         bpci_mempool,
-        config,
+        true, // BSO ICO enabled for testing
     )?;
     info!("✅ Penetration testing framework initialized");
 

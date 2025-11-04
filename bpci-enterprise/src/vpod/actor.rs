@@ -8,7 +8,7 @@ use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, AtomicU32, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -16,7 +16,7 @@ use uuid::Uuid;
 use crate::vpod::ring_buffer::SPSCRingBuffer;
 
 /// Actor identifier type
-pub type ActorId = String;
+pub type ActorId = uuid::Uuid;
 
 /// Actor message type alias
 pub type ActorMessage = Message;
@@ -37,10 +37,10 @@ pub struct VPodActor {
     pub state: ActorState,
     
     /// Inbox ring buffer for incoming messages
-    pub inbox: Arc<SPSCRingBuffer<Message>>,
+    pub inbox: Arc<Mutex<SPSCRingBuffer<Message>>>,
     
     /// Outbox ring buffer for outgoing messages
-    pub outbox: Arc<SPSCRingBuffer<Message>>,
+    pub outbox: Arc<Mutex<SPSCRingBuffer<Message>>>,
     
     /// Actor budget for resource management
     pub budget: Arc<RwLock<ActorBudget>>,
@@ -279,8 +279,8 @@ pub struct ResourceLimits {
 impl VPodActor {
     /// Create a new vPod actor
     pub fn new(id: ActorId, ring_buffer_size: usize) -> Result<Self> {
-        let inbox = Arc::new(SPSCRingBuffer::new(ring_buffer_size)?);
-        let outbox = Arc::new(SPSCRingBuffer::new(ring_buffer_size)?);
+        let inbox = Arc::new(Mutex::new(SPSCRingBuffer::new(ring_buffer_size)));
+        let outbox = Arc::new(Mutex::new(SPSCRingBuffer::new(ring_buffer_size)));
         
         Ok(VPodActor {
             id,
@@ -297,14 +297,14 @@ impl VPodActor {
     
     /// Send a message to this actor
     pub async fn send_message(&self, message: Message) -> Result<()> {
-        self.inbox.push(message)
+        self.inbox.lock().unwrap().push(message)
             .map_err(|_| anyhow!("Actor inbox full"))?;
         Ok(())
     }
     
     /// Receive a message from this actor's outbox
     pub async fn receive_message(&self) -> Option<Message> {
-        self.outbox.pop()
+        self.outbox.lock().unwrap().pop()
     }
     
     /// Process messages in the actor's inbox
@@ -313,7 +313,7 @@ impl VPodActor {
         let start_time = Instant::now();
         
         while processed < max_messages {
-            if let Some(message) = self.inbox.pop() {
+            if let Some(message) = self.inbox.lock().unwrap().pop() {
                 self.process_single_message(message).await?;
                 processed += 1;
             } else {
@@ -375,7 +375,7 @@ impl VPodActor {
                     self.id.clone(), // Self-response for now
                     ControlMessage::Pong
                 );
-                let _ = self.outbox.push(pong);
+                let _ = self.outbox.lock().unwrap().push(pong);
             },
             _ => {
                 // Handle other control messages
@@ -578,18 +578,21 @@ mod tests {
 
     #[tokio::test]
     async fn test_actor_creation() {
-        let actor = VPodActor::new("test-actor".to_string(), 1024).unwrap();
-        assert_eq!(actor.id, "test-actor");
+        let test_id = uuid::Uuid::new_v4();
+        let actor = VPodActor::new(test_id, 1024).unwrap();
+        assert_eq!(actor.id, test_id);
         assert_eq!(actor.state.size(), 0);
     }
 
     #[tokio::test]
     async fn test_message_sending() {
-        let actor = VPodActor::new("test-actor".to_string(), 1024).unwrap();
+        let test_id = uuid::Uuid::new_v4();
+        let sender_id = uuid::Uuid::new_v4();
+        let actor = VPodActor::new(test_id, 1024).unwrap();
         
         let message = Message::new(
-            "sender".to_string(),
-            "test-actor".to_string(),
+            sender_id,
+            test_id,
             MessagePayload::Text("Hello".to_string())
         );
         

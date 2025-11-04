@@ -1,752 +1,688 @@
-import React from 'react';
-import { Card, Row, Col, Tabs, Typography, Badge, Collapse, Tag, Progress } from 'antd';
-import {
-  SecurityScanOutlined,
-  DatabaseOutlined,
-  ThunderboltOutlined,
-  SafetyOutlined,
-  GlobalOutlined,
-  LockOutlined,
-  ApiOutlined,
-  CodeOutlined,
-  BankOutlined,
-  SettingOutlined,
-  FireOutlined,
-  RocketOutlined,
-  NodeIndexOutlined,
-  ClusterOutlined,
-  MonitorOutlined,
-  ControlOutlined
-} from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Typography, Button, Row, Col } from 'antd';
 import './Technology.css';
-const { Title, Paragraph, Text } = Typography;
-const { TabPane } = Tabs;
-const { Panel } = Collapse;
+
+const { Title, Paragraph } = Typography;
 
 const Technology: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<number>(1);
+
   return (
     <div className="technology-page">
       {/* Hero Section */}
-      <section className="hero-gradient py-20">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <Title level={1} className="text-white text-5xl font-bold mb-6">
-            Technology Stack
+      <section className="hero-gradient" style={{ padding: '8rem 0 6rem 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+          <Title level={1} style={{ color: '#ffffff', fontSize: '3rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            Technology Overview
           </Title>
-          <Paragraph className="text-blue-100 text-xl max-w-4xl mx-auto">
-            Advanced blockchain infrastructure powered by post-quantum ready cryptography, 
-            military-grade algorithms, and enterprise-oriented architecture for next-generation Web3 applications.
+          <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', maxWidth: '48rem', margin: '0 auto 2rem auto', lineHeight: '1.8' }}>
+            Progressive technical overview for different audiences—from general public to infrastructure engineers
           </Paragraph>
+          
+          {/* Audience Selector */}
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+            {[
+              { id: 1, label: 'General Public', emoji: '👥' },
+              { id: 2, label: 'Business & Technical', emoji: '💼' },
+              { id: 3, label: 'Developers (SDK/BPI OS)', emoji: '👨‍💻' },
+              { id: 4, label: 'Web3 Community', emoji: '🌐' },
+              { id: 5, label: 'Infrastructure Engineers', emoji: '⚙️' }
+            ].map((section) => (
+              <Button
+                key={section.id}
+                size="large"
+                style={{
+                  background: activeSection === section.id ? 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)' : 'rgba(255, 255, 255, 0.1)',
+                  border: activeSection === section.id ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                  color: activeSection === section.id ? '#0A1628' : '#ffffff',
+                  fontWeight: '600',
+                  padding: '0 1.5rem',
+                  height: '48px'
+                }}
+                onClick={() => setActiveSection(section.id)}
+              >
+                {section.emoji} {section.label}
+              </Button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Core Architecture */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-              <h2 className="text-xl font-semibold text-orange-800 mb-3">🔬 Experimental Technology Stack</h2>
-              <p className="text-orange-700 mb-4">
-                The components described below are <strong>experimental and in development</strong>. 
-                This is R&D work for pilot testing, not production-ready enterprise infrastructure.
-              </p>
-              <div className="grid md:grid-cols-2 gap-4 text-left">
-                <div>
-                  <h4 className="font-semibold text-orange-800 mb-2">Current Status:</h4>
-                  <ul className="space-y-1 text-orange-700 text-sm">
-                    <li>• Testnet implementation only</li>
-                    <li>• Security analysis in progress</li>
-                    <li>• Performance not optimized</li>
-                    <li>• Limited to experimental use cases</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-orange-800 mb-2">Seeking Partners For:</h4>
-                  <ul className="space-y-1 text-orange-700 text-sm">
-                    <li>• Concept validation and testing</li>
-                    <li>• Security analysis collaboration</li>
-                    <li>• Real-world feedback on architecture</li>
-                    <li>• Pre-funding for development</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            
-            <Title level={2} className="text-4xl font-bold text-gray-900 mb-6">
-              Experimental Technology Stack (Pilot Phase)
+      {/* Section 1: General Public */}
+      {activeSection === 1 && (
+        <section style={{ padding: '5rem 0', background: 'transparent' }}>
+          <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              👥 For Everyone: The Future of Digital Infrastructure
             </Title>
-            <Paragraph className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Exploring blockchain infrastructure concepts with post-quantum ready security, 
-              experimental consensus mechanisms, and testnet-scale components. 
-              <strong>Not ready for production deployment.</strong>
-            </Paragraph>
-          </div>
+            
+            <div style={{
+              background: 'rgba(10, 22, 40, 0.9)',
+              border: '2px solid rgba(232, 180, 79, 0.3)',
+              borderRadius: '12px',
+              padding: '3rem',
+              marginBottom: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+                <strong style={{ color: '#E8B44F' }}>Imagine the internet, but smarter and more secure:</strong> We're building infrastructure that can handle millions of transactions, remember everything (like a perfect memory), and protect your data using mathematics that even future quantum computers can't break.
+              </Paragraph>
 
-          <Row gutter={[32, 32]}>
-            <Col xs={24} lg={12}>
-              <Card className="h-full p-8 hover:shadow-lg transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <LockOutlined className="text-4xl text-blue-600 mt-1" />
-                  <div>
-                    <Title level={3} className="text-2xl font-semibold mb-4">ENC Lock + QLOCK</Title>
-                    <Paragraph className="text-gray-700 mb-4">
-                      Post-quantum ready security system with domain-separated hashing 
-                      and robust error handling on sync failure.
-                    </Paragraph>
-                    <div className="space-y-2">
-                      <Tag color="blue">Blake3 Hashing</Tag>
-                      <Tag color="green">Ed25519 Signatures</Tag>
-                      <Tag color="purple">Distance Bounding (50m ToF)</Tag>
-                      <Tag color="orange">QLOCK Sync Gates</Tag>
-                    </div>
-                    <div className="mt-4">
-                      <Paragraph className="text-sm text-gray-600 mb-2">Security Rating</Paragraph>
-                      <Progress percent={98} status="active" strokeColor="#059669" />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </Col>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+                <strong style={{ color: '#E8B44F' }}>What makes it feel like the future?</strong> Our system can grow infinitely (like cells dividing), communicate without fixed addresses (like a living organism), and track every transaction in 6 dimensions (not just who sent what, but when, why, how, and with what proof). It's like upgrading from a filing cabinet to a living, breathing digital ecosystem.
+              </Paragraph>
 
-            <Col xs={24} lg={12}>
-              <Card className="h-full p-8 hover:shadow-lg transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <DatabaseOutlined className="text-4xl text-green-600 mt-1" />
-                  <div>
-                    <Title level={3} className="text-2xl font-semibold mb-4">Autonomous Economy</Title>
-                    <Paragraph className="text-gray-700 mb-4">
-                      4-coin economic system with mathematical distribution models 
-                      and real-time blockchain integration.
-                    </Paragraph>
-                    <div className="space-y-2">
-                      <Tag color="gold">GEN (Genesis)</Tag>
-                      <Tag color="cyan">NEX (Network)</Tag>
-                      <Tag color="magenta">FLX (Flex)</Tag>
-                      <Tag color="volcano">AUR (Aurum)</Tag>
-                    </div>
-                    <div className="mt-4">
-                      <Paragraph className="text-sm text-gray-600 mb-2">Treasury Split</Paragraph>
-                      <Progress percent={75} status="active" strokeColor="#0066cc" />
-                      <Paragraph className="text-xs text-gray-500">25% Coin Economy / 75% Infrastructure</Paragraph>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      </section>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+                <strong style={{ color: '#E8B44F' }}>Real-world comparison:</strong> If Bitcoin is like digital gold (store of value), and Ethereum is like a world computer (smart contracts), we're building the <em>operating system</em> that entire digital governments and enterprises can run on—with audit trails so perfect that nothing can be hidden.
+              </Paragraph>
 
-      {/* Technical Specifications */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Technical Specifications</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Detailed breakdown of our infrastructure components and capabilities
-            </Paragraph>
-          </div>
-
-          <Tabs defaultActiveKey="security" size="large" centered>
-            <TabPane 
-              tab={
-                <span>
-                  <SecurityScanOutlined />
-                  Security Layer
-                </span>
-              } 
-              key="security"
-            >
-              <div className="max-w-4xl mx-auto">
-                <Row gutter={[32, 32]}>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-blue-600 mb-4">
-                        <LockOutlined className="mr-2" />
-                        Cryptographic Foundation
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Ed25519:</strong> Elliptic curve signatures with 128-bit security</li>
-                        <li><strong>Blake3:</strong> Cryptographic hash function with domain separation</li>
-                        <li><strong>Sync Gates:</strong> Mathematical validation protocols (in development)</li>
-                        <li><strong>Network Validation:</strong> Time-based authentication protocols</li>
-                        <li><strong>Error Handling:</strong> Robust response on synchronization failure</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-green-600 mb-4">
-                        <SafetyOutlined className="mr-2" />
-                        Security Features
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Post-Quantum Ready:</strong> Upgrade path for quantum resistance</li>
-                        <li><strong>Military-Grade Algorithms:</strong> Ed25519 and Blake3 cryptography</li>
-                        <li><strong>Zero-Knowledge:</strong> Privacy-preserving proofs</li>
-                        <li><strong>Audit Trails:</strong> Immutable compliance records</li>
-                        <li><strong>Multi-Layer:</strong> Defense in depth architecture</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-
-            <TabPane 
-              tab={
-                <span>
-                  <ClusterOutlined />
-                  Infrastructure
-                </span>
-              } 
-              key="infrastructure"
-            >
-              <div className="max-w-4xl mx-auto">
-                <Row gutter={[32, 32]}>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-purple-600 mb-4">
-                        <DatabaseOutlined className="mr-2" />
-                        Node Architecture
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>ENC Cluster:</strong> Connected gateway + mempool coordination</li>
-                        <li><strong>BPI Oracle:</strong> Cross-system communication bridge</li>
-                        <li><strong>Shadow Registry:</strong> Web2-to-Web3 safe communication</li>
-                        <li><strong>Pipeline API:</strong> BISO traffic light integration</li>
-                        <li><strong>Storage Nodes:</strong> Distributed data management</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-orange-600 mb-4">
-                        <ThunderboltOutlined className="mr-2" />
-                        Performance Metrics
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Uptime:</strong> Testnet 100% availability (3 nodes)</li>
-                        <li><strong>Latency:</strong> Optimized for sub-second response times</li>
-                        <li><strong>Throughput:</strong> Designed for high-performance scaling</li>
-                        <li><strong>Scalability:</strong> Horizontal node scaling architecture</li>
-                        <li><strong>Consensus:</strong> Byzantine fault tolerant design</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-
-            <TabPane 
-              tab={
-                <span>
-                  <ApiOutlined />
-                  APIs & Integration
-                </span>
-              } 
-              key="apis"
-            >
-              <div className="max-w-4xl mx-auto">
-                <Row gutter={[32, 32]}>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-blue-600 mb-4">
-                        <BankOutlined className="mr-2" />
-                        Enterprise APIs
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Banking API:</strong> Settlement, compliance, audit (Port 8081)</li>
-                        <li><strong>Government API:</strong> Regulatory, classification, jurisdiction</li>
-                        <li><strong>Community API:</strong> Node management, governance</li>
-                        <li><strong>Wallet API:</strong> Stamped wallet operations</li>
-                        <li><strong>Monitoring API:</strong> Real-time system metrics</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-green-600 mb-4">
-                        <CodeOutlined className="mr-2" />
-                        Developer Tools
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>REST APIs:</strong> RESTful endpoints with OpenAPI specs</li>
-                        <li><strong>WebSocket:</strong> Real-time data streaming</li>
-                        <li><strong>CLI Tools:</strong> Command-line interface for operations</li>
-                        <li><strong>SDKs:</strong> Multiple language support</li>
-                        <li><strong>Documentation:</strong> Comprehensive API documentation</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-
-            <TabPane 
-              tab={
-                <span>
-                  <GlobalOutlined />
-                  Compliance
-                </span>
-              } 
-              key="compliance"
-            >
-              <div className="max-w-4xl mx-auto">
-                <Row gutter={[32, 32]}>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-red-600 mb-4">
-                        <SafetyOutlined className="mr-2" />
-                        Regulatory Compliance
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Banking:</strong> Basel III, PCI DSS, SOX compliance</li>
-                        <li><strong>Government:</strong> FedRAMP, FISMA, NIST frameworks</li>
-                        <li><strong>Privacy:</strong> GDPR, CCPA, data sovereignty</li>
-                        <li><strong>Security:</strong> ISO 27001, SOC 2 Type II</li>
-                        <li><strong>Audit:</strong> Immutable audit trails and reporting</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Card className="h-full">
-                      <Title level={4} className="text-purple-600 mb-4">
-                        <LockOutlined className="mr-2" />
-                        Data Protection
-                      </Title>
-                      <ul className="space-y-3 text-gray-700">
-                        <li><strong>Encryption:</strong> End-to-end encryption at rest and in transit</li>
-                        <li><strong>Access Control:</strong> Role-based permissions and MFA</li>
-                        <li><strong>Data Residency:</strong> Geographic data localization</li>
-                        <li><strong>Backup & Recovery:</strong> Automated disaster recovery</li>
-                        <li><strong>Monitoring:</strong> 24/7 security monitoring and alerts</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-
-            <TabPane 
-              tab={
-                <span>
-                  <ClusterOutlined />
-                  BPI OS Components
-                </span>
-              } 
-              key="bpi-os"
-            >
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
-                  <Title level={3} className="text-2xl font-bold mb-4">BPI Operating System Architecture (Experimental)</Title>
-                  <Paragraph className="text-lg text-gray-600">
-                    Experimental infrastructure stack with 16+ core components being developed and tested. 
-                    <strong>These are concepts in R&D phase, not production systems.</strong>
-                  </Paragraph>
-                  
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6 max-w-4xl mx-auto">
-                    <p className="text-yellow-800 text-sm">
-                      <strong>Reality Check:</strong> The components below represent our development goals and experimental implementations. 
-                      Most are in early testing phases and require significant work before any production consideration.
-                    </p>
-                  </div>
-                </div>
-
-                <Row gutter={[24, 24]}>
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-blue-500" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <DatabaseOutlined className="text-2xl text-blue-600 mr-3" />
-                        <Title level={4} className="mb-0 text-blue-700">Core Infrastructure</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="processing" /> <strong>BPI Ledger:</strong> Distributed blockchain ledger</li>
-                        <li><Badge status="processing" /> <strong>Registry System:</strong> Node and wallet registration</li>
-                        <li><Badge status="processing" /> <strong>Economic Engine:</strong> 4-coin economy (GEN/NEX/FLX/AUR)</li>
-                        <li><Badge status="processing" /> <strong>Consensus Layer:</strong> Byzantine fault tolerant</li>
-                        <li><Badge status="processing" /> <strong>Storage Layer:</strong> Distributed data management</li>
-                      </ul>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-green-500" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <SecurityScanOutlined className="text-2xl text-green-600 mr-3" />
-                        <Title level={4} className="mb-0 text-green-700">Security & Crypto</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="success" /> <strong>ENC Lock:</strong> Post-quantum ready encryption</li>
-                        <li><Badge status="success" /> <strong>QLOCK Gates:</strong> Synchronization protocols</li>
-                        <li><Badge status="success" /> <strong>Ed25519:</strong> Elliptic curve signatures</li>
-                        <li><Badge status="success" /> <strong>Blake3:</strong> Domain-separated hashing</li>
-                        <li><Badge status="success" /> <strong>ZK Proofs:</strong> Privacy-preserving validation</li>
-                      </ul>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-purple-500" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <ApiOutlined className="text-2xl text-purple-600 mr-3" />
-                        <Title level={4} className="mb-0 text-purple-700">Network & APIs</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="default" /> <strong>HTTP/CG Gateway:</strong> Communication gateway</li>
-                        <li><Badge status="default" /> <strong>API Router:</strong> Request routing and load balancing</li>
-                        <li><Badge status="default" /> <strong>WebSocket Server:</strong> Real-time communication</li>
-                        <li><Badge status="default" /> <strong>P2P Network:</strong> Peer-to-peer connectivity</li>
-                        <li><Badge status="default" /> <strong>Oracle Bridge:</strong> External data integration</li>
-                      </ul>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-orange-500" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <FireOutlined className="text-2xl text-orange-600 mr-3" />
-                        <Title level={4} className="mb-0 text-orange-700">Infrastructure Services</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="warning" /> <strong>CueDB:</strong> Advanced database infrastructure</li>
-                        <li><Badge status="warning" /> <strong>Firewall:</strong> Network security and filtering</li>
-                        <li><Badge status="warning" /> <strong>Load Balancer:</strong> Traffic distribution</li>
-                        <li><Badge status="warning" /> <strong>Cache Layer:</strong> Performance optimization</li>
-                        <li><Badge status="warning" /> <strong>Monitoring:</strong> System health tracking</li>
-                      </ul>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-red-500" style={{ background: 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <ControlOutlined className="text-2xl text-red-600 mr-3" />
-                        <Title level={4} className="mb-0 text-red-700">Orchestration</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="error" /> <strong>Security Orchestration:</strong> Automated security management</li>
-                        <li><Badge status="error" /> <strong>Node Orchestrator:</strong> Distributed node management</li>
-                        <li><Badge status="error" /> <strong>Service Mesh:</strong> Microservice communication</li>
-                        <li><Badge status="error" /> <strong>Config Manager:</strong> Dynamic configuration</li>
-                        <li><Badge status="error" /> <strong>Health Monitor:</strong> System diagnostics</li>
-                      </ul>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} md={12} lg={8}>
-                    <Card className="h-full border-l-4 border-l-cyan-500" style={{ background: 'linear-gradient(135deg, #ecfeff 0%, #a5f3fc 100%)' }}>
-                      <div className="flex items-center mb-4">
-                        <MonitorOutlined className="text-2xl text-cyan-600 mr-3" />
-                        <Title level={4} className="mb-0 text-cyan-700">Management & Tools</Title>
-                      </div>
-                      <ul className="space-y-2 text-gray-700">
-                        <li><Badge status="processing" /> <strong>Admin Dashboard:</strong> System administration</li>
-                        <li><Badge status="processing" /> <strong>CLI Tools:</strong> Command-line interface</li>
-                        <li><Badge status="processing" /> <strong>Backup System:</strong> Data backup and recovery</li>
-                        <li><Badge status="processing" /> <strong>Log Aggregator:</strong> Centralized logging</li>
-                        <li><Badge status="processing" /> <strong>Metrics Collector:</strong> Performance analytics</li>
-                      </ul>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-
-            <TabPane 
-              tab={
-                <span>
-                  <RocketOutlined />
-                  BPCI Innovations
-                </span>
-              } 
-              key="bpci-innovations"
-            >
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
-                  <Title level={3} className="text-2xl font-bold mb-4">BPCI Blockchain Innovations (Experimental)</Title>
-                  <Paragraph className="text-lg text-gray-600">
-                    Experimental consensus mechanisms, Merkle tree concepts, and auction-based mempool prototypes. 
-                    <strong>These are research implementations being tested in controlled environments.</strong>
-                  </Paragraph>
-                  
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-6 max-w-4xl mx-auto">
-                    <p className="text-red-800 text-sm">
-                      <strong>Important:</strong> The innovations described below are experimental prototypes. 
-                      They have not undergone comprehensive security audits and are not suitable for production use. 
-                      We're seeking partners to help validate these concepts.
-                    </p>
-                  </div>
-                </div>
-
-                <Collapse 
-                  defaultActiveKey={['consensus']} 
-                  size="large"
-                  style={{ background: 'transparent' }}
-                >
-                  <Panel 
-                    header={
-                      <div className="flex items-center">
-                        <NodeIndexOutlined className="text-xl text-blue-600 mr-3" />
-                        <Text strong className="text-lg">Advanced Consensus Mechanism</Text>
-                      </div>
-                    } 
-                    key="consensus"
-                    style={{ marginBottom: '16px', borderRadius: '8px' }}
-                  >
-                    <Row gutter={[24, 24]}>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-blue-600 mb-3">Triple Consensus Coordinator</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Validator Selection:</strong> Stake-weighted random selection</li>
-                            <li>• <strong>Block Proposal:</strong> Round-robin with fallback mechanisms</li>
-                            <li>• <strong>Finality:</strong> 2/3+ validator agreement required</li>
-                            <li>• <strong>Fork Resolution:</strong> Longest valid chain rule</li>
-                            <li>• <strong>Slashing:</strong> Penalty for malicious behavior</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-green-600 mb-3">Byzantine Fault Tolerance</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Safety:</strong> No conflicting blocks finalized</li>
-                            <li>• <strong>Liveness:</strong> Progress guaranteed with 2/3+ honest nodes</li>
-                            <li>• <strong>Accountability:</strong> Provable evidence of violations</li>
-                            <li>• <strong>Recovery:</strong> Automatic network healing</li>
-                            <li>• <strong>Threshold:</strong> Tolerates up to 1/3 malicious nodes</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Panel>
-
-                  <Panel 
-                    header={
-                      <div className="flex items-center">
-                        <DatabaseOutlined className="text-xl text-green-600 mr-3" />
-                        <Text strong className="text-lg">Optimized Merkle Tree Implementation</Text>
-                      </div>
-                    } 
-                    key="merkle"
-                    style={{ marginBottom: '16px', borderRadius: '8px' }}
-                  >
-                    <Row gutter={[24, 24]}>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-green-600 mb-3">Tree Structure Optimizations</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Blake3 Hashing:</strong> Fast, secure hash function</li>
-                            <li>• <strong>Balanced Trees:</strong> Optimal depth for verification</li>
-                            <li>• <strong>Incremental Updates:</strong> Efficient tree modifications</li>
-                            <li>• <strong>Proof Compression:</strong> Minimal proof sizes</li>
-                            <li>• <strong>Parallel Processing:</strong> Multi-threaded tree operations</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-purple-600 mb-3">Verification & Proofs</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Inclusion Proofs:</strong> Verify transaction membership</li>
-                            <li>• <strong>Non-inclusion Proofs:</strong> Prove absence of data</li>
-                            <li>• <strong>Range Proofs:</strong> Validate value ranges</li>
-                            <li>• <strong>Batch Verification:</strong> Multiple proofs at once</li>
-                            <li>• <strong>Zero-Knowledge:</strong> Privacy-preserving proofs</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Panel>
-
-                  <Panel 
-                    header={
-                      <div className="flex items-center">
-                        <ThunderboltOutlined className="text-xl text-orange-600 mr-3" />
-                        <Text strong className="text-lg">Auction-Based Mempool Architecture</Text>
-                      </div>
-                    } 
-                    key="mempool"
-                    style={{ marginBottom: '16px', borderRadius: '8px' }}
-                  >
-                    <Row gutter={[24, 24]}>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-orange-600 mb-3">Auction Mechanism</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Bid-Based Ordering:</strong> Effective bid rate calculation</li>
-                            <li>• <strong>Gas Price Discovery:</strong> Market-driven pricing</li>
-                            <li>• <strong>Revenue Sharing:</strong> 25% to community partners</li>
-                            <li>• <strong>Auction Windows:</strong> Time-bounded auction periods</li>
-                            <li>• <strong>Fair Ordering:</strong> Prevents front-running attacks</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Card className="h-full">
-                          <Title level={5} className="text-red-600 mb-3">Performance Features</Title>
-                          <ul className="space-y-2 text-gray-700">
-                            <li>• <strong>Bucketed Mempool:</strong> Organized by gas price tiers</li>
-                            <li>• <strong>Parallel Processing:</strong> Concurrent transaction validation</li>
-                            <li>• <strong>Gas Estimation:</strong> Accurate gas cost prediction</li>
-                            <li>• <strong>Transaction Replacement:</strong> RBF (Replace-By-Fee) support</li>
-                            <li>• <strong>Multi-Chain Support:</strong> Cross-chain transaction handling</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Panel>
-
-                  <Panel 
-                    header={
-                      <div className="flex items-center">
-                        <SettingOutlined className="text-xl text-purple-600 mr-3" />
-                        <Text strong className="text-lg">Infrastructure Innovations</Text>
-                      </div>
-                    } 
-                    key="infrastructure"
-                    style={{ borderRadius: '8px' }}
-                  >
-                    <Row gutter={[24, 24]}>
-                      <Col xs={24} md={8}>
-                        <Card className="h-full text-center">
-                          <DatabaseOutlined className="text-3xl text-blue-600 mb-3" />
-                          <Title level={5} className="text-blue-600 mb-3">CueDB Infrastructure</Title>
-                          <ul className="space-y-1 text-gray-700 text-left">
-                            <li>• Advanced query optimization</li>
-                            <li>• Distributed data storage</li>
-                            <li>• Real-time analytics</li>
-                            <li>• ACID compliance</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Card className="h-full text-center">
-                          <SafetyOutlined className="text-3xl text-green-600 mb-3" />
-                          <Title level={5} className="text-green-600 mb-3">Security Orchestration</Title>
-                          <ul className="space-y-1 text-gray-700 text-left">
-                            <li>• Automated threat detection</li>
-                            <li>• Dynamic firewall rules</li>
-                            <li>• Intrusion prevention</li>
-                            <li>• Security policy enforcement</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Card className="h-full text-center">
-                          <GlobalOutlined className="text-3xl text-purple-600 mb-3" />
-                          <Title level={5} className="text-purple-600 mb-3">HTTP/CG Gateway</Title>
-                          <ul className="space-y-1 text-gray-700 text-left">
-                            <li>• Protocol translation</li>
-                            <li>• Load balancing</li>
-                            <li>• Rate limiting</li>
-                            <li>• API versioning</li>
-                          </ul>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Panel>
-                </Collapse>
-              </div>
-            </TabPane>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Implementation Status */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Title level={2} className="text-4xl font-bold mb-6">Implementation Status</Title>
-            <Paragraph className="text-xl text-gray-600">
-              Current development progress across all technology components
-            </Paragraph>
-          </div>
-
-          <Row gutter={[32, 32]}>
-            <Col xs={24} md={6}>
-              <Card className="text-center p-6">
-                <SecurityScanOutlined className="text-4xl text-blue-600 mb-4" />
-                <Title level={4} className="mb-2">Security Layer</Title>
-                <Progress 
-                  type="circle" 
-                  percent={95} 
-                  strokeColor="#0066cc"
-                  size={80}
-                />
-                <Paragraph className="text-gray-600 mt-2">Production Ready</Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} md={6}>
-              <Card className="text-center p-6">
-                <DatabaseOutlined className="text-4xl text-green-600 mb-4" />
-                <Title level={4} className="mb-2">Blockchain Core</Title>
-                <Progress 
-                  type="circle" 
-                  percent={90} 
-                  strokeColor="#059669"
-                  size={80}
-                />
-                <Paragraph className="text-gray-600 mt-2">Active Testnet</Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} md={6}>
-              <Card className="text-center p-6">
-                <ApiOutlined className="text-4xl text-purple-600 mb-4" />
-                <Title level={4} className="mb-2">Enterprise APIs</Title>
-                <Progress 
-                  type="circle" 
-                  percent={85} 
-                  strokeColor="#7c3aed"
-                  size={80}
-                />
-                <Paragraph className="text-gray-600 mt-2">Beta Testing</Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} md={6}>
-              <Card className="text-center p-6">
-                <GlobalOutlined className="text-4xl text-orange-600 mb-4" />
-                <Title level={4} className="mb-2">Compliance</Title>
-                <Progress 
-                  type="circle" 
-                  percent={80} 
-                  strokeColor="#ea580c"
-                  size={80}
-                />
-                <Paragraph className="text-gray-600 mt-2">In Development</Paragraph>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      </section>
-
-      {/* Technical Documentation */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <Title level={2} className="text-4xl font-bold mb-8">Technical Documentation</Title>
-          <Card className="p-8">
-            <Paragraph className="text-lg text-gray-700 mb-6">
-              Comprehensive technical documentation, API references, and implementation 
-              guides are available for developers and enterprise integrators.
-            </Paragraph>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-              <Card className="text-center p-4 hover:shadow-md transition-shadow">
-                <CodeOutlined className="text-2xl text-blue-600 mb-2" />
-                <Title level={5}>API Reference</Title>
-                <Paragraph className="text-sm text-gray-600">Complete API documentation</Paragraph>
-              </Card>
-              <Card className="text-center p-4 hover:shadow-md transition-shadow">
-                <DatabaseOutlined className="text-2xl text-green-600 mb-2" />
-                <Title level={5}>Architecture Guide</Title>
-                <Paragraph className="text-sm text-gray-600">System architecture details</Paragraph>
-              </Card>
-              <Card className="text-center p-4 hover:shadow-md transition-shadow">
-                <SafetyOutlined className="text-2xl text-purple-600 mb-2" />
-                <Title level={5}>Security Specs</Title>
-                <Paragraph className="text-sm text-gray-600">Security implementation specs</Paragraph>
-              </Card>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '0' }}>
+                <strong style={{ color: '#E8B44F' }}>Current status:</strong> The core infrastructure (75%) is built and operational—15 backend services running, databases working, networking active. We're now in the testing phase, seeking partners to help validate the system. Timeline: 6-12 months for pilot testing, then mainnet launch based on traction.
+              </Paragraph>
             </div>
-          </Card>
+          </div>
+        </section>
+      )}
+
+      {/* Section 2: Business & Technical */}
+      {activeSection === 2 && (
+        <section style={{ padding: '5rem 0', background: 'transparent' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              💼 For Business & Technical Decision Makers
+            </Title>
+            
+            <Row gutter={[32, 32]}>
+              <Col xs={24} md={12}>
+                <div style={{
+                  background: 'rgba(10, 22, 40, 0.9)',
+                  border: '2px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  height: '100%',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>✅ What's Operational</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                    <li>15 backend services deployed and running</li>
+                    <li>Authentication system (Keycloak)</li>
+                    <li>Database infrastructure (PostgreSQL, Redis, MongoDB, RabbitMQ)</li>
+                    <li>Dynamic networking (DynaRoute v2)</li>
+                    <li>Real APIs (not mock data)</li>
+                  </ul>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div style={{
+                  background: 'rgba(10, 22, 40, 0.9)',
+                  border: '2px solid rgba(245, 158, 11, 0.3)',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  height: '100%',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <Title level={3} style={{ color: '#F59E0B', marginBottom: '1rem' }}>⚠️ What's Needed</Title>
+                  <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                    <li>Real-world testing with pilot partners</li>
+                    <li>External security audits</li>
+                    <li>Performance optimization under load</li>
+                    <li>Regulatory compliance validation</li>
+                    <li>Production-grade monitoring</li>
+                  </ul>
+                </div>
+              </Col>
+            </Row>
+
+            <div style={{
+              background: 'rgba(10, 22, 40, 0.9)',
+              border: '2px solid rgba(232, 180, 79, 0.3)',
+              borderRadius: '12px',
+              padding: '3rem',
+              marginTop: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1.5rem' }}>Business Value Proposition</Title>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.125rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+                <strong>For enterprises:</strong> This is research-grade infrastructure that offers a foundation for distributed applications. The 75% completion means core systems are operational—authentication, databases, networking. The remaining 25% (testing, audits, validation) is where pilot partnerships are critical. You're not investing in vaporware; you're validating operational infrastructure.
+              </Paragraph>
+
+              <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>Real-World Comparisons</Title>
+              <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem', marginBottom: '1.5rem' }}>
+                <li><strong>vs. Hyperledger Fabric:</strong> We have similar enterprise focus, but with dynamic networking (no static ports), 6D transaction tracking, and quantum-ready cryptography</li>
+                <li><strong>vs. Ethereum:</strong> Not EVM-compatible; designed for government/enterprise audit requirements with impossible-to-hide transaction trails</li>
+                <li><strong>vs. Cosmos/Polkadot:</strong> Similar multi-chain vision, but with bio-inspired consensus (LCCD) and cellular division scaling instead of validator sets</li>
+                <li><strong>vs. AWS/Azure:</strong> Distributed infrastructure that enterprises can run themselves, not rent from cloud providers</li>
+              </ul>
+
+              <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>What Makes This Different</Title>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.125rem', lineHeight: '1.8' }}>
+                <strong>6D Blockchain:</strong> Transactions tracked in 6 dimensions (sender, receiver, amount, time, proof, intent)—not just 3D (from, to, value). This enables government-grade audit trails where every transaction has quantum-proof evidence and cannot be hidden or manipulated.
+              </Paragraph>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 3: Developers (SDK/BPI OS) */}
+      {activeSection === 3 && (
+        <section style={{ padding: '5rem 0', background: 'transparent' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              👨‍💻 For Developers: What You Could Build
+            </Title>
+            
+            <div style={{
+              background: 'rgba(10, 22, 40, 0.9)',
+              border: '2px solid rgba(232, 180, 79, 0.3)',
+              borderRadius: '12px',
+              padding: '3rem',
+              marginBottom: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Paragraph style={{ color: '#ffffff', fontSize: '1.25rem', lineHeight: '1.8', marginBottom: '2rem', textAlign: 'center' }}>
+                Imagine having access to infrastructure where distributed computing feels like local computing, where every transaction has quantum-proof audit trails, and where your app can scale infinitely without managing servers.
+              </Paragraph>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>💡 What Becomes Possible</Title>
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏛️</div>
+                      <Title level={5} style={{ color: '#10B981', marginBottom: '0.5rem' }}>Government-Grade Apps</Title>
+                      <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                        Build applications with audit trails so perfect that nothing can be hidden. Every action tracked in 6 dimensions with quantum proofs.
+                      </Paragraph>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌐</div>
+                      <Title level={5} style={{ color: '#10B981', marginBottom: '0.5rem' }}>Distributed Apps That Scale</Title>
+                      <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                        Write code that runs across thousands of nodes without thinking about networking, load balancing, or infrastructure.
+                      </Paragraph>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔐</div>
+                      <Title level={5} style={{ color: '#10B981', marginBottom: '0.5rem' }}>Future-Proof Security</Title>
+                      <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                        Build with post-quantum cryptography today. Your app will still be secure when quantum computers arrive.
+                      </Paragraph>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚡</div>
+                      <Title level={5} style={{ color: '#10B981', marginBottom: '0.5rem' }}>Real-Time Everything</Title>
+                      <Paragraph style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: 0 }}>
+                        XTMP protocol is 10-20x faster than HTTP. Build real-time applications that feel instant, even at scale.
+                      </Paragraph>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🛠️ What You Get</Title>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(232, 180, 79, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1.5rem'
+                }}>
+                  <Row gutter={[16, 16]}>
+                    <Col xs={24} md={8}>
+                      <div style={{ color: '#E8B44F', fontWeight: 'bold', marginBottom: '0.5rem' }}>BPI OS SDK</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1rem', margin: 0 }}>
+                        <li>Rust-based</li>
+                        <li>Async/await patterns</li>
+                        <li>Distributed by default</li>
+                      </ul>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <div style={{ color: '#E8B44F', fontWeight: 'bold', marginBottom: '0.5rem' }}>15 REST APIs</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1rem', margin: 0 }}>
+                        <li>Blockchain operations</li>
+                        <li>Wallet management</li>
+                        <li>Transaction submission</li>
+                      </ul>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <div style={{ color: '#E8B44F', fontWeight: 'bold', marginBottom: '0.5rem' }}>Auth Built-In</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.6', paddingLeft: '1rem', margin: 0 }}>
+                        <li>Keycloak OAuth2/OIDC</li>
+                        <li>Production-ready</li>
+                        <li>Enterprise SSO</li>
+                      </ul>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>📝 Example: What Your Code Could Look Like</Title>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// Your app: distributed by default</div>
+                  <div><span style={{ color: '#7C3AED' }}>use</span> bpi_sdk::{'{'}<span style={{ color: '#E8B44F' }}>BpiClient</span>, <span style={{ color: '#E8B44F' }}>Transaction</span>{'}'};</div>
+                  <div style={{ marginTop: '0.5rem' }}><span style={{ color: '#7C3AED' }}>async fn</span> <span style={{ color: '#E8B44F' }}>submit_transaction</span>() {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>let</span> client = <span style={{ color: '#E8B44F' }}>BpiClient</span>::connect().<span style={{ color: '#7C3AED' }}>await</span>?;</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>let</span> tx = <span style={{ color: '#E8B44F' }}>Transaction</span>::new(sender, receiver, amount);</div>
+                  <div style={{ paddingLeft: '1rem' }}></div>
+                  <div style={{ paddingLeft: '1rem', color: '#6B7280' }}>// Automatically gets 6D tracking, quantum proofs, audit trails</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>let</span> result = client.submit(tx).<span style={{ color: '#7C3AED' }}>await</span>?;</div>
+                  <div>{'}'}</div>
+                  <div style={{ marginTop: '0.5rem', color: '#6B7280' }}>// No infrastructure management. Just code.</div>
+                </div>
+              </div>
+
+              <div style={{
+                background: 'rgba(124, 58, 237, 0.1)',
+                border: '1px solid rgba(124, 58, 237, 0.3)',
+                borderRadius: '8px',
+                padding: '1.5rem'
+              }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.6', marginBottom: '0' }}>
+                  <strong style={{ color: '#7C3AED' }}>Current Status:</strong> SDK is experimental, APIs are operational. If you're the kind of developer who gets excited about building on cutting-edge infrastructure before it's mainstream, this is your chance to shape what becomes possible.
+                </Paragraph>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 4: Web3 Community */}
+      {activeSection === 4 && (
+        <section style={{ padding: '5rem 0', background: 'transparent' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              🌐 For Web3 Community: Real Technical Architecture
+            </Title>
+            
+            <div style={{
+              background: 'rgba(10, 22, 40, 0.9)',
+              border: '2px solid rgba(232, 180, 79, 0.3)',
+              borderRadius: '12px',
+              padding: '3rem',
+              marginBottom: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1.5rem' }}>What the Buzzwords Actually Mean (In Real Code)</Title>
+              
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🧬 LCCD Consensus (Living Cellular Consensus Division)</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Bio-inspired consensus where the network can divide like cells when it grows. Instead of fixed validator sets (PoS) or mining (PoW), consensus nodes can split into sub-clusters when load increases, then merge back when load decreases. Think of it like a living organism that grows and shrinks based on demand.
+                </Paragraph>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginTop: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// Real Rust code from consensus server</div>
+                  <div><span style={{ color: '#7C3AED' }}>pub struct</span> <span style={{ color: '#E8B44F' }}>CellularDivisionLogic</span> {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}>pub cluster_load: <span style={{ color: '#10B981' }}>f64</span>,</div>
+                  <div style={{ paddingLeft: '1rem' }}>pub division_threshold: <span style={{ color: '#10B981' }}>f64</span>,</div>
+                  <div style={{ paddingLeft: '1rem' }}>pub merge_threshold: <span style={{ color: '#10B981' }}>f64</span>,</div>
+                  <div style={{ paddingLeft: '1rem' }}>pub sub_clusters: <span style={{ color: '#10B981' }}>Vec</span>{'<'}SubCluster{'>'}, <span style={{ color: '#6B7280' }}>// Cells</span></div>
+                  <div>{'}'}</div>
+                  <div style={{ marginTop: '0.5rem', color: '#6B7280' }}>// When load {'>'} 80%, cluster divides like a cell</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>📦 6D Blockchain</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Transactions stored in 6 dimensions: (1) Sender, (2) Receiver, (3) Amount, (4) Timestamp, (5) Proof-of-Execution, (6) Intent/Metadata. Traditional blockchains only track 3D (from, to, value). We add temporal, proof, and intent dimensions for government-grade audit trails.
+                </Paragraph>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginTop: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// 6D Transaction Structure</div>
+                  <div><span style={{ color: '#7C3AED' }}>pub struct</span> <span style={{ color: '#E8B44F' }}>SixDTransaction</span> {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}>pub sender: <span style={{ color: '#10B981' }}>Address</span>,      <span style={{ color: '#6B7280' }}>// Dimension 1</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>pub receiver: <span style={{ color: '#10B981' }}>Address</span>,    <span style={{ color: '#6B7280' }}>// Dimension 2</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>pub amount: <span style={{ color: '#10B981' }}>u64</span>,          <span style={{ color: '#6B7280' }}>// Dimension 3</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>pub timestamp: <span style={{ color: '#10B981' }}>DateTime</span>,  <span style={{ color: '#6B7280' }}>// Dimension 4</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>pub poe_proof: <span style={{ color: '#10B981' }}>Proof</span>,     <span style={{ color: '#6B7280' }}>// Dimension 5 (quantum proof)</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>pub intent: <span style={{ color: '#10B981' }}>Metadata</span>,    <span style={{ color: '#6B7280' }}>// Dimension 6 (audit trail)</span></div>
+                  <div>{'}'}</div>
+                  <div style={{ marginTop: '0.5rem', color: '#6B7280' }}>// Traditional blockchain: only 3D (sender, receiver, amount)</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🌐 DynaRoute v2 (Dynamic Routing)</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Zero static ports. Services communicate using identity-based anycast addressing (IAAv6) instead of IP:PORT. Think of it like calling someone by name instead of phone number—the system figures out how to route the message dynamically.
+                </Paragraph>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  marginTop: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// Traditional vs DynaRoute</div>
+                  <div style={{ color: '#EF4444' }}>// ❌ Old way: client.connect("192.168.1.100:8080")</div>
+                  <div style={{ marginTop: '0.5rem', color: '#10B981' }}>// ✅ DynaRoute: compute_iaav6("consensus", "cluster-ledger")</div>
+                  <div style={{ marginTop: '0.5rem' }}><span style={{ color: '#7C3AED' }}>pub fn</span> <span style={{ color: '#E8B44F' }}>compute_iaav6</span>(service: &<span style={{ color: '#10B981' }}>str</span>) -{'>'} <span style={{ color: '#10B981' }}>Ipv6Addr</span> {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>let</span> hash = blake3::hash(service);</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>return</span> ipv6_from_hash(hash); <span style={{ color: '#6B7280' }}>// No ports!</span></div>
+                  <div>{'}'}</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🔐 Quantum-Ready Cryptography</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Current cryptography (Ed25519, Blake3) with experimental post-quantum algorithms (Dilithium3/5) being integrated. "Quantum-ready" means we're preparing for quantum computers that could break current encryption.
+                </Paragraph>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                  <strong>In code:</strong> Hybrid signature schemes, quantum entanglement proofs for transactions, and lattice-based cryptography experiments.
+                </Paragraph>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>📦 vPods (Virtual Pods)</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Lightweight virtual containers for services. Like Docker containers, but designed for dynamic networking and mesh communication. Each service runs in a vPod that can move, scale, and communicate without static addresses.
+                </Paragraph>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                  <strong>In code:</strong> Rust-based vPod cluster coordinator with HRW (Highest Random Weight) allocation, resource sharing enforcement, and mesh integration.
+                </Paragraph>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>📝 CBOR (Concise Binary Object Representation)</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>What it actually is:</strong> Binary data format (like JSON, but smaller and faster). We use it for government compliance pipelines where every transaction must have witness signatures, Merkle proofs, and audit metadata that cannot be hidden.
+                </Paragraph>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                  <strong>In code:</strong> CBOR pipeline with immutable audit trails, forensic oracle integration, and VM client processing.
+                </Paragraph>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🎯 Mainnet vs Testnet</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>Testnet (current):</strong> 75% infrastructure operational with 15 backend services, real databases, and DynaRoute v2 networking. Used for pilot testing and validation.
+                </Paragraph>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                  <strong style={{ color: '#E8B44F' }}>Mainnet (future):</strong> Triggered by traction, testing validation, and funding. Process: Achieve traction → Complete testing → Secure funding → Trigger GEN coin distribution → Launch mainnet. Code is ready; ecosystem needs to be ready.
+                </Paragraph>
+              </div>
+
+              <div style={{
+                background: 'rgba(124, 58, 237, 0.1)',
+                border: '1px solid rgba(124, 58, 237, 0.3)',
+                borderRadius: '8px',
+                padding: '1.5rem'
+              }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.6', marginBottom: '0' }}>
+                  <strong style={{ color: '#7C3AED' }}>For Web3 builders:</strong> If you're looking for another EVM-compatible chain, this isn't it. If you're interested in experimental consensus mechanisms (LCCD), 6D transaction tracking, dynamic networking (DynaRoute), and enterprise-grade audit infrastructure (CBOR pipelines), let's talk.
+                </Paragraph>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 5: Infrastructure Engineers */}
+      {activeSection === 5 && (
+        <section style={{ padding: '5rem 0', background: 'transparent' }}>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+            <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F', textAlign: 'center' }}>
+              ⚙️ For Infrastructure Engineers & Rust Developers: Deep Dive
+            </Title>
+            
+            <div style={{
+              background: 'rgba(10, 22, 40, 0.9)',
+              border: '2px solid rgba(232, 180, 79, 0.3)',
+              borderRadius: '12px',
+              padding: '3rem',
+              marginBottom: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Title level={3} style={{ color: '#E8B44F', marginBottom: '1.5rem' }}>Real Infrastructure Components (From Actual Code)</Title>
+              
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🏗️ 15 Backend Services (Operational)</Title>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12}>
+                    <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.8', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                      <li><strong>api-gateway:</strong> REST/gRPC gateway</li>
+                      <li><strong>auction-mempool:</strong> Transaction auction system</li>
+                      <li><strong>blockchain:</strong> Core blockchain server</li>
+                      <li><strong>consensus:</strong> LCCD consensus engine</li>
+                      <li><strong>cluster-ledger:</strong> Distributed ledger</li>
+                      <li><strong>network:</strong> P2P mesh networking</li>
+                      <li><strong>shadow-registry:</strong> Service discovery</li>
+                      <li><strong>bpi-bridge:</strong> BPI OS integration</li>
+                    </ul>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <ul style={{ color: '#ffffff', fontSize: '0.875rem', lineHeight: '1.8', paddingLeft: '1.5rem', marginBottom: 0 }}>
+                      <li><strong>bso-k8:</strong> Orchestration layer</li>
+                      <li><strong>mojo:</strong> Wallet system</li>
+                      <li><strong>web:</strong> Web layer (community installer)</li>
+                      <li><strong>auction-db-maintainer:</strong> DB maintenance</li>
+                      <li><strong>xtmp:</strong> High-speed protocol (10-20x faster than HTTP)</li>
+                      <li><strong>central-orchestration:</strong> Service coordinator</li>
+                      <li><strong>admin:</strong> Admin dashboard</li>
+                    </ul>
+                  </Col>
+                </Row>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>💾 Database Infrastructure</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>PostgreSQL:</strong> Primary relational DB (user accounts, transactions, audit trails)</li>
+                  <li><strong>Redis:</strong> Cache layer (session management, hot data)</li>
+                  <li><strong>MongoDB:</strong> Document store (4D hash-graph kernel, CBOR data)</li>
+                  <li><strong>RabbitMQ:</strong> Message queue (inter-service communication)</li>
+                  <li><strong>4D Hash-Graph:</strong> Custom storage with R, C, V, I coordinates (Row, Column, Value, Intent)</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🌐 Networking Stack</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem', marginBottom: '1rem' }}>
+                  <li><strong>DynaRoute v2:</strong> Zero static ports, identity-based anycast (IAAv6)</li>
+                  <li><strong>CommuteLock:</strong> Lock-based inter-component communication</li>
+                  <li><strong>P2P Mesh:</strong> 13-server mesh network for distributed communication</li>
+                  <li><strong>vPods:</strong> Virtual pods with dynamic addressing and HRW allocation</li>
+                  <li><strong>XTMP Protocol:</strong> High-speed communication (10-20x faster than HTTP)</li>
+                </ul>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.75rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// Real CommuteLock implementation</div>
+                  <div><span style={{ color: '#7C3AED' }}>pub struct</span> <span style={{ color: '#E8B44F' }}>CommuteLockRuntime</span> {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}>locks: HashMap{'<'}String, Arc{'<'}RwLock{'<'}LockState{'>'}{'>'}{'>'},</div>
+                  <div style={{ paddingLeft: '1rem' }}>message_router: Arc{'<'}MessageRouter{'>'}, <span style={{ color: '#6B7280' }}>// Inter-service comm</span></div>
+                  <div>{'}'}</div>
+                  <div style={{ marginTop: '0.5rem' }}><span style={{ color: '#7C3AED' }}>impl</span> CommuteLockRuntime {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>pub async fn</span> <span style={{ color: '#E8B44F' }}>send_message</span>(&<span style={{ color: '#7C3AED' }}>self</span>, target: &<span style={{ color: '#10B981' }}>str</span>, msg: Message) {'{'}</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>let</span> lock = <span style={{ color: '#7C3AED' }}>self</span>.acquire_lock(target).<span style={{ color: '#7C3AED' }}>await</span>?;</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>self</span>.message_router.route(msg).<span style={{ color: '#7C3AED' }}>await</span> <span style={{ color: '#6B7280' }}>// Lock-based routing</span></div>
+                  <div style={{ paddingLeft: '1rem' }}>{'}'}</div>
+                  <div>{'}'}</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🔐 Security & Cryptography</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Keycloak:</strong> OAuth2/OIDC authentication (production-ready)</li>
+                  <li><strong>Ed25519:</strong> Current signature algorithm</li>
+                  <li><strong>Blake3:</strong> Hashing (faster than SHA-256)</li>
+                  <li><strong>Dilithium3/5:</strong> Experimental post-quantum signatures</li>
+                  <li><strong>BLS Signatures:</strong> Signature aggregation for consensus</li>
+                  <li><strong>Quantum Entanglement Proofs:</strong> Transaction validation with quantum-inspired proofs</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🧬 Advanced Systems (Real Implementations)</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem', marginBottom: '1rem' }}>
+                  <li><strong>LCCD Consensus:</strong> Living Cellular Consensus Division with cellular division logic</li>
+                  <li><strong>6D Blockchain:</strong> Cuboidal geometry with R, C, V, I, T, P dimensions</li>
+                  <li><strong>Forensic Oracle:</strong> Immutable audit system with impossible-to-hide trails</li>
+                  <li><strong>Mutual Living Enforcer:</strong> Compulsory resource sharing for BPI OS nodes</li>
+                  <li><strong>CBOR Pipeline:</strong> Government compliance with witness signatures and Merkle proofs</li>
+                  <li><strong>ENCCluster VM:</strong> Virtual machine for smart contract execution</li>
+                  <li><strong>Quantum Heartbeat:</strong> Ultra-compressed proof-of-life system (3 years in 1GB)</li>
+                </ul>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.75rem',
+                  color: '#10B981',
+                  overflowX: 'auto'
+                }}>
+                  <div style={{ color: '#6B7280', marginBottom: '0.5rem' }}>// LCCD Consensus: Cellular Division Logic</div>
+                  <div><span style={{ color: '#7C3AED' }}>async fn</span> <span style={{ color: '#E8B44F' }}>check_cellular_division</span>(&<span style={{ color: '#7C3AED' }}>mut self</span>) -{'>'} <span style={{ color: '#10B981' }}>Result</span>{'<'}(){'>'} {'{'}</div>
+                  <div style={{ paddingLeft: '1rem' }}><span style={{ color: '#7C3AED' }}>if</span> <span style={{ color: '#7C3AED' }}>self</span>.cluster_load {'>'} <span style={{ color: '#7C3AED' }}>self</span>.division_threshold {'{'}</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#6B7280' }}>// Load {'>'} 80%: Divide like a cell</span></div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>let</span> (cluster_a, cluster_b) = <span style={{ color: '#7C3AED' }}>self</span>.divide_cluster().<span style={{ color: '#7C3AED' }}>await</span>?;</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>self</span>.sub_clusters.push(cluster_a);</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>self</span>.sub_clusters.push(cluster_b);</div>
+                  <div style={{ paddingLeft: '1rem' }}>{'}'} <span style={{ color: '#7C3AED' }}>else if</span> <span style={{ color: '#7C3AED' }}>self</span>.cluster_load {'<'} <span style={{ color: '#7C3AED' }}>self</span>.merge_threshold {'{'}</div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#6B7280' }}>// Load {'<'} 30%: Merge clusters back</span></div>
+                  <div style={{ paddingLeft: '2rem' }}><span style={{ color: '#7C3AED' }}>self</span>.merge_clusters().<span style={{ color: '#7C3AED' }}>await</span>?;</div>
+                  <div style={{ paddingLeft: '1rem' }}>{'}'}</div>
+                  <div>{'}'}</div>
+                  <div style={{ marginTop: '0.5rem', color: '#6B7280' }}>// Bio-inspired: grows/shrinks like living organism</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#F59E0B', marginBottom: '1rem' }}>⚠️ What Needs Work (25%)</Title>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Load Testing:</strong> Integration tests exist, but need real-world stress testing</li>
+                  <li><strong>Security Audit:</strong> No external audit yet (critical for production)</li>
+                  <li><strong>Performance Profiling:</strong> Not optimized for high throughput</li>
+                  <li><strong>Observability:</strong> Basic logging, needs Prometheus/Grafana/Jaeger</li>
+                  <li><strong>Documentation:</strong> Code documented, but architecture docs incomplete</li>
+                  <li><strong>Testnet → Mainnet:</strong> Needs pilot validation before mainnet trigger</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>🤝 Collaboration Opportunities</Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1.125rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  <strong style={{ color: '#E8B44F' }}>For Rust engineers:</strong> This is a large Rust codebase (distributed systems, async networking, cryptography). Areas for collaboration:
+                </Paragraph>
+                <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                  <li><strong>Consensus:</strong> LCCD cellular division logic, BLS aggregation</li>
+                  <li><strong>Networking:</strong> DynaRoute v2, vPod allocation, mesh communication</li>
+                  <li><strong>Cryptography:</strong> Post-quantum integration (Dilithium, SPHINCS+)</li>
+                  <li><strong>Storage:</strong> 4D hash-graph optimization, MongoDB integration</li>
+                  <li><strong>Performance:</strong> Tokio runtime optimization, async profiling</li>
+                  <li><strong>Security:</strong> Audit preparation, penetration testing</li>
+                  <li><strong>Observability:</strong> Metrics, tracing, distributed logging</li>
+                </ul>
+              </div>
+
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '1.5rem'
+              }}>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.6', marginBottom: '0' }}>
+                  <strong style={{ color: '#EF4444' }}>Honest assessment:</strong> This is a single-engineer project with 75% infrastructure complete. The code is real and operational (15 services, 4 databases, dynamic networking), but it needs external eyes, security audits, and production validation. If you're looking for a polished, documented, enterprise-ready system, this isn't it yet. If you're interested in research-grade infrastructure with real Rust code that needs hardening, let's collaborate.
+                </Paragraph>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Call to Action */}
+      <section style={{ padding: '5rem 0', background: 'transparent' }}>
+        <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '0 2rem', textAlign: 'center' }}>
+          <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem', color: '#E8B44F' }}>
+            Interested in Collaborating?
+          </Title>
+          <Paragraph style={{ fontSize: '1.25rem', color: '#ffffff', lineHeight: '1.8', marginBottom: '2rem', maxWidth: '48rem', margin: '0 auto 2rem auto' }}>
+            Whether you're a business evaluating infrastructure, a developer exploring the SDK, or an engineer interested in the codebase—we're seeking pilot partners and collaborators.
+          </Paragraph>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Button 
+              type="primary" 
+              size="large"
+              style={{
+                background: 'linear-gradient(135deg, #E8B44F 0%, #FFFFFF 100%)',
+                border: 'none',
+                color: '#0A1628',
+                fontWeight: '600',
+                height: '48px',
+                padding: '0 2rem',
+                fontSize: '1rem'
+              }}
+              onClick={() => window.location.href = '/contact'}
+            >
+              Contact Us
+            </Button>
+            <Button 
+              size="large"
+              style={{
+                background: 'transparent',
+                border: '2px solid #E8B44F',
+                color: '#E8B44F',
+                fontWeight: '600',
+                height: '48px',
+                padding: '0 2rem',
+                fontSize: '1rem'
+              }}
+              onClick={() => window.location.href = '/research'}
+            >
+              Explore Research
+            </Button>
+          </div>
         </div>
       </section>
     </div>

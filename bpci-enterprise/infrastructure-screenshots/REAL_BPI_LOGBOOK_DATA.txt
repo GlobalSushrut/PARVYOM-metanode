@@ -1,0 +1,61 @@
+=== REAL BPI NODE LOGBOOK & BLOCKCHAIN DATA ===
+Timestamp: Mon 03 Nov 2025 08:01:36 PM EST
+
+=== BPI NODE REAL LOGS ===
+[2m2025-11-01T04:08:09.290622Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970089290_fd2bb32) from 127.0.0.1:51924
+[2m2025-11-01T04:08:09.305252Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970089305_9ef9620d) from 127.0.0.1:51928
+[2m2025-11-01T04:08:09.307982Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970089307_77e4064f) from 127.0.0.1:51938
+[2m2025-11-01T04:13:44.192733Z[0m [32m INFO[0m 🔄 QLOCK sync1: Quantum sync successful
+[2m2025-11-01T04:13:44.192802Z[0m [32m INFO[0m ✅ ENC Lock: QLOCK sync1 success - processing secure request
+[2m2025-11-01T04:13:44.192843Z[0m [32m INFO[0m 🖥️ VM Server: GET /__vm/health (vm_1761970424192_a69af7f1) [ENC:SECURED]
+[2m2025-11-01T04:14:15.955305Z[0m [32m INFO[0m 🔄 QLOCK sync1: Quantum sync successful
+[2m2025-11-01T04:14:15.955379Z[0m [32m INFO[0m ✅ ENC Lock: QLOCK sync1 success - processing secure request
+[2m2025-11-01T04:14:15.955423Z[0m [32m INFO[0m 🖥️ VM Server: GET /__zklock/health (vm_1761970455955_b1e0ea59) [ENC:SECURED]
+[2m2025-11-01T04:14:15.955470Z[0m [32m INFO[0m 📱 Routing to ZKLock: GET /__zklock/health
+[2m2025-11-01T04:15:26.546827Z[0m [32m INFO[0m 🔄 QLOCK sync1: Quantum sync successful
+[2m2025-11-01T04:15:26.546905Z[0m [32m INFO[0m ✅ ENC Lock: QLOCK sync1 success - processing secure request
+[2m2025-11-01T04:15:26.546954Z[0m [32m INFO[0m 🖥️ VM Server: POST /__zklock/store (vm_1761970526546_106e7992) [ENC:SECURED]
+[2m2025-11-01T04:15:26.546978Z[0m [32m INFO[0m 📱 Routing to ZKLock: POST /__zklock/store
+[2m2025-11-01T04:16:36.000480Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596000_a871f3e5) from 127.0.0.1:50018
+[2m2025-11-01T04:16:36.002622Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761970596002_a4590b5) from 127.0.0.1:37218
+[2m2025-11-01T04:16:36.014589Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596014_f096709d) from 127.0.0.1:50028
+[2m2025-11-01T04:16:36.016173Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761970596016_c26eb07c) from 127.0.0.1:37220
+[2m2025-11-01T04:16:36.029035Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596029_d965a7da) from 127.0.0.1:50038
+[2m2025-11-01T04:16:36.030958Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761970596030_45b283c6) from 127.0.0.1:37236
+[2m2025-11-01T04:16:36.044807Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596044_f5fe883c) from 127.0.0.1:50050
+[2m2025-11-01T04:16:36.056976Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596056_ef3ec8d0) from 127.0.0.1:50062
+[2m2025-11-01T04:16:36.059173Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761970596059_8e756287) from 127.0.0.1:50076
+[2m2025-11-01T04:26:48.340537Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208340_39b66cb6) from 127.0.0.1:60910
+[2m2025-11-01T04:26:48.342660Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971208342_fbd90413) from 127.0.0.1:46122
+[2m2025-11-01T04:26:48.357641Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208357_478cee26) from 127.0.0.1:60920
+[2m2025-11-01T04:26:48.359746Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971208359_73bff617) from 127.0.0.1:46124
+[2m2025-11-01T04:26:48.374191Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208374_db9a847a) from 127.0.0.1:60924
+[2m2025-11-01T04:26:48.376330Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971208376_fafe70a8) from 127.0.0.1:46128
+[2m2025-11-01T04:26:48.391330Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208391_e791b16) from 127.0.0.1:60934
+[2m2025-11-01T04:26:48.401455Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208401_7f9202e5) from 127.0.0.1:60950
+[2m2025-11-01T04:26:48.403412Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971208403_776ab23f) from 127.0.0.1:60962
+[2m2025-11-01T04:31:24.568241Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484568_9b3026cb) from 127.0.0.1:33612
+[2m2025-11-01T04:31:24.570112Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971484570_6df3ce65) from 127.0.0.1:36382
+[2m2025-11-01T04:31:24.580245Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484580_18ef562b) from 127.0.0.1:33626
+[2m2025-11-01T04:31:24.581801Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971484581_63cb3ebb) from 127.0.0.1:36390
+[2m2025-11-01T04:31:24.593162Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484593_30baf3f2) from 127.0.0.1:33642
+[2m2025-11-01T04:31:24.594985Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971484594_b79e2aab) from 127.0.0.1:36398
+[2m2025-11-01T04:31:24.609451Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484609_f822f36) from 127.0.0.1:33656
+[2m2025-11-01T04:31:24.622585Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484622_a8881e8f) from 127.0.0.1:33664
+[2m2025-11-01T04:31:24.624417Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971484624_d5d71fb) from 127.0.0.1:33676
+[2m2025-11-01T04:39:26.180084Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966180_afa1e202) from 127.0.0.1:52206
+[2m2025-11-01T04:39:26.181963Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971966181_fe913ea4) from 127.0.0.1:35048
+[2m2025-11-01T04:39:26.195026Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966194_a3a71889) from 127.0.0.1:52216
+[2m2025-11-01T04:39:26.197092Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971966197_3166c67) from 127.0.0.1:35050
+[2m2025-11-01T04:39:26.209887Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966209_1dcfa5d3) from 127.0.0.1:52226
+[2m2025-11-01T04:39:26.211855Z[0m [32m INFO[0m 🌐 Shadow Registry: GET /api/economy/status (shadow_1761971966211_ca2fe270) from 127.0.0.1:35054
+[2m2025-11-01T04:39:26.226459Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966226_458e33cc) from 127.0.0.1:52236
+[2m2025-11-01T04:39:26.238308Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966238_9dab8805) from 127.0.0.1:52238
+[2m2025-11-01T04:39:26.240513Z[0m [32m INFO[0m 🔐 ZKLock: GET /api/economy/status (zklock_1761971966240_e96a9103) from 127.0.0.1:52248
+
+=== BPI NODE STATUS ===
+Status command not available
+
+=== BPI LOGBOOK ENTRIES ===
+-rw-r--r-- 1 root root 1398 Nov  1 04:16 /bpi/apps/task-manager/ziplock_test.zkl
+-rw------- 1 root root  508 Nov  1 03:34 /bpi/config/node_credentials.json

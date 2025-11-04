@@ -1,0 +1,58 @@
+{
+  "service_name": "database-cluster",
+  "service_type": "HttpcgDatabase",
+  "resource_allocation": {
+    "vpods": 28,
+    "memory_mb": 300,
+    "cpu_cores": 1.2,
+    "storage_gb": 50,
+    "network_bandwidth": "800Mbps"
+  },
+  "endpoints": [
+    {
+      "name": "mongodb-proxy",
+      "port": 27017,
+      "protocol": "Tcp",
+      "path": "/mongodb"
+    },
+    {
+      "name": "postgresql-proxy",
+      "port": 5432,
+      "protocol": "Tcp",
+      "path": "/postgresql"
+    },
+    {
+      "name": "database-api",
+      "port": 8090,
+      "protocol": "Http",
+      "path": "/db-api"
+    }
+  ],
+  "health_check": {
+    "path": "/db-api/health",
+    "interval_seconds": 30,
+    "timeout_seconds": 10,
+    "retries": 3
+  },
+  "environment": {
+    "MONGODB_URL": "mongodb://157.230.238.92:27017",
+    "POSTGRESQL_URL": "postgresql://157.230.238.92:5432",
+    "LCCD_DATABASE": "lccd_consensus",
+    "FOURD_DATABASE": "fourd_hashgraph",
+    "CONNECTION_POOL_SIZE": "100",
+    "QUERY_TIMEOUT": "30",
+    "ENABLE_REPLICATION": "true"
+  },
+  "scaling": {
+    "min_vpods": 12,
+    "max_vpods": 60,
+    "target_cpu_percent": 75,
+    "target_memory_percent": 80
+  },
+  "persistence": {
+    "enabled": true,
+    "backup_enabled": true,
+    "backup_interval": "6h",
+    "retention_days": 30
+  }
+}

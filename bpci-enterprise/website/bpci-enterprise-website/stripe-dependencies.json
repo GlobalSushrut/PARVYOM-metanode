@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@stripe/stripe-js": "^2.1.11",
+    "@stripe/react-stripe-js": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/stripe": "^8.0.417"
+  },
+  "installation_command": "npm install @stripe/stripe-js @stripe/react-stripe-js @types/stripe"
+}
