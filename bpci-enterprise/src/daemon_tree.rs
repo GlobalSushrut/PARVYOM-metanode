@@ -5,16 +5,17 @@
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use std::sync::Arc;
+
 use tokio::sync::{mpsc, RwLock};
-use tracing::{debug, error, info, warn};
+use tracing::{info, warn};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 use crate::metanode_cluster_manager::{
-    DaemonNode, DaemonPosition, DaemonResponsibility, DaemonEndpoints, 
-    DaemonHealthStatus, ResourceManagement, NodeStatus, ClusterEvent
+    DaemonNode, DaemonResponsibility, DaemonEndpoints, 
+    DaemonHealthStatus, ResourceManagement, NodeStatus
 };
 
 /// DaemonTreeManager - Manages hierarchical daemon tree structure

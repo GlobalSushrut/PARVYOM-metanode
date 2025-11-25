@@ -2,7 +2,6 @@
 //! Shows how normal data actually looks in our 4D system
 
 use serde_json::json;
-use std::collections::HashMap;
 use blake3;
 
 /// Show how normal data looks in our Revolutionary 4D Database

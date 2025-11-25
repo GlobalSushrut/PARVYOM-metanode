@@ -1,9 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
 use serde_json::{self};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 use crate::blockchain_helpers::*;
 
 #[derive(Subcommand)]
@@ -11,7 +8,7 @@ pub enum WalletCommands {
     /// Create a new wallet
     Create {
         /// Wallet name
-        #[arg(short, long)]
+        #[arg(long)]
         name: String,
         /// Wallet type (docklock, metanode, dao, bpi)
         #[arg(short, long, default_value = "docklock")]

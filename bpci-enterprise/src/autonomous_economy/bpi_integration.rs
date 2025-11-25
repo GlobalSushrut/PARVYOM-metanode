@@ -1,18 +1,17 @@
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::FromPrimitive;
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+use tracing::{debug, info, warn};
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::autonomous_economy::{CoinDistributionEngine, CoinType, WorkProofValidator, DistributionResult, BpciTreasuryIntegration, FundSource, TreasuryConfig};
-use crate::registry::node_types::{
-    BpiWalletStamp, TransactionLimits, BankType, BankLicense, BankLicenseType, RiskManagement,
-};
+use crate::autonomous_economy::{CoinType, WorkProofValidator, DistributionResult, BpciTreasuryIntegration, FundSource};
+use crate::registry::node_types::BpiWalletStamp;
 
 /// BPI Integration with Autonomous Economy
 /// Implements BPI wallet rent + gas fee model feeding into 4-coin distribution system
@@ -385,7 +384,7 @@ impl BpiEconomicIntegration {
     pub async fn end_wallet_session(&self, wallet_id: &str) -> Result<Option<DistributionResult>, BpiIntegrationError> {
         let mut sessions = self.active_sessions.write().await;
         
-        if let Some(mut session) = sessions.remove(wallet_id) {
+        if let Some(session) = sessions.remove(wallet_id) {
             // Check minimum session duration
             let session_duration_minutes = (Utc::now() - session.session_start).num_minutes();
             if session_duration_minutes < self.config.minimum_session_minutes as i64 {
@@ -477,6 +476,15 @@ pub struct BpiSessionStats {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::autonomous_economy::{CoinDistributionEngine, TreasuryConfig};
+    use crate::registry::node_types::{
+        TransactionLimits,
+        BankType,
+        BankLicense,
+        BankLicenseType,
+        RiskManagement,
+    };
+    use chrono::Duration;
 
     #[tokio::test]
     async fn test_wallet_session_rent_calculation() {

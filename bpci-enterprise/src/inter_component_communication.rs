@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, debug, error};
+use tracing::{info, warn, debug};
 
 /// Component types in the unified BPCI infrastructure
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq, PartialEq)]

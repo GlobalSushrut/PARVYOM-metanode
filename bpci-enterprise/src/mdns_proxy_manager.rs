@@ -7,8 +7,8 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::{Result, anyhow};
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use anyhow::Result;
+use std::net::{IpAddr, Ipv4Addr};
 use chrono::{DateTime, Utc};
 
 /// mDNS service record for BPI address

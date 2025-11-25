@@ -501,7 +501,7 @@ impl BpciBundleLedger {
 
     /// Calculate receipt hash
     fn calculate_receipt_hash(&self, receipt: &BundleReceipt) -> Result<String> {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(receipt.receipt_id.as_bytes());
         hasher.update(receipt.bundle_id.as_bytes());
         hasher.update(receipt.original_bundle_hash.as_bytes());
@@ -511,7 +511,7 @@ impl BpciBundleLedger {
 
     /// Calculate block hash
     fn calculate_block_hash(&self, height: u64, previous_hash: &str, merkle_root: &str, receipts: &[String]) -> Result<String> {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(height.to_be_bytes());
         hasher.update(previous_hash.as_bytes());
         hasher.update(merkle_root.as_bytes());
@@ -599,7 +599,7 @@ impl BundleMerkleTree {
         }
 
         // Calculate new root hash
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         for node in &leaf_nodes {
             hasher.update(node.hash.as_bytes());
         }

@@ -3,7 +3,7 @@
 use serde_json::{Value, Map};
 use std::collections::BTreeMap;
 use crate::{ZjlResult, ZjlError};
-use crate::blocks::{BlockType, Block, BlockHeader};
+use crate::blocks::{BlockType, Block};
 use blake3::Hasher;
 
 /// I-JSON enforcer that validates and normalizes JSON

@@ -2,13 +2,11 @@
 //! 
 //! Manages 4D tiles for efficient spatial-temporal data organization
 
-use serde::{Serialize, Deserialize};
 use std::collections::{HashMap, BTreeMap};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use anyhow::{Result, anyhow};
 use uuid::Uuid;
-use blake3::Hash;
 
 use super::{FourDCoordinate, FourDBoundingBox, FourDTile, HashGraphNode, TileMetadata, SecurityLevel, FourDConfig};
 

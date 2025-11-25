@@ -1,10 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
 use serde_json::{self};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use std::collections::HashMap;
-use crate::blockchain_helpers::*;
 
 #[derive(Subcommand)]
 pub enum MaintenanceCommands {
@@ -14,7 +10,7 @@ pub enum MaintenanceCommands {
         #[arg(short, long)]
         detailed: bool,
         /// Check specific component
-        #[arg(short, long)]
+        #[arg(long)]
         component: Option<String>,
     },
 
@@ -135,7 +131,7 @@ pub enum MaintenanceCommands {
     /// Validate system configuration
     ValidateConfig {
         /// Configuration file to validate
-        #[arg(short, long)]
+        #[arg(long)]
         config_file: Option<String>,
         /// Fix configuration issues
         #[arg(short, long)]
@@ -196,7 +192,7 @@ pub async fn handle_maintenance_command(cmd: &MaintenanceCommands, json: bool, d
 async fn handle_system_health(detailed: bool, component: Option<&str>, json: bool) -> Result<()> {
     // Get real system health data from blockchain and registry
     use crate::blockchain_helpers::get_blockchain_stats;
-    use crate::mining::wallet_registry_bridge::WalletRegistryMiningBridge;
+    
     
     // Get real blockchain statistics
     let (block_height, total_blocks, node_id) = match get_blockchain_stats().await {

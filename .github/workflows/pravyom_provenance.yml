@@ -1,0 +1,47 @@
+name: Pravyom Provenance and License Stamp
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Generate Pravyom license stamp
+        run: |
+          chmod +x scripts/generate_license_stamp.sh
+          ./scripts/generate_license_stamp.sh
+
+      - name: Verify license file and basic integrity
+        run: |
+          if [ ! -f LICENSE.md ]; then
+            echo "LICENSE.md is missing" >&2
+            exit 1
+          fi
+
+          # Ensure the proprietary license header is present
+          if ! grep -q "Pravyom Proprietary License v1.0" LICENSE.md; then
+            echo "LICENSE.md does not contain the expected Pravyom license header" >&2
+            exit 1
+          fi
+
+          # Ensure provenance restriction clause exists
+          if ! grep -q "Remove, disable, or tamper with provenance metadata" LICENSE.md; then
+            echo "LICENSE.md does not contain the provenance metadata restriction" >&2
+            exit 1
+          fi
+
+      - name: Upload provenance log (forg.log) as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pravyom-forg-log
+          path: forg.log
+          if-no-files-found: warn

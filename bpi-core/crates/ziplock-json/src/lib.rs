@@ -11,12 +11,8 @@
 //! - BPI ledger anchoring for tamper-proof audit trails
 //! - I-JSON enforcement for security
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::io::{Read, Write, Seek};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 pub mod header;
 pub mod blocks;
@@ -40,6 +36,12 @@ pub mod bpi_master_audit;
 pub mod minute_root_anchoring;
 pub mod zk3_attestation_circuits;
 pub mod gov_index_aggregation;
+pub mod quantum_safe_crypto;
+pub mod cbor_serialization;
+pub mod bso_k8_integration;
+pub mod docklock_integration;
+pub mod enc_cluster_integration;
+pub mod bpi_ledger_transmission;
 
 pub use header::*;
 pub use blocks::*;

@@ -71,13 +71,20 @@ pub struct FeatureVector {
 pub struct MlPrediction {
     pub prediction_id: Uuid,
     pub model_id: String,
+    pub model_name: String,
     pub prediction_value: f64,
     pub prediction_class: Option<String>,
+    pub prediction_type: Option<String>,
     pub confidence: f64,
+    pub features: HashMap<String, f64>,
     pub probabilities: HashMap<String, f64>,
     pub feature_contributions: HashMap<String, f64>,
     pub predicted_at: DateTime<Utc>,
     pub explanation: Option<String>,
+    // BATCH 4 FIX: Add missing fields
+    pub result: Option<String>,
+    pub timestamp: DateTime<Utc>,
+    pub anomaly_score: f64,
 }
 
 /// Feature type classification
@@ -512,9 +519,12 @@ impl MlModel for AnomalyDetectionModel {
         Ok(MlPrediction {
             prediction_id: Uuid::new_v4(),
             model_id: self.model_id.clone(),
+            model_name: "anomaly_detection_model".to_string(),
             prediction_value: anomaly_score,
             prediction_class: Some(if is_anomaly { "anomaly".to_string() } else { "normal".to_string() }),
-            confidence,
+            prediction_type: Some("anomaly_detection".to_string()),
+            confidence: confidence,
+            features: HashMap::new(),
             probabilities: {
                 let mut probs = HashMap::new();
                 probs.insert("anomaly".to_string(), confidence);
@@ -524,6 +534,10 @@ impl MlModel for AnomalyDetectionModel {
             feature_contributions,
             predicted_at: Utc::now(),
             explanation: Some(format!("Anomaly score: {:.3}, threshold: {:.3}", anomaly_score, self.threshold)),
+            // BATCH 5 FIX: Add missing fields
+            result: Some(if is_anomaly { "anomaly".to_string() } else { "normal".to_string() }),
+            timestamp: chrono::Utc::now(),
+            anomaly_score: anomaly_score,
         })
     }
 

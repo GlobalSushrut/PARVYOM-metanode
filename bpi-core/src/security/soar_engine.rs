@@ -42,7 +42,7 @@ pub struct ClassificationCondition {
     pub weight: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum IncidentType {
     MalwareInfection,
     DataBreach,
@@ -59,7 +59,7 @@ pub enum IncidentType {
     Unknown,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum IncidentSeverity {
     Info,
     Low,
@@ -609,6 +609,37 @@ impl SOAREngine {
     }
 }
 
+impl SOAREngine {
+    /// Register a classification rule into the SOAR incident classifier.
+    /// This is used by infra tests and production orchestration to define
+    /// how raw security events map to incident types and severities.
+    pub async fn add_classification_rule(&self, rule: ClassificationRule) -> Result<()> {
+        let mut classifier = self.incident_classifier.write().await;
+        classifier.classification_rules.push(rule);
+        Ok(())
+    }
+
+    /// Register a playbook that can be suggested/executed for matching
+    /// incident types and severities.
+    pub async fn register_playbook(&self, playbook: Playbook) -> Result<()> {
+        let id = playbook.playbook_id.clone();
+        let mut manager = self.playbook_manager.write().await;
+        manager.playbooks.insert(id, playbook);
+        Ok(())
+    }
+
+    /// Suggest an appropriate playbook ID for a given incident classification.
+    /// Returns None if no suitable playbook is known.
+    pub async fn suggest_playbook(
+        &self,
+        incident_type: &IncidentType,
+        severity: &IncidentSeverity,
+    ) -> Option<String> {
+        let manager = self.playbook_manager.read().await;
+        manager.suggest_playbook(incident_type, severity)
+    }
+}
+
 // Real implementations for all components
 impl IncidentClassifier {
     pub fn new() -> Self {
@@ -733,6 +764,16 @@ impl PlaybookManager {
         }
 
         Ok(execution_id)
+    }
+
+    /// Suggest a playbook for a given incident type and severity. The first
+    /// playbook whose incident/severity filters include the provided
+    /// classification is returned.
+    pub fn suggest_playbook(&self, incident_type: &IncidentType, severity: &IncidentSeverity) -> Option<String> {
+        self.playbooks
+            .values()
+            .find(|pb| pb.incident_types.contains(incident_type) && pb.severity_levels.contains(severity))
+            .map(|pb| pb.playbook_id.clone())
     }
 }
 

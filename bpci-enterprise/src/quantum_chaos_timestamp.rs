@@ -440,16 +440,16 @@ mod tests {
     
     #[tokio::test]
     async fn test_quantum_chaos_generation() {
-        let system = QuantumChaosTimestampSystem::new();
+        let system = QuantumHeartbeatSystem::new();
         let now = Utc::now();
-        let chaos = QuantumChaosTimestampSystem::generate_quantum_chaos(&now);
+        let chaos = QuantumHeartbeatSystem::generate_quantum_chaos(&now);
         
         assert_eq!(chaos.len(), 32);
         
         // Chaos should be different for different timestamps
         tokio::time::sleep(tokio::time::Duration::from_millis(1)).await;
         let now2 = Utc::now();
-        let chaos2 = QuantumChaosTimestampSystem::generate_quantum_chaos(&now2);
+        let chaos2 = QuantumHeartbeatSystem::generate_quantum_chaos(&now2);
         
         assert_ne!(chaos, chaos2);
     }

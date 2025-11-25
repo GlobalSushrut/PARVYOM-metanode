@@ -52,7 +52,10 @@ const UnifiedAuthContainer: React.FC<UnifiedAuthContainerProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [loading, setLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loginForm] = Form.useForm();
   const [signupForm] = Form.useForm();
 
@@ -62,10 +65,10 @@ const UnifiedAuthContainer: React.FC<UnifiedAuthContainerProps> = ({
     setError(null);
 
     try {
-      const response = await unifiedAuthService.authenticate(method, data);
+      const response = await unifiedAuthService.login(data, method);
       
       if (response.success && response.user) {
-        message.success(`Welcome ${response.user.name || response.user.email}!`);
+        message.success(`Welcome ${response.user.firstName || response.user.username || response.user.email}!`);
         onAuthSuccess(response.user);
       } else {
         setError(response.message || 'Authentication failed');

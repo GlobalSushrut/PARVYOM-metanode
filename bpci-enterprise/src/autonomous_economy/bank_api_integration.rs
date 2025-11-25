@@ -7,18 +7,14 @@ use tokio::sync::RwLock;
 use anyhow::Result;
 use thiserror::Error;
 use uuid::Uuid;
-use tracing::{info, warn, error};
+use tracing::{info, error};
 
 use crate::autonomous_economy::settlement_coin::{
-    SettlementCoin,
-    SettlementTransaction,
-    BankSettlement,
     ActiveSettlement,
     SettlementPhase,
     ConsumerPayment,
     SettlementCoinEngine,
 };
-use crate::registry::node_types::BpiWalletStamp;
 use crate::registry::NodeType;
 
 // Type alias for BankApiRegistry

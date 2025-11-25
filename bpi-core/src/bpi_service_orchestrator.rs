@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 use std::sync::Arc;
+use std::env;
 use tokio::sync::RwLock;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -190,9 +191,12 @@ impl BpiServiceOrchestrator {
     /// Create new BPI service orchestrator
     pub fn new(config: DeploymentConfig) -> Self {
         let health_monitor = Arc::new(HealthMonitor::new());
+        let bpci_wallet_url = env::var("BPI_BPCI_WALLET_URL")
+            .unwrap_or_else(|_| "http://localhost:7778".to_string());
+
         let wallet_manager = Arc::new(WalletManager::new(WalletConfig {
             auto_connect: config.auto_wallet_connect,
-            bpci_server_url: "http://localhost:7778".to_string(),
+            bpci_server_url: bpci_wallet_url,
             wallet_type: "bpci".to_string(),
             retry_attempts: 3,
         }));

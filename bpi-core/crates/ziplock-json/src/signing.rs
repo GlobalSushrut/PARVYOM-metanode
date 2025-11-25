@@ -7,7 +7,7 @@ use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use blake3::Hasher;
-use zerocopy::AsBytes;
+
 use crate::{ZjlResult, ZjlError};
 use crate::header::FixedHeader;
 

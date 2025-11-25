@@ -1,0 +1,20 @@
+wallet_name: Pravyom Wallet
+network: mainnet
+bpi_core_url: https://www.pravyom.com/bpi-core
+bpci_server_url: https://www.pravyom.com/connect
+auto_start_components:
+- blockchain_core
+- wallet_registry
+- security_framework
+- consensus_engine
+- network_manager
+security:
+  require_password: true
+  session_timeout_minutes: 30
+  enable_biometric: false
+  auto_lock: true
+ui:
+  theme: dark
+  language: en
+  show_advanced_features: false
+  refresh_interval_ms: 1000

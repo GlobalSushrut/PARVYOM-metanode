@@ -48,9 +48,9 @@ pub struct ContractHandlerRegistry {
 
 /// Contract Handler trait for all contract types
 pub trait ContractHandler: std::fmt::Debug + Send + Sync {
-    async fn deploy(&self, config: serde_json::Value) -> Result<String>;
-    async fn validate(&self, config: &serde_json::Value) -> Result<bool>;
-    async fn monitor(&self, deployment_id: &str) -> Result<ContractStatus>;
+    fn deploy(&self, config: serde_json::Value) -> impl std::future::Future<Output = Result<String>> + Send;
+    fn validate(&self, config: &serde_json::Value) -> impl std::future::Future<Output = Result<bool>> + Send;
+    fn monitor(&self, deployment_id: &str) -> impl std::future::Future<Output = Result<ContractStatus>> + Send;
 }
 
 /// Concrete implementation of ContractHandler
@@ -82,6 +82,20 @@ impl ContractHandlerImpl {
     
     pub async fn monitor(&self, _deployment_id: &str) -> Result<ContractStatus> {
         Ok(ContractStatus::Active)
+    }
+}
+
+impl ContractHandler for ContractHandlerImpl {
+    fn deploy(&self, config: serde_json::Value) -> impl std::future::Future<Output = Result<String>> + Send {
+        self.deploy(config)
+    }
+    
+    fn validate(&self, config: &serde_json::Value) -> impl std::future::Future<Output = Result<bool>> + Send {
+        self.validate(config)
+    }
+    
+    fn monitor(&self, deployment_id: &str) -> impl std::future::Future<Output = Result<ContractStatus>> + Send {
+        self.monitor(deployment_id)
     }
 }
 

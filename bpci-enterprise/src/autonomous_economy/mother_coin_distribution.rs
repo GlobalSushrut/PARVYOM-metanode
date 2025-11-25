@@ -3,12 +3,10 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use thiserror::Error;
-use uuid::Uuid;
 
-use crate::autonomous_economy::CoinType;
-use crate::registry::node_types::{BpiWalletStamp, NodeType};
+use crate::registry::node_types::NodeType;
 
 /// Mother Coin (GEN) Distribution System
 /// Target: Raise $1M safely while maintaining decentralization

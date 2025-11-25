@@ -8,6 +8,12 @@ use std::collections::HashMap;
 use std::fs;
 use std::process::Command;
 use tracing::{info, warn, debug};
+use uuid::Uuid;
+use vpods_core::{
+    id::NodeId,
+    capacity::NodeCapacity,
+};
+use vpods_agent::{LinuxVpodRuntime, VpodRuntime};
 
 /// Hardware profile for the target system
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,6 +25,9 @@ pub struct HardwareProfile {
     pub graphics: Vec<GraphicsDevice>,
     pub system: SystemInfo,
     pub security_features: SecurityFeatures,
+    /// Optional vPods-based node capacity abstraction (not serialized)
+    #[serde(skip_serializing, skip_deserializing)]
+    pub node_capacity: Option<NodeCapacity>,
 }
 
 impl HardwareProfile {
@@ -156,6 +165,13 @@ impl HardwareDetectionEngine {
         let graphics = self.detect_graphics_devices().await?;
         let system = self.detect_system_info().await?;
         let security_features = self.detect_security_features().await?;
+        let node_capacity = match self.detect_node_capacity_vpods().await {
+            Ok(cap) => Some(cap),
+            Err(e) => {
+                warn!("vPods node capacity detection failed: {}", e);
+                None
+            }
+        };
         
         let profile = HardwareProfile {
             cpu,
@@ -165,12 +181,23 @@ impl HardwareDetectionEngine {
             graphics,
             system,
             security_features,
+            node_capacity,
         };
         
         info!("✅ Hardware detection completed");
         debug!("Hardware profile: {:#?}", profile);
         
         Ok(profile)
+    }
+
+    /// Detect node capacity using the vPods Linux runtime abstraction
+    async fn detect_node_capacity_vpods(&self) -> Result<NodeCapacity> {
+        debug!("Detecting node capacity via vPods");
+
+        let node_id = NodeId(Uuid::new_v4());
+        let runtime = LinuxVpodRuntime::new(node_id)?;
+        let capacity = runtime.detect_node_capacity()?;
+        Ok(capacity)
     }
 
     /// Detect CPU information

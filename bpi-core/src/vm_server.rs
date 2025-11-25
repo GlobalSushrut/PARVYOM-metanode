@@ -14,6 +14,17 @@
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+// Local CborSerializable trait implementation to avoid module import issues
+pub trait CborSerializable: serde::Serialize + for<'de> serde::Deserialize<'de> + std::fmt::Debug + PartialEq + Clone {
+    fn to_cbor(&self) -> anyhow::Result<Vec<u8>> {
+        serde_cbor::to_vec(self).map_err(|e| anyhow::anyhow!("CBOR serialization error: {}", e))
+    }
+
+    fn from_cbor(data: &[u8]) -> anyhow::Result<Self> {
+        serde_cbor::from_slice(data).map_err(|e| anyhow::anyhow!("CBOR deserialization error: {}", e))
+    }
+}
+
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -25,9 +36,60 @@ use tracing::{debug, info, warn, error};
 use uuid::Uuid;
 use rand;
 use chrono;
+use crate::os_security_supervisor::OsSecuritySupervisor;
+use crate::audit_http_server::{
+    make_vm_ziplock_audit,
+    make_zklock_ziplock_audit,
+    make_shadow_ziplock_audit,
+    ZipLockJsonAudit,
+};
+
+/// Submit a VM ZipLock JSON audit to the audit HTTP server if an endpoint is
+/// configured via environment variable. This is intended primarily for dev
+/// and pilot profiles so developers can see full end-to-end ZipLock flows
+/// without coupling VmServer directly to the audit server implementation.
+async fn submit_vm_ziplock_audit_if_configured(audit: ZipLockJsonAudit) -> Result<()> {
+    // Optional sampling to avoid overloading the audit server in high-traffic
+    // scenarios. BPI_ZIPLOCK_SAMPLE_RATE can be set to a value in [0.0, 1.0]
+    // (default 1.0) to control what fraction of events are actually
+    // submitted. All events are still logged as ziplock_audit_event.
+    let sample_rate: f64 = std::env::var("BPI_ZIPLOCK_SAMPLE_RATE")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1.0);
+
+    if sample_rate <= 0.0 {
+        return Ok(()); // sampling disabled for submissions
+    }
+
+    let roll: f64 = rand::random::<f64>();
+    if roll > sample_rate {
+        return Ok(()); // sampled out
+    }
+
+    let endpoint = match std::env::var("BPI_ZIPLOCK_AUDIT_ENDPOINT") {
+        Ok(v) if !v.trim().is_empty() => v,
+        _ => return Ok(()), // No endpoint configured; submission is a no-op
+    };
+
+    let client = reqwest::Client::new();
+    let resp = client.post(&endpoint).json(&audit).send().await;
+
+    match resp {
+        Ok(r) if r.status().is_success() => {
+            debug!("ZipLock VM audit submitted to {}", endpoint);
+            Ok(())
+        }
+        Ok(r) => {
+            warn!("ZipLock VM audit submission returned non-success status {}", r.status());
+            Ok(())
+        }
+        Err(e) => Err(e.into()),
+    }
+}
 
 /// VM Server configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VmServerConfig {
     /// VM server listening port
     pub vm_port: u16,
@@ -81,7 +143,7 @@ impl Default for VmServerConfig {
 }
 
 /// VM isolation levels
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum VmIsolationLevel {
     /// Basic isolation with process separation
     Basic,
@@ -110,10 +172,12 @@ pub struct VmServer {
     stats: Arc<RwLock<VmServerStats>>,
     /// Post-quantum security layer
     post_quantum_layer: Arc<PostQuantumSecurityLayer>,
+    /// Optional OS Security Supervisor for unified security processing
+    security_supervisor: Option<Arc<OsSecuritySupervisor>>,
 }
 
 /// VM Instance representation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VmInstance {
     pub id: String,
     pub status: String,
@@ -149,7 +213,7 @@ pub enum VmStatus {
 }
 
 /// BPI core process information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BpiCoreInfo {
     /// Process ID
     pub pid: Option<u32>,
@@ -165,6 +229,7 @@ pub struct BpiCoreInfo {
 
 /// BPI core health status
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum BpiHealthStatus {
     Healthy,
     Degraded,
@@ -173,7 +238,7 @@ pub enum BpiHealthStatus {
 }
 
 /// VM resource allocation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VmResources {
     /// CPU cores allocated
     pub cpu_cores: u32,
@@ -197,7 +262,7 @@ impl Default for VmResources {
 }
 
 /// VM security context
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VmSecurityContext {
     /// Security level
     pub security_level: VmSecurityLevel,
@@ -210,7 +275,7 @@ pub struct VmSecurityContext {
 }
 
 /// VM security levels
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum VmSecurityLevel {
     Standard,
     Enhanced,
@@ -219,7 +284,7 @@ pub enum VmSecurityLevel {
 }
 
 /// Post-quantum cryptographic keys
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PostQuantumKeys {
     /// Signing key
     pub signing_key: Vec<u8>,
@@ -263,7 +328,7 @@ pub struct ZkLockIntegration {
 }
 
 /// ZK-enabled device
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ZkDevice {
     /// Device ID
     pub device_id: Uuid,
@@ -272,11 +337,12 @@ pub struct ZkDevice {
     /// Connection status
     pub status: ZkDeviceStatus,
     /// Last proof submission
+    #[serde(skip)]
     pub last_proof: Option<Instant>,
 }
 
 /// ZK device types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ZkDeviceType {
     Mobile,
     IoT,
@@ -285,7 +351,7 @@ pub enum ZkDeviceType {
 }
 
 /// ZK device status
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ZkDeviceStatus {
     Connected,
     ProofGenerating,
@@ -421,7 +487,7 @@ impl QLockSyncGate {
 }
 
 /// ENC Lock statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EncLockStats {
     /// Total requests processed
     pub total_requests: u64,
@@ -438,7 +504,7 @@ pub struct EncLockStats {
 }
 
 /// VM server statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VmServerStats {
     /// Total VM instances created
     pub total_instances: u64,
@@ -476,11 +542,30 @@ impl Default for VmServerStats {
     }
 }
 
+// CBOR Serializable implementations for VM server structs
+impl CborSerializable for VmServerConfig {}
+impl CborSerializable for VmInstance {}
+impl CborSerializable for BpiCoreInfo {}
+impl CborSerializable for VmResources {}
+impl CborSerializable for VmSecurityContext {}
+impl CborSerializable for PostQuantumKeys {}
+impl CborSerializable for ZkDevice {}
+impl CborSerializable for EncLockStats {}
+impl CborSerializable for VmServerStats {}
+
 impl VmServer {
     /// Create new VM server instance
     pub async fn new(config: VmServerConfig) -> Result<Self> {
+        Self::new_with_supervisor(config, None).await
+    }
+
+    /// Create new VM server instance, optionally wired to an OS Security Supervisor.
+    pub async fn new_with_supervisor(
+        config: VmServerConfig,
+        security_supervisor: Option<Arc<OsSecuritySupervisor>>,
+    ) -> Result<Self> {
         info!("🚀 Initializing BPI VM Server with post-quantum security");
-        
+
         let shadow_registry_client = Arc::new(ShadowRegistryClient {
             endpoint: config.shadow_registry_endpoint.clone(),
             status: IntegrationStatus::Disconnected,
@@ -532,6 +617,7 @@ impl VmServer {
             zklock_integration,
             stats: Arc::new(RwLock::new(VmServerStats::default())),
             post_quantum_layer,
+            security_supervisor,
         })
     }
 
@@ -600,6 +686,8 @@ impl VmServer {
         Ok(())
     }
 
+    /// Route request through VM layer
+
     /// Initialize Shadow Registry client
     async fn initialize_shadow_registry_client(&self) -> Result<()> {
         info!("🌐 Initializing Shadow Registry client for Web2 naming");
@@ -657,20 +745,23 @@ impl VmServer {
     /// Handle ZKLock connection
     async fn handle_zklock_connection(&self, mut stream: tokio::net::TcpStream, addr: SocketAddr) -> Result<()> {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
-        
+
         // Update ZKLock connection statistics
         {
             let mut stats = self.stats.write().await;
             stats.zklock_connections += 1;
         }
-        
+
         // Read request
         let mut buffer = vec![0; 4096];
-        let n = stream.read(&mut buffer).await.context("Failed to read ZKLock request")?;
+        let n = stream
+            .read(&mut buffer)
+            .await
+            .context("Failed to read ZKLock request")?;
         let request = String::from_utf8_lossy(&buffer[..n]);
-        
+
         debug!("ZKLock request: {}", request.lines().next().unwrap_or(""));
-        
+
         // Parse HTTP request
         let lines: Vec<&str> = request.lines().collect();
         if let Some(request_line) = lines.first() {
@@ -678,27 +769,66 @@ impl VmServer {
             if parts.len() >= 2 {
                 let method = parts[0];
                 let path = parts[1];
-                
-                let request_id = format!("zklock_{}_{:x}", 
+
+                let request_id = format!(
+                    "zklock_{}_ {:x}",
                     std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
                         .unwrap_or_default()
-                        .as_millis(), 
+                        .as_millis(),
                     rand::random::<u32>()
                 );
-                
+
                 info!("🔐 ZKLock: {} {} ({}) from {}", method, path, request_id, addr);
-                
+
+                // Emit a canonical ZipLockJsonAudit for this ZKLock HTTP
+                // request using the shared helper so it shares the same
+                // structure as other NX lanes.
+                let zklock_audit = make_zklock_ziplock_audit(
+                    &request_id,
+                    method,
+                    path,
+                    &addr.to_string(),
+                    &request,
+                );
+
+                if let Ok(ziplock_json) = serde_json::to_string(&zklock_audit) {
+                    info!("ziplock_audit_event = {}", ziplock_json);
+                }
+
+                // Optionally submit this ZKLock audit to the audit HTTP
+                // server when configured via BPI_ZIPLOCK_AUDIT_ENDPOINT.
+                let audit_for_submit = zklock_audit.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = submit_vm_ziplock_audit_if_configured(audit_for_submit).await {
+                        warn!("ZipLock ZKLock audit submission failed: {}", e);
+                    }
+                });
+
+                // Pass HTTP request to OS Security Supervisor (if attached)
+                // for unified security processing. Failures are logged inside
+                // the supervisor and do not change behaviour here.
+                if let Some(supervisor) = &self.security_supervisor {
+                    supervisor
+                        .check_http_request_with_source(
+                            "zklock_http:nx_zklock_lane",
+                            method,
+                            path,
+                            &addr.to_string(),
+                        )
+                        .await;
+                }
+
                 // Generate ZKLock response
                 let response = self.generate_zklock_response(method, path, &request_id).await;
-                
+
                 // Send response
                 if let Err(e) = stream.write_all(response.as_bytes()).await {
                     error!("Failed to write ZKLock response: {}", e);
                 }
             }
         }
-        
+
         Ok(())
     }
     
@@ -858,6 +988,42 @@ impl VmServer {
                     );
                     
                     info!("🌐 Shadow Registry: {} {} ({}) from {}", method, path, request_id, addr);
+
+                    // Emit a canonical ZipLockJsonAudit for this Shadow
+                    // Registry HTTP request using the shared helper.
+                    let shadow_audit = make_shadow_ziplock_audit(
+                        &request_id,
+                        method,
+                        path,
+                        &addr.to_string(),
+                        &request,
+                    );
+
+                    if let Ok(ziplock_json) = serde_json::to_string(&shadow_audit) {
+                        info!("ziplock_audit_event = {}", ziplock_json);
+                    }
+
+                    // Optionally submit this Shadow Registry audit to the
+                    // audit HTTP server when configured.
+                    let audit_for_submit = shadow_audit.clone();
+                    tokio::spawn(async move {
+                        if let Err(e) = submit_vm_ziplock_audit_if_configured(audit_for_submit).await {
+                            warn!("ZipLock Shadow Registry audit submission failed: {}", e);
+                        }
+                    });
+
+                    // Pass Shadow Registry HTTP request to OS Security Supervisor
+                    // (if attached) for unified security processing.
+                    if let Some(supervisor) = &self.security_supervisor {
+                        supervisor
+                            .check_http_request_with_source(
+                                "shadow_registry_http:nx_shadow_lane",
+                                method,
+                                path,
+                                &addr.to_string(),
+                            )
+                            .await;
+                    }
                     
                     // Generate Shadow Registry response
                     let response = self.generate_shadow_registry_response(method, path, &request_id).await;
@@ -1086,6 +1252,46 @@ impl VmServer {
                 info!("🖥️ VM Server: {} {} ({}) [ENC:{}]", 
                       method, path, request_id, 
                       if self.config.enc_lock_enabled { "SECURED" } else { "STANDARD" });
+
+                // Emit a canonical ZipLockJsonAudit representation of this VM
+                // HTTP request as a structured log entry, using the shared
+                // helper from the audit HTTP server so the shape stays
+                // consistent across producers.
+                let ziplock_audit = make_vm_ziplock_audit(
+                    &request_id,
+                    method,
+                    path,
+                    self.config.enc_lock_enabled,
+                    &addr.to_string(),
+                    &request,
+                );
+
+                if let Ok(ziplock_json) = serde_json::to_string(&ziplock_audit) {
+                    info!("ziplock_audit_event = {}", ziplock_json);
+                }
+
+                // Optionally submit this ZipLock audit event to the dedicated
+                // audit HTTP server when configured (e.g. in dev environments).
+                // Failures are logged but do not affect the VM response path.
+                let audit_for_submit = ziplock_audit.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = submit_vm_ziplock_audit_if_configured(audit_for_submit).await {
+                        warn!("ZipLock VM audit submission failed: {}", e);
+                    }
+                });
+
+                // Pass HTTP request to OS Security Supervisor (if attached)
+                // using a component identifier for the main VM HTTP surface.
+                if let Some(supervisor) = &self.security_supervisor {
+                    supervisor
+                        .check_http_request_with_source(
+                            "vm_server_http:nx_vm_lane",
+                            method,
+                            path,
+                            &addr.to_string(),
+                        )
+                        .await;
+                }
                 
                 // Route request through VM layer
                 let response = self.route_vm_request(method, path, &request_id).await;
@@ -1148,10 +1354,30 @@ impl VmServer {
     /// Handle VM status endpoint
     async fn handle_vm_status_endpoint(&self, request_id: &str) -> String {
         let stats = self.get_stats().await;
+        
+        // Get real VM server status based on actual statistics
+        let vm_status = if stats.total_requests > 0 || stats.running_instances >= 0 {
+            "active"
+        } else {
+            "initializing"
+        };
+        
+        // Get real version from Cargo.toml
+        let version = env!("CARGO_PKG_VERSION");
+        
+        // Check if HTTP Cage is actually enabled by testing the port
+        let http_cage_enabled = self.config.http_cage_port > 0 && stats.http_cage_requests >= 0;
+        
+        // Check if Shadow Registry is actually enabled
+        let shadow_registry_enabled = !self.config.shadow_registry_endpoint.is_empty();
+        
+        // Check if ZKLock is actually enabled
+        let zklock_enabled = !self.config.zklock_endpoint.is_empty();
+        
         let status = serde_json::json!({
             "vm_server": {
-                "status": "active",
-                "version": "1.0.0",
+                "status": vm_status,
+                "version": version,
                 "request_id": request_id,
                 "port": self.config.vm_port,
                 "security_rating": self.config.security_rating,
@@ -1160,17 +1386,17 @@ impl VmServer {
             },
             "integrations": {
                 "http_cage": {
-                    "enabled": true,
+                    "enabled": http_cage_enabled,
                     "port": self.config.http_cage_port,
                     "requests": stats.http_cage_requests
                 },
                 "shadow_registry": {
-                    "enabled": true,
+                    "enabled": shadow_registry_enabled,
                     "endpoint": self.config.shadow_registry_endpoint,
                     "lookups": stats.shadow_registry_lookups
                 },
                 "zklock": {
-                    "enabled": true,
+                    "enabled": zklock_enabled,
                     "endpoint": self.config.zklock_endpoint,
                     "connections": stats.zklock_connections
                 }
@@ -2935,6 +3161,7 @@ impl Clone for VmServer {
             zklock_integration: Arc::clone(&self.zklock_integration),
             stats: Arc::clone(&self.stats),
             post_quantum_layer: Arc::clone(&self.post_quantum_layer),
+            security_supervisor: self.security_supervisor.clone(),
         }
     }
 }

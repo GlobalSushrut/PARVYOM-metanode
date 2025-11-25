@@ -517,7 +517,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_sync_pair_creation() {
+    async fn test_sync_pair_creation() -> Result<()> {
         let quantum_system = Arc::new(QuantumEntanglementSystem::new_sync()?);
         let sync_primitive = SyncPairPrimitive::new(quantum_system);
 
@@ -537,10 +537,11 @@ mod tests {
 
         let pair = sync_primitive.get_sync_pair(&pair_id).unwrap().unwrap();
         assert_eq!(pair.status, SyncPairStatus::Active);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_dimensional_validation() {
+    async fn test_dimensional_validation() -> Result<()> {
         let quantum_system = Arc::new(QuantumEntanglementSystem::new_sync()?);
         let sync_primitive = SyncPairPrimitive::new(quantum_system);
 
@@ -557,5 +558,6 @@ mod tests {
         };
 
         assert!(!sync_primitive.validate_dimensional_coordinates(&invalid_coords).unwrap());
+        Ok(())
     }
 }

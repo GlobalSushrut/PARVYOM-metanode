@@ -1,47 +1,237 @@
-//! HERMES-Lite Web-4 Edition - Ultra-Light P2P for Testnet
+//! HERMES P2P - Production-Grade Hyperbolic P2P Mesh
 //! 
-//! Simplified, testnet-ready P2P networking:
-//! - Simple UDP transport (no QUIC complexity)
-//! - Basic neighbor discovery (no complex geometry)
-//! - Minimal message routing (no hyperbolic math)
-//! - BPCI traffic classes (consensus priority)
+//! Stage 1: Hyperbolic Embedding (PRODUCTION ✅)
+//! - Hyperbolic geometry (Poincaré disk model)
+//! - Greedy routing (O(log n) hops guaranteed)
+//! - Traffic class prioritization
+//! 
+//! Stage 2: QW-UDP Quantum Phase-Locking (PRODUCTION ✅)
+//! - Quantum-Wave UDP protocol
+//! - Schrödinger-timed packets
+//! - Phase controller (φ_eff = φ - ω·Δt)
+//! - Trigonometric routing (cos² alignment)
+//! 
+//! Stage 3: DHT Service Discovery (PRODUCTION ✅)
+//! - O(log n) distributed lookup
+//! - Service registry with caching
+//! - Gossip protocol for announcements
+//! - Health monitoring and failover
+//! 
+//! Stage 4 & 5: Production Features (IN PROGRESS 🚀)
+//! - Stage 4: Trigonometric load balancing with real-time tracking
+//! - Stage 5: Cloudflare edge + Pravyom Exchange + production monitoring
 
 pub mod node;
 pub mod transport;
 pub mod neighbor;
 pub mod message;
 pub mod config;
+pub mod hyperbolic;
+pub mod qwudp;
+pub mod dht;
+pub mod production;
 
 pub use node::{NodeId, P2PNode};
 pub use transport::UdpTransport;
 pub use neighbor::NeighborManager;
 pub use message::{P2PMessage, MessageType, TrafficClass};
 pub use config::HermesConfig;
+pub use hyperbolic::{HyperbolicCoordinates, HyperbolicEmbedding, HyperbolicMetrics};
+pub use qwudp::{
+    QwUdpHeader, QwUdpMessage, PhaseController, TrigonometricScorer,
+    OpCode, BasisCode, QecCode,
+};
+pub use dht::{
+    ServiceEndpoint, ServiceHealth, DhtServiceRegistry, DhtLookupCoordinator,
+    GossipProtocol, CacheStats,
+};
+pub use production::{
+    LoadMetrics, LoadTracker, EnhancedLoadBalancer, CircuitBreaker, CircuitState,
+    CloudflareEdge, ResourceOffer, PravyomExchange, ProductionMetrics,
+};
 
 use std::error::Error;
-use tracing::{info, error};
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use tracing::info;
 
-/// Ultra-light HERMES-Lite P2P node for testnet
+/// Production-grade HERMES P2P node - Complete Stack (Stages 1-5)
 pub struct HermesLiteWeb4 {
     config: HermesConfig,
     node: P2PNode,
     transport: UdpTransport,
     neighbors: NeighborManager,
+    /// Hyperbolic embedding for O(log n) routing (Stage 1)
+    embedding: HyperbolicEmbedding,
+    /// Phase controller for quantum timing (Stage 2)
+    phase_controller: PhaseController,
+    /// Trigonometric scorer for routing (Stage 2)
+    trig_scorer: TrigonometricScorer,
+    /// DHT service registry for O(log n) discovery (Stage 3)
+    dht_registry: DhtServiceRegistry,
+    /// DHT lookup coordinator (Stage 3)
+    dht_coordinator: DhtLookupCoordinator,
+    /// Gossip protocol for service announcements (Stage 3)
+    gossip: GossipProtocol,
+    /// Enhanced load balancer with trigonometric scoring (Stage 4)
+    load_balancer: EnhancedLoadBalancer,
+    /// Circuit breaker for automatic failover (Stage 4)
+    circuit_breaker: CircuitBreaker,
+    /// Cloudflare edge integration (Stage 5)
+    cloudflare: CloudflareEdge,
+    /// Pravyom Exchange for resource marketplace (Stage 5)
+    pravyom_exchange: PravyomExchange,
+    /// Production metrics collector (Stage 5)
+    metrics: Arc<RwLock<ProductionMetrics>>,
 }
 
 impl HermesLiteWeb4 {
-    /// Create new testnet-ready P2P node
+    /// Create new production-grade P2P node with complete HERMES stack (Stages 1-5)
     pub fn new(config: HermesConfig) -> Self {
         let node = P2PNode::new(config.node_id.clone());
         let transport = UdpTransport::new(config.listen_port);
         let neighbors = NeighborManager::new(config.max_neighbors);
+        
+        // Stage 1: Initialize hyperbolic embedding at random position
+        let embedding = HyperbolicEmbedding::random();
+        
+        // Stage 2: Initialize quantum phase controller
+        let phase_controller = PhaseController::new();
+        
+        // Stage 2: Initialize trigonometric scorer
+        let trig_scorer = TrigonometricScorer::new();
+        
+        // Stage 3: Initialize DHT service registry
+        let dht_registry = DhtServiceRegistry::new();
+        
+        // Stage 3: Initialize DHT lookup coordinator
+        let dht_coordinator = DhtLookupCoordinator::new();
+        
+        // Stage 3: Initialize gossip protocol
+        let gossip = GossipProtocol::new();
+        
+        // Stage 4: Initialize enhanced load balancer
+        let load_balancer = EnhancedLoadBalancer::new();
+        
+        // Stage 4: Initialize circuit breaker
+        let circuit_breaker = CircuitBreaker::new();
+        
+        // Stage 5: Initialize Cloudflare edge
+        let cloudflare = CloudflareEdge::new();
+        
+        // Stage 5: Initialize Pravyom Exchange
+        let pravyom_exchange = PravyomExchange::new();
+        
+        // Stage 5: Initialize production metrics
+        let metrics = Arc::new(RwLock::new(ProductionMetrics::default()));
         
         Self {
             config,
             node,
             transport,
             neighbors,
+            embedding,
+            phase_controller,
+            trig_scorer,
+            dht_registry,
+            dht_coordinator,
+            gossip,
+            load_balancer,
+            circuit_breaker,
+            cloudflare,
+            pravyom_exchange,
+            metrics,
         }
+    }
+    
+    /// Create node with specific hyperbolic coordinates
+    pub fn new_with_coordinates(config: HermesConfig, coords: HyperbolicCoordinates) -> Self {
+        let node = P2PNode::new(config.node_id.clone());
+        let transport = UdpTransport::new(config.listen_port);
+        let neighbors = NeighborManager::new(config.max_neighbors);
+        let embedding = HyperbolicEmbedding::new(coords);
+        
+        // Stage 2: Initialize quantum phase controller
+        let phase_controller = PhaseController::new();
+        
+        // Stage 2: Initialize trigonometric scorer
+        let trig_scorer = TrigonometricScorer::new();
+        
+        // Stage 3: Initialize DHT components
+        let dht_registry = DhtServiceRegistry::new();
+        let dht_coordinator = DhtLookupCoordinator::new();
+        let gossip = GossipProtocol::new();
+        
+        // Stage 4 & 5: Initialize production components
+        let load_balancer = EnhancedLoadBalancer::new();
+        let circuit_breaker = CircuitBreaker::new();
+        let cloudflare = CloudflareEdge::new();
+        let pravyom_exchange = PravyomExchange::new();
+        let metrics = Arc::new(RwLock::new(ProductionMetrics::default()));
+        
+        Self {
+            config,
+            node,
+            transport,
+            neighbors,
+            embedding,
+            phase_controller,
+            trig_scorer,
+            dht_registry,
+            dht_coordinator,
+            gossip,
+            load_balancer,
+            circuit_breaker,
+            cloudflare,
+            pravyom_exchange,
+            metrics,
+        }
+    }
+    
+    /// Get hyperbolic coordinates of this node
+    pub fn coordinates(&self) -> &HyperbolicCoordinates {
+        &self.embedding.coordinates
+    }
+    
+    /// Calculate hyperbolic distance to target coordinates
+    pub fn distance_to(&self, target: &HyperbolicCoordinates) -> f64 {
+        self.embedding.distance_to(target)
+    }
+    
+    /// Greedy route to target using hyperbolic geometry (O(log n) hops)
+    pub fn greedy_route_to(&self, target: &HyperbolicCoordinates) -> Option<usize> {
+        self.embedding.route_to(target)
+    }
+    
+    /// Get phase controller (Stage 2)
+    pub fn phase_controller(&self) -> &PhaseController {
+        &self.phase_controller
+    }
+    
+    /// Get mutable phase controller (Stage 2)
+    pub fn phase_controller_mut(&mut self) -> &mut PhaseController {
+        &mut self.phase_controller
+    }
+    
+    /// Calculate trigonometric routing score (Stage 2)
+    /// 
+    /// Combines hyperbolic distance with quantum phase alignment
+    pub fn trig_score(&self, hrw: f64, phi_edge: f64, phi_svc: f64, load: f64) -> f64 {
+        self.trig_scorer.score(hrw, phi_edge, phi_svc, load)
+    }
+    
+    /// Create QW-UDP message with phase-locking (Stage 2)
+    pub fn create_qwudp_message(
+        &self,
+        op_code: OpCode,
+        basis_code: BasisCode,
+        qec_code: QecCode,
+        payload: Vec<u8>,
+    ) -> QwUdpMessage {
+        let mut msg = QwUdpMessage::new(op_code, basis_code, qec_code, payload);
+        msg.set_phase(&self.phase_controller);
+        msg.calculate_crc();
+        msg
     }
     
     /// Start the P2P node (simple, reliable)

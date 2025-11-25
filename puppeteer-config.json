@@ -1,0 +1,10 @@
+{
+  "protocolTimeout": 60000,
+  "launchOptions": {
+    "headless": "new",
+    "args": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ]
+  }
+}

@@ -226,7 +226,7 @@ impl BpciRegistry {
     fn generate_node_id(&self, registration: &NodeRegistration) -> String {
         use sha2::{Sha256, Digest};
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&registration.identity.did);
         hasher.update(&registration.endpoints.primary);
         hasher.update(&Utc::now().timestamp().to_string());

@@ -12,7 +12,9 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{info, warn};
 
-use crate::bpi_ledger_integration::BpiLedgerClient;
+use crate::{
+    bpi_ledger_integration::BpiLedgerClient,
+};
 
 /// Bundle proposal for consensus rounds
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -337,10 +339,16 @@ impl AuctionModeManager {
 mod tests {
     use super::*;
     use crate::bpi_ledger_integration::BpiLedgerClient;
+    use crate::commute_lock::CommuteLockRuntime;
+    use crate::dynaroute_integration::UnifiedNetworkingLayer;
 
     #[tokio::test]
     async fn test_testnet_auction_settlement() {
-        let bpi_client = Arc::new(BpiLedgerClient::new().await.unwrap());
+        let env_parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = env_parser.parse_env_ini().unwrap();
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await.unwrap());
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await.unwrap());
         let manager = AuctionModeManager::new(
             AuctionMode::Testnet { 
                 mock_to_bpi_db: true, 
@@ -362,7 +370,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_mainnet_auction_settlement() {
-        let bpi_client = Arc::new(BpiLedgerClient::new().await.unwrap());
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini().unwrap();
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await.unwrap());
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await.unwrap());
         let manager = AuctionModeManager::new(
             AuctionMode::Mainnet { 
                 community_auction_enabled: true,
@@ -387,7 +399,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_mode_switching() {
-        let bpi_client = Arc::new(BpiLedgerClient::new().await.unwrap());
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini().unwrap();
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await.unwrap());
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await.unwrap());
         let manager = AuctionModeManager::new(
             AuctionMode::Testnet { 
                 mock_to_bpi_db: true, 

@@ -5,13 +5,12 @@
 //! the lightweight vPod actor constraints (≤1.5KB state).
 
 use anyhow::Result;
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::vpod::{VPodActor, ActorId, Message, ActorSpecialization, MessagePayload};
+use crate::vpod::{VPodActor, Message, MessagePayload};
 
 /// Specialized actor trait for different node functions
 #[async_trait::async_trait]

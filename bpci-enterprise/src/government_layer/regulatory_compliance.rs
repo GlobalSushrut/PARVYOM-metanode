@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use rust_decimal::Decimal;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, error, debug};
+use tracing::info;
 
 /// Regulatory Compliance Engine
 #[derive(Debug, Clone)]

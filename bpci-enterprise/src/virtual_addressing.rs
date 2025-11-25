@@ -6,8 +6,7 @@
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
-use std::sync::Arc;
-use tracing::{info, warn};
+use tracing::info;
 
 /// Virtual address for a BPCI component
 /// Uses identity-based addressing instead of static ports
@@ -52,13 +51,13 @@ impl VirtualAddress {
         use sha2::{Sha256, Digest};
         
         // Hash component ID
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(component_id.as_bytes());
         let component_hash = hasher.finalize();
         let component_hex = format!("{:x}", component_hash);
         
         // Hash instance ID
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(instance_id.as_bytes());
         let instance_hash = hasher.finalize();
         let instance_hex = format!("{:x}", instance_hash);

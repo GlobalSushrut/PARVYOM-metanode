@@ -53,10 +53,15 @@ clap = { version = "4.0", features = ["derive"] }
 once_cell = "1.19"
 env_logger = "0.10"
 futures-util = "0.3"
+tokio-tungstenite = "0.20"
+url = "2.4"
 
 # DynaRoute v2 - Cloud-ready dynamic routing
 dynaroute = { path = "crates/dynaroute" }
 rand = "0.8"
+
+# HERMES P2P Mesh - Production-ready O(log n) P2P networking
+hermes-lite-web4 = { path = "crates/hermes-lite-web4" }
 
 hex = "0.4"
 toml = "0.8"

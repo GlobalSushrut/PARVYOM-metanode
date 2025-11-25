@@ -125,7 +125,7 @@ impl RevenueDistribution {
     }
     
     pub fn compute_hash(&self) -> [u8; 32] {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(self.distribution_id.as_bytes());
         hasher.update(self.auction_window_id.to_be_bytes());
         hasher.update(self.total_auction_revenue.to_be_bytes());

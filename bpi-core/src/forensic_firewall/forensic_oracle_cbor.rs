@@ -4,7 +4,20 @@ use uuid::Uuid;
 use chrono::{Utc, DateTime};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, BTreeMap};
-use crate::cbor_pipeline_foundation::CborSerializable;
+// Local CborSerializable trait implementation to avoid module import issues
+pub trait CborSerializable: serde::Serialize + for<'de> serde::Deserialize<'de> + std::fmt::Debug + PartialEq + Clone {
+    fn to_cbor(&self) -> anyhow::Result<Vec<u8>> {
+        serde_cbor::to_vec(self).map_err(|e| anyhow::anyhow!("CBOR serialization error: {}", e))
+    }
+    
+    fn from_cbor(data: &[u8]) -> anyhow::Result<Self> {
+        serde_cbor::from_slice(data).map_err(|e| anyhow::anyhow!("CBOR deserialization error: {}", e))
+    }
+    
+    fn to_diagnostic(&self) -> anyhow::Result<String> {
+        Ok(format!("{:?}", self))
+    }
+}
 use crate::immutable_audit_system::{ImmutableAuditSystem, ComponentType};
 use sha2::{Sha256, Digest};
 

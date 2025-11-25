@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use crate::storage::{FourDHashGraphKernel, FourDConfig, SecurityLevel};
 
 /// Connection status for token/address pairs

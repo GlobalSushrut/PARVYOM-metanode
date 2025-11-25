@@ -1,0 +1,154 @@
+graph LR
+  %% Step 1: Clients & External Systems enter via Edge / API Layer
+  %% Legend: colors by layer for fast visual parsing
+  %%  - Grey  : Clients / external systems
+  %%  - Teal  : Edge / API & settlement
+  %%  - Green : BPCI Enterprise
+  %%  - Blue  : BPI Core
+  %%  - Purple: Hermes / Web4 Mesh
+  %%  - Orange: Storage / evidence / analytics
+  %%  - Gold  : Economics / governance / readiness / observability
+
+  classDef client   fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,color:#212121;
+  classDef edge     fill:#e0f7fa,stroke:#00796b,stroke-width:1px,color:#004d40;
+  classDef bpci     fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20;
+  classDef bpi      fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1;
+  classDef hermes   fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef storage  fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100;
+  classDef gov      fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+
+  subgraph Clients["1. Clients & External Systems"]
+    U_WALLET["User Wallet / dApp"]
+    U_ENTERPRISE["Enterprise Backend / IoT"]
+  end
+
+  subgraph EdgeAPI["2. Edge / API & Settlement Layer"]
+    EDGE_GATEWAY["BPCI API Gateway / Ingress"]
+    EDGE_HTTP["HTTPCG Domain Registry / Web2-Web3 Bridge"]
+    EDGE_SETTLE["XTMP Pay / Payment Rails"]
+  end
+
+  %% Client → Edge flows
+  U_WALLET --> EDGE_GATEWAY
+  U_ENTERPRISE --> EDGE_GATEWAY
+  U_ENTERPRISE --> EDGE_SETTLE
+  EDGE_HTTP --> EDGE_GATEWAY
+
+  %% Style assignments for visual layers
+  class U_WALLET,U_ENTERPRISE client;
+  class EDGE_GATEWAY,EDGE_HTTP,EDGE_SETTLE edge;
+
+  %% Step 2: BPCI Consensus, Ledger & Economics
+  subgraph BPCI["3. BPCI Enterprise Layer"]
+    BPCI_CONS["BPCI LCCD Consensus Server"]
+    BPCI_API["Consensus gRPC/HTTP Surface"]
+    BPCI_LEDGER["Cluster Ledger Integration"]
+    BPCI_ECON["BillingMeter & PoE"]
+    BPCI_CUEDB["CUEDB Enterprise Engine & VPods"]
+    BPCI_FF["Enterprise Forensic Firewall"]
+    BPCI_ORACLE["ForensicAuditBridge / Oracle Integration"]
+    BPCI_READY["Pilot Readiness & Real-World Validation"]
+  end
+
+  %% BPCI layer styling
+  class BPCI_CONS,BPCI_API,BPCI_LEDGER,BPCI_ECON,BPCI_CUEDB,BPCI_FF,BPCI_ORACLE,BPCI_READY bpci;
+
+  EDGE_GATEWAY --> BPCI_API
+  BPCI_API --> BPCI_CONS
+  BPCI_CONS --> BPCI_LEDGER
+  EDGE_SETTLE --> BPCI_ECON
+  BPCI_ECON --> BPCI_CUEDB
+
+  %% Step 3: BPCI ↔ BPI Core Consensus & Ledger
+  subgraph BPI["4. BPI Core Consensus & State"]
+    BPI_LCCD["LCCD Cells & Consensus Manager"]
+    BPI_VOKERNEL["VO Kernel Execution Layer"]
+    BPI_LOGBOOK["Logbook / 6D Blockchain State"]
+    BPI_AUDIT["Immutable Audit System & Merkle"]
+    BPI_FORENSIC["Forensic Firewall & Oracle"]
+    BPI_QLOCK["QLock / Quantum Sync Gate"]
+    BPI_4D["4D Database Bridge & ZipLock"]
+  end
+
+  %% BPI core styling
+  class BPI_LCCD,BPI_VOKERNEL,BPI_LOGBOOK,BPI_AUDIT,BPI_FORENSIC,BPI_QLOCK,BPI_4D bpi;
+
+  BPCI_LEDGER --> BPI_LCCD
+  BPI_LCCD --> BPI_VOKERNEL
+  BPI_VOKERNEL --> BPI_LOGBOOK
+  BPI_LOGBOOK --> BPI_AUDIT
+
+  BPCI_ORACLE --> BPI_AUDIT
+  BPCI_FF --> BPCI_ORACLE
+
+  %% Step 4: Mesh / Transport via Hermes & W4-Fluid
+  subgraph Hermes["5. Hermes / Web4 Mesh & Transport"]
+    HERM_NODE["LivingMeshNodes / Web4Address"]
+    HERM_ROUTER["Kappa-Aware Mesh Router"]
+    HERM_W4["W4-Fluid Transport (w, ν, Θ, κ, ρ)"]
+    HERM_QHB["QuantumHeartbeat / Proof-of-Life"]
+  end
+
+  %% Hermes mesh styling
+  class HERM_NODE,HERM_ROUTER,HERM_W4,HERM_QHB hermes;
+
+  %% BPI ↔ Hermes integration
+  BPI_4D --> HERM_ROUTER
+  BPI_VOKERNEL --> HERM_ROUTER
+  HERM_NODE --> HERM_ROUTER
+  HERM_ROUTER --> HERM_W4
+  HERM_W4 --> HERM_NODE
+  HERM_QHB --> HERM_NODE
+
+  %% Hermes routes traffic toward BPI & BPCI
+  HERM_ROUTER --> BPI_LOGBOOK
+  HERM_ROUTER --> BPCI_LEDGER
+
+  %% Step 5: Storage, Evidence & Analytics
+  subgraph Storage["6. Storage, Evidence & Analytics"]
+    ST_IPFS["IPFS++ Content Storage"]
+    ST_ZKL["ZipLock .zkl 4D Bundles"]
+    ST_CUEDB["CUEDB Analytics & Enterprise DB"]
+    ST_BUNDLES["BpiBundle / Forensic Bundles"]
+  end
+
+  %% Storage layer styling
+  class ST_IPFS,ST_ZKL,ST_CUEDB,ST_BUNDLES storage;
+
+  BPI_4D --> ST_ZKL
+  BPI_AUDIT --> ST_IPFS
+  BPCI_CUEDB --> ST_CUEDB
+  BPI_FORENSIC --> ST_BUNDLES
+  BPCI_ORACLE --> ST_BUNDLES
+
+  %% Step 6: Economics, Governance & Readiness Feedback
+  subgraph GovEcon["7. Economics, Governance, Readiness & Observability"]
+    GE_FEE["Economic Fee & Congestion Model"]
+    GE_POE["Proof-of-Economic Activity (PoE)"]
+    GE_GOV["Governance / GeoDID / BISO"]
+    GE_READINESS["LCCD / BPCI Pilot Readiness Score"]
+    OBS_METRICS["Metrics & Telemetry"]
+    OBS_ALERTS["Alerts / SLO Violations"]
+  end
+
+  %% Governance / observability styling
+  class GE_FEE,GE_POE,GE_GOV,GE_READINESS,OBS_METRICS,OBS_ALERTS gov;
+
+  BPCI_ECON --> GE_POE
+  GE_POE --> GE_FEE
+  GE_FEE --> BPI_LCCD
+
+  BPI_AUDIT --> GE_GOV
+  BPCI_READY --> GE_READINESS
+  GE_READINESS --> GE_GOV
+  
+  %% Observability & Security feedback loops (part of Step 7 cluster)
+  BPI_LCCD --> OBS_METRICS
+  BPI_LOGBOOK --> OBS_METRICS
+  BPCI_CONS --> OBS_METRICS
+  HERM_W4 --> OBS_METRICS
+
+  OBS_METRICS --> BPCI_READY
+  OBS_METRICS --> GE_READINESS
+  OBS_ALERTS --> BPCI_FF
+  OBS_ALERTS --> BPI_FORENSIC

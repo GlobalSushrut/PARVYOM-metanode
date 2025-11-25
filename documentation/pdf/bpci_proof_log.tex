@@ -1,0 +1,395 @@
+% BPCI / BPI / Herm�s Proof Log
+% This LaTeX document is a structured proof log for real demos and tests.
+
+% NOTE: The original standalone \documentclass has been commented out so
+% that this file can be included from main_pravyom_report.tex.
+% If you want to compile this file standalone again, uncomment and
+% add \begin{document}/\end{document} wrappers.
+% \documentclass[11pt,a4paper]{report}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{courier}
+\usepackage{listings}
+\usepackage{longtable}
+
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  columns=fullflexible,
+}
+
+% \begin{document}
+% This file is intended to be used as Chapter 2 of a larger thesis/report.
+% If included in a main document, remove the \documentclass line above and
+% the \begin{document}/\end{document} wrapper, and input this file instead.
+
+% Adjust the chapter counter so this becomes Chapter 2 in the final document.
+% Comment out the next line if you want it to be Chapter 1 instead.
+\setcounter{chapter}{1}
+
+\chapter{BPCI / BPI / Herm\`es Proof Log}
+
+\section{Purpose}
+
+This document collects \textbf{real execution logs} and \textbf{demo reports} from the BPCI constellation, BPI\,$\leftrightarrow$\,BPCI lifecycle, and Herms P2P mesh. It is intended as a \emph{proof log} that can be attached to architecture and readiness reports.
+
+Each section includes:
+
+\begin{itemize}
+  \item The exact command(s) used to run the demo or test.
+  \item The path where the report/log file is written (usually under \/tmp).
+  \item A short narrative of what the demo proves.
+  \item A placeholder where the full log/report can be pasted or attached.
+\end{itemize}
+
+\section{Environment Summary}
+
+Fill in the concrete values for the run you are documenting:
+
+\begin{itemize}
+  \item Host OS: Linux (e.g. Ubuntu 22.04), kernel version: \texttt{<uname -r>}.
+  \item Rust toolchain: \texttt{rustc --version}, \texttt{cargo --version}.
+  \item Repository root: \texttt{/home/umesh/metanode}.
+  \item Crates: \texttt{bpi-core}, \texttt{bpci-enterprise} (a.k.a. \texttt{pravyom-enterprise}).
+  \item Build command: \texttt{cargo build -p bpi-core -p bpci-enterprise} (debug profile).
+\end{itemize}
+
+Optionally include the exact command transcript from the build and selected tests in an appendix.
+
+\section{BPCI Constellation 1-Minute Demo}
+
+\subsection{Constellation Setup}
+
+The BPCI constellation consists of:
+
+\begin{itemize}
+  \item Component 1: LCCD Consensus Server (HTTP, port 9001).
+  \item Component 2: BPCI Blockchain Server (HTTP API, port 8082).
+  \item Component 3: BPCI Auction Mempool Server (HTTP, port 9004).
+  \item Component 4: BPCI Auction DB Server (local maintainer, HTTP, port 7002).
+  \item Component 5: BPCI--BPI Bridge (HTTP, port 6001).
+\end{itemize}
+
+\paragraph{Controller binary (layout and commands).}
+From repo root:
+
+\begin{lstlisting}[language=bash]
+cargo run -p pravyom-enterprise --bin bpci_constellation_control
+\end{lstlisting}
+
+\paragraph{Environment bindings used by the demo.}
+
+\begin{lstlisting}[language=bash]
+export DEPLOYMENT_TYPE="BSO-K8 orchestrator"
+export NETWORK_BINDING="0.0.0.0 (external access)"
+export CLUSTER_NAME="bpci-local-dev"
+export NAMESPACE="bpci-enterprise"
+
+export BPCI_CONSENSUS_URL="http://127.0.0.1:9001"
+export BPCI_BLOCKCHAIN_URL="http://127.0.0.1:8082"
+export BPCI_AUCTION_MEMPOOL_URL="http://127.0.0.1:9004"
+export BPCI_AUCTION_DB_URL="http://127.0.0.1:7002"
+\end{lstlisting}
+
+\paragraph{Component startup commands.}
+Each command is typically run in its own terminal.
+
+\begin{lstlisting}[language=bash]
+# Component 1 - LCCD Consensus Server
+cargo run -p pravyom-enterprise --bin bpci-consensus-server \
+  -- --port 9001
+
+# Component 2 - BPCI Blockchain Server
+cargo run -p pravyom-enterprise --bin bpci_blockchain_server \
+  -- --api-port 8082 \
+     --consensus-server-url http://127.0.0.1:9001
+
+# Component 3 - BPCI Auction Mempool Server
+cargo run -p pravyom-enterprise --bin bpci_auction_mempool_server \
+  -- --api-port 9004
+
+# Component 4 - BPCI Auction DB Server (local)
+cargo run -p pravyom-enterprise --bin bpci_auction_db_server
+
+# Component 5 - BPCI-BPI Bridge (HTTP on 6001)
+cargo run -p pravyom-enterprise --bin bpci_bpi_bridge \
+  -- --port 6001
+\end{lstlisting}
+
+\paragraph{Health checks before running the demo.}
+
+\begin{lstlisting}[language=bash]
+curl -i "$BPCI_CONSENSUS_URL/api/v1/health"
+curl -i "$BPCI_BLOCKCHAIN_URL/health"
+
+curl -i "$BPCI_AUCTION_MEMPOOL_URL/auction/submit" \
+  -X POST -H 'Content-Type: application/json' -d '{}'
+
+curl -i "$BPCI_AUCTION_DB_URL/api/v1/auction/record" \
+  -X POST -H 'Content-Type: application/json' \
+  -d '{"tx_id":"test","from_bpi":"bpi","to_bpci":"bpci","amount":1,"record_type":"demo"}'
+\end{lstlisting}
+
+\subsection{Demo Command and Report}
+
+\paragraph{Demo run.}
+
+\begin{lstlisting}[language=bash]
+# From /home/umesh/metanode
+cargo run -p pravyom-enterprise --bin bpci_constellation_demo
+\end{lstlisting}
+
+The demo writes a human-readable report to:
+
+\begin{itemize}
+  \item \texttt{/tmp/bpci_constellation_demo_report.txt}
+\end{itemize}
+
+\paragraph{What this demo proves.}
+
+\begin{itemize}
+  \item Real LCCD consensus health endpoint responds (HTTP 200) during the run.
+  \item LCCD consensus rounds can be started per transaction (\texttt{/api/v1/lccd/consensus/start}).
+  \item Blockchain server accepts and records synthetic transactions via \texttt{/api/v1/transactions}.
+  \item Auction mempool server accepts submissions via \texttt{/auction/submit}.
+  \item Auction DB maintainer records entries via \texttt{/api/v1/auction/record}.
+  \item The per-transaction table shows integrated behaviour across all 4--5 components.
+\end{itemize}
+
+\paragraph{Captured report (paste full contents).}
+
+Paste the full contents of \texttt{/tmp/bpci_constellation_demo_report.txt} below, e.g. using a verbatim or listings environment:
+
+\begin{lstlisting}
+BPCI Constellation 1-Minute Demo Report
+=======================================
+
+Account: bpi-constellation-demo-001
+Initial balance: 200 BPI
+Final balance  : 139 BPI
+Duration (s)   : 16
+Total tx       : 8
+
+idx | amount | fee | total | status | cons_hlth | lccd_started | lccd_status | lccd_round | blockchain | auction | db
+----+--------+-----+-------+--------+-----------+-------------+-------------+------------+-----------+--------+--------
+  0 |      5 |   1 |     6 | accepted | healthy     | yes         | started     | cc55546f-… | submitted | submit… | recorded
+  1 |      6 |   1 |     7 | accepted | healthy     | yes         | started     | 84c1f605-… | submitted | submit… | recorded
+  2 |      7 |   1 |     8 | accepted | healthy     | yes         | started     | 8fc8c34a-… | submitted | submit… | recorded
+  3 |      8 |   1 |     9 | accepted | healthy     | yes         | started     | 05944216-… | submitted | submit… | recorded
+  4 |      9 |   1 |    10 | accepted | healthy     | yes         | started     | 26fec299-… | submitted | submit… | recorded
+  5 |      5 |   1 |     6 | accepted | healthy     | yes         | started     | 9fac74ac-… | submitted | submit… | recorded
+  6 |      6 |   1 |     7 | accepted | healthy     | yes         | started     | 93037102-… | submitted | submit… | recorded
+  7 |      7 |   1 |     8 | accepted | healthy     | yes         | started     | e8dad90a-… | submitted | submit… | recorded
+\end{lstlisting}
+
+\section{BPI \texorpdfstring{$\leftrightarrow$}{<->} BPCI Lifecycle Demo}
+
+\subsection{Command and Report}
+
+\begin{lstlisting}[language=bash]
+# From /home/umesh/metanode
+cargo run -p pravyom-enterprise --bin bpi_bpci_lifecycle_demo
+\end{lstlisting}
+
+Report path:
+
+\begin{itemize}
+  \item \texttt{/tmp/bpi_bpci_lifecycle_demo_report.txt}
+\end{itemize}
+
+\paragraph{What this demo proves.}
+
+\begin{itemize}
+  \item BPI-side accounting of principal + gas fees across a sequence of demo transactions.
+  \item How BPI balances move when BPCI infrastructure is treated as an external service.
+  \item Time-series economic data that can be compared to BPCI-side constellation behaviour.
+\end{itemize}
+
+\paragraph{Captured report (paste full contents).}
+
+\begin{lstlisting}[language=text]
+BPI→BPCI Testnet Lifecycle Mini-Demo Report
+==========================================
+
+1. Overview
+-----------
+Account address    : bpi-testnet-user-001
+Plan name          : Testnet
+Plan monthly cost  : 10.00 CAD
+Monthly allocation : 1000 BPI
+Free allocation    : 200 BPI
+Gas fee percentage : 0.500%
+Start time (UTC)   : 2025-11-25T20:03:05.532955122+00:00
+End time (UTC)     : 2025-11-25T20:03:05.533060608+00:00
+Duration (seconds) : 0
+Total tx attempted : 20
+Tx accepted        : 20
+Tx rejected        : 0
+
+2. Account Lifecycle Summary
+----------------------------
+Initial free balance : 200 BPI
+Final balance        : 40 BPI
+Total principal sent : 140 BPI
+Total gas fees       : 20 BPI
+Total usage          : 160 BPI
+
+3. BPI Bundle Flow Timeline (offline-simulated)
+-----------------------------------------------
+idx | timestamp                  | amount | fee | total | bal_before | bal_after | status                         | bundle_id
+----+----------------------------+--------+-----+-------+-----------+-----------+------------------------------+----------
+  0 | 2025-11-25T20:03:05Z |      5 |   1 |     6 |       200 |       194 | accepted                     | bundle_1
+  1 | 2025-11-25T20:03:05Z |      6 |   1 |     7 |       194 |       187 | accepted                     | bundle_1
+  2 | 2025-11-25T20:03:05Z |      7 |   1 |     8 |       187 |       179 | accepted                     | bundle_1
+  3 | 2025-11-25T20:03:05Z |      8 |   1 |     9 |       179 |       170 | accepted                     | bundle_1
+  4 | 2025-11-25T20:03:05Z |      9 |   1 |    10 |       170 |       160 | accepted                     | bundle_1
+  5 | 2025-11-25T20:03:05Z |      5 |   1 |     6 |       160 |       154 | accepted                     | bundle_2
+  6 | 2025-11-25T20:03:05Z |      6 |   1 |     7 |       154 |       147 | accepted                     | bundle_2
+  7 | 2025-11-25T20:03:05Z |      7 |   1 |     8 |       147 |       139 | accepted                     | bundle_2
+  8 | 2025-11-25T20:03:05Z |      8 |   1 |     9 |       139 |       130 | accepted                     | bundle_2
+  9 | 2025-11-25T20:03:05Z |      9 |   1 |    10 |       130 |       120 | accepted                     | bundle_2
+ 10 | 2025-11-25T20:03:05Z |      5 |   1 |     6 |       120 |       114 | accepted                     | bundle_3
+ 11 | 2025-11-25T20:03:05Z |      6 |   1 |     7 |       114 |       107 | accepted                     | bundle_3
+ 12 | 2025-11-25T20:03:05Z |      7 |   1 |     8 |       107 |        99 | accepted                     | bundle_3
+ 13 | 2025-11-25T20:03:05Z |      8 |   1 |     9 |        99 |        90 | accepted                     | bundle_3
+ 14 | 2025-11-25T20:03:05Z |      9 |   1 |    10 |        90 |        80 | accepted                     | bundle_3
+ 15 | 2025-11-25T20:03:05Z |      5 |   1 |     6 |        80 |        74 | accepted                     | bundle_4
+ 16 | 2025-11-25T20:03:05Z |      6 |   1 |     7 |        74 |        67 | accepted                     | bundle_4
+ 17 | 2025-11-25T20:03:05Z |      7 |   1 |     8 |        67 |        59 | accepted                     | bundle_4
+ 18 | 2025-11-25T20:03:05Z |      8 |   1 |     9 |        59 |        50 | accepted                     | bundle_4
+ 19 | 2025-11-25T20:03:05Z |      9 |   1 |    10 |        50 |        40 | accepted                     | bundle_4
+
+4. Bundle & Auction Summary (Conceptual)
+----------------------------------------
+Total bundles formed : 4
+- bundle_1 → tx_count=5 principal=35 gas_fees=5
+- bundle_2 → tx_count=5 principal=35 gas_fees=5
+- bundle_3 → tx_count=5 principal=35 gas_fees=5
+- bundle_4 → tx_count=5 principal=35 gas_fees=5
+
+5. Component Lifecycle (Conceptual)
+-----------------------------------
+- Component 1 (Consensus): In this offline demo, consensus readiness is assumed. In production,
+  the bridge would call the consensus health endpoint before processing a bundle.
+- Component 2 (Blockchain): Transaction submissions and fee accounting would be recorded via HTTP.
+  Here we simulate only the accounting side (principal + gas fee debits).
+- Component 3 (Auction Mempool): In production, each tx becomes a candidate in the auction mempool.
+  This demo models the BPI-side bundle economics without a real mempool.
+- Component 4 (Auction DB): Persistent records would be written via the DB maintainer. Here we
+  capture a time-series table instead, suitable for testnet analysis.
+
+5. Observations
+----------------
+- This demo is fully in-memory and offline; it does not contact any external servers.
+- Gas fee calculation matches the bridge testnet plan: 0.500% with a minimum 1 BPI per tx.
+- The report shows the full BPI token lifecycle for a single testnet account: from free allocation,
+  through multiple bundle-like sends, to final remaining balance and total usage.
+- It is designed to be laptop-safe and quick to run, ideal for reviewers and testnet tuning.
+\end{lstlisting}
+
+\section{Hermes-Lite Web-4 Mesh Demo}
+
+\subsection{Command and Report}
+
+\begin{lstlisting}[language=bash]
+# From /home/umesh/metanode
+cargo run -p pravyom-enterprise --bin hermes_mesh_demo
+\end{lstlisting}
+
+Report path:
+
+\begin{itemize}
+  \item \texttt{/tmp/hermes_mesh_demo_report.txt}
+\end{itemize}
+
+\paragraph{What this demo proves.}
+
+\begin{itemize}
+  \item Hermes-Lite mesh can be instantiated in-memory on a laptop.
+  \item Consensus rounds propagate through a small 3-node mesh (local + 2 bootstrap nodes).
+  \item Mesh health ratio, kappa metrics, and throughput evolve over time.
+  \item A single cellular division event is exercised mid-run.
+\end{itemize}
+
+\paragraph{Captured report (paste full contents).}
+
+\begin{lstlisting}[language=text]
+% --- BEGIN hermes_mesh_demo_report.txt ---
+% (paste the entire report here)
+% --- END hermes_mesh_demo_report.txt ---
+\end{lstlisting}
+
+\section{Hermes P2P Decentralization Phase Simulation}
+
+\subsection{Command and Report}
+
+\begin{lstlisting}[language=bash]
+# From /home/umesh/metanode
+cargo run -p pravyom-enterprise --bin hermes_decentralization_demo
+\end{lstlisting}
+
+Report path:
+
+\begin{itemize}
+  \item \texttt{/tmp/hermes_decentralization_demo_report.txt}
+\end{itemize}
+
+\paragraph{What this demo proves.}
+
+\begin{itemize}
+  \item How BPI OS (BPIOS) nodes are gradually attached to the Hermes mesh over time.
+  \item How multiple cellular division events increase the number of consensus "cells" in the mesh.
+  \item How the system transitions through phases:
+    \begin{itemize}
+      \item Centralized Constellation
+      \item NodeConnectionSync (Hermes P2P forming)
+      \item MeshEvolution (decentralization in progress)
+      \item AutonomousMesh (full decentralization)
+    \end{itemize}
+  \item At which round / node count the AutonomousMesh threshold (nodes, health ratio, divisions) is reached, if at all.
+\end{itemize}
+
+\paragraph{Captured report (paste full contents).}
+
+\begin{lstlisting}[language=text]
+% --- BEGIN hermes_decentralization_demo_report.txt ---
+% (paste the entire report here)
+% --- END hermes_decentralization_demo_report.txt ---
+\end{lstlisting}
+
+\section{Additional Tests and Logs}
+
+Use this section to add any further tests from the BPCI-side test plan (e.g. cluster ledger, readiness, security, or economics tests). For each test or suite, follow the same pattern:
+
+\begin{enumerate}
+  \item Document the exact command(s) used.
+  \item State clearly what behaviour or property the test demonstrates.
+  \item Paste the key parts of the log or point to an attached file.
+\end{enumerate}
+
+\subsection{Example Placeholder}
+
+\paragraph{Command.}
+
+\begin{lstlisting}[language=bash]
+# Example placeholder for a future test
+# cargo run -p pravyom-enterprise --bin <binary> -- <flags>
+\end{lstlisting}
+
+\paragraph{What this test proves.}
+
+\begin{itemize}
+  \item Describe the invariant or readiness property being exercised.
+\end{itemize}
+
+\paragraph{Captured log or report.}
+
+\begin{lstlisting}[language=text]
+% --- BEGIN example_log.txt ---
+% (paste log excerpt here)
+% --- END example_log.txt ---
+\end{lstlisting}
+
+% \end{document}

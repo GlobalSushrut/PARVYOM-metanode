@@ -1,9 +1,11 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use serde::{Deserialize, Serialize};
+use crate::cbor_pipeline_foundation::CborSerializable;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use anyhow::Result;
+use anyhow::{Result, anyhow};
+use blake3;
 use axum::{
     extract::{State, Json},
     http::{StatusCode, HeaderMap},
@@ -14,8 +16,9 @@ use axum::{
 use tower_http::cors::CorsLayer;
 
 use crate::forensic_firewall::audit_bridge::{
-    ForensicAuditBridge, ForensicEventType, ForensicSeverity, ForensicEvidence, EvidenceType
+    ForensicAuditBridge, ForensicEvidence, EvidenceType
 };
+use crate::forensic_firewall::shared_types::{ForensicEventType, ForensicSeverity};
 use crate::immutable_audit_system::{ComponentType, ImmutableAuditSystem};
 use crate::forensic_firewall::cue_engine::CueRuleEngine;
 
@@ -28,7 +31,7 @@ pub struct BpiAuditHttpServer {
 }
 
 /// Audit server statistics
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct AuditServerStats {
     pub total_audits_received: u64,
     pub total_audits_processed: u64,
@@ -40,7 +43,7 @@ pub struct AuditServerStats {
 }
 
 /// ZipLock JSON audit format (from JS client)
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ZipLockJsonAudit {
     pub payload: serde_json::Value,
     pub integrity: serde_json::Value,
@@ -48,8 +51,155 @@ pub struct ZipLockJsonAudit {
     pub metadata: serde_json::Value,
 }
 
+fn ziplock_node_context() -> (String, String) {
+    let node_id = std::env::var("BPI_NODE_ID").unwrap_or_else(|_| "unknown".to_string());
+    let profile = std::env::var("BPI_ENV").unwrap_or_else(|_| "unknown".to_string());
+    (node_id, profile)
+}
+
+fn new_trace_id() -> String {
+    Uuid::new_v4().to_string()
+}
+
+fn compute_ziplock_signature(payload: &serde_json::Value, content_hash: &str) -> String {
+    let key = std::env::var("BPI_ZIPLOCK_HMAC_KEY").unwrap_or_else(|_| "dev_default_ziplock_key".to_string());
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(key.as_bytes());
+    if let Ok(bytes) = serde_json::to_vec(payload) {
+        hasher.update(&bytes);
+    }
+    hasher.update(content_hash.as_bytes());
+    hasher.finalize().to_hex().to_string()
+}
+
+/// Helper to construct a canonical ZipLockJsonAudit for VM HTTP requests.
+/// This centralizes the event shape so VM/DockLock/network components can
+/// emit consistent ZipLock records.
+pub fn make_vm_ziplock_audit(
+    request_id: &str,
+    method: &str,
+    path: &str,
+    enc_lock_enabled: bool,
+    remote_addr: &str,
+    raw_request: &str,
+) -> ZipLockJsonAudit {
+    let content_hash = blake3::hash(raw_request.as_bytes()).to_hex().to_string();
+    let (node_id, profile) = ziplock_node_context();
+    let trace_id = new_trace_id();
+
+    let payload = serde_json::json!({
+        "vm_request_id": request_id,
+        "method": method,
+        "path": path,
+        "enc_lock_enabled": enc_lock_enabled,
+        "remote_addr": remote_addr,
+        "timestamp": Utc::now().to_rfc3339(),
+        "nx_lane": "nx_vm_lane",
+    });
+    let signature_value = compute_ziplock_signature(&payload, &content_hash);
+
+    ZipLockJsonAudit {
+        payload,
+        integrity: serde_json::json!({
+            "content_hash": content_hash,
+        }),
+        signature: serde_json::json!({
+            "signature": signature_value,
+            "component": "VmServer",
+        }),
+        metadata: serde_json::json!({
+            "vm_type": "Server",
+            "node_id": node_id,
+            "profile": profile,
+            "trace_id": trace_id,
+        }),
+    }
+}
+
+/// Helper to construct a canonical ZipLockJsonAudit for ZKLock HTTP
+/// connections.
+pub fn make_zklock_ziplock_audit(
+    request_id: &str,
+    method: &str,
+    path: &str,
+    remote_addr: &str,
+    raw_request: &str,
+) -> ZipLockJsonAudit {
+    let content_hash = blake3::hash(raw_request.as_bytes()).to_hex().to_string();
+    let (node_id, profile) = ziplock_node_context();
+    let trace_id = new_trace_id();
+
+    let payload = serde_json::json!({
+        "zklock_request_id": request_id,
+        "method": method,
+        "path": path,
+        "remote_addr": remote_addr,
+        "timestamp": Utc::now().to_rfc3339(),
+        "nx_lane": "nx_zklock_lane",
+    });
+    let signature_value = compute_ziplock_signature(&payload, &content_hash);
+
+    ZipLockJsonAudit {
+        payload,
+        integrity: serde_json::json!({
+            "content_hash": content_hash,
+        }),
+        signature: serde_json::json!({
+            "signature": signature_value,
+            "component": "ZkLockServer",
+        }),
+        metadata: serde_json::json!({
+            "vm_type": "ZKLock",
+            "node_id": node_id,
+            "profile": profile,
+            "trace_id": trace_id,
+        }),
+    }
+}
+
+/// Helper to construct a canonical ZipLockJsonAudit for Shadow Registry HTTP
+/// connections.
+pub fn make_shadow_ziplock_audit(
+    request_id: &str,
+    method: &str,
+    path: &str,
+    remote_addr: &str,
+    raw_request: &str,
+) -> ZipLockJsonAudit {
+    let content_hash = blake3::hash(raw_request.as_bytes()).to_hex().to_string();
+    let (node_id, profile) = ziplock_node_context();
+    let trace_id = new_trace_id();
+
+    let payload = serde_json::json!({
+        "shadow_request_id": request_id,
+        "method": method,
+        "path": path,
+        "remote_addr": remote_addr,
+        "timestamp": Utc::now().to_rfc3339(),
+        "nx_lane": "nx_shadow_lane",
+    });
+    let signature_value = compute_ziplock_signature(&payload, &content_hash);
+
+    ZipLockJsonAudit {
+        payload,
+        integrity: serde_json::json!({
+            "content_hash": content_hash,
+        }),
+        signature: serde_json::json!({
+            "signature": signature_value,
+            "component": "ShadowRegistryServer",
+        }),
+        metadata: serde_json::json!({
+            "vm_type": "ShadowRegistry",
+            "node_id": node_id,
+            "profile": profile,
+            "trace_id": trace_id,
+        }),
+    }
+}
+
 /// Audit submission response
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AuditSubmissionResponse {
     pub success: bool,
     pub audit_id: String,
@@ -59,12 +209,17 @@ pub struct AuditSubmissionResponse {
 }
 
 /// API response wrapper
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ApiResponse<T> {
     pub success: bool,
     pub data: Option<T>,
     pub error: Option<String>,
 }
+
+// CBOR Serializable implementations for audit structs
+impl CborSerializable for AuditServerStats {}
+impl CborSerializable for ZipLockJsonAudit {}
+impl CborSerializable for AuditSubmissionResponse {}
 
 impl BpiAuditHttpServer {
     /// Create new BPI audit HTTP server
@@ -114,6 +269,11 @@ impl BpiAuditHttpServer {
             let mut stats = self.stats.write().await;
             stats.total_audits_received += 1;
         }
+
+        // Basic validation and hardening for incoming ZipLock JSON audits to
+        // guard against malformed or excessively large payloads before they
+        // enter the forensic pipeline.
+        validate_ziplock_audit(&audit)?;
         
         // Create forensic evidence from audit
         let evidence = self.create_forensic_evidence(&audit).await?;
@@ -250,6 +410,63 @@ impl BpiAuditHttpServer {
         }
         
         Ok(false)
+    }
+}
+
+/// Validate a ZipLock JSON audit payload before it enters the forensic and
+/// ledger pipelines. This enforces basic structural requirements, size
+/// bounds, and CBOR canonical round-trip safety.
+fn validate_ziplock_audit(audit: &ZipLockJsonAudit) -> Result<()> {
+    // Guard against unbounded payloads from clients. This limit is generous
+    // for typical audit records but protects the pipeline from abuse.
+    const MAX_ZIPLOCK_AUDIT_BYTES: usize = 256 * 1024; // 256 KiB
+
+    let serialized = serde_json::to_vec(audit)?;
+    if serialized.len() > MAX_ZIPLOCK_AUDIT_BYTES {
+        return Err(anyhow!(
+            "ZipLock JSON audit is too large ({} bytes > {} bytes)",
+            serialized.len(),
+            MAX_ZIPLOCK_AUDIT_BYTES,
+        ));
+    }
+
+    if !audit.payload.is_object() {
+        return Err(anyhow!("ZipLock JSON audit payload must be a JSON object"));
+    }
+
+    if audit
+        .integrity
+        .get("content_hash")
+        .and_then(|h| h.as_str())
+        .is_none()
+    {
+        return Err(anyhow!(
+            "ZipLock JSON audit integrity.content_hash must be present and a string",
+        ));
+    }
+
+    if audit
+        .signature
+        .get("signature")
+        .and_then(|s| s.as_str())
+        .is_none()
+    {
+        return Err(anyhow!(
+            "ZipLock JSON audit signature.signature must be present and a string",
+        ));
+    }
+
+    // Optional but helpful: ensure the audit can be losslessly round-tripped
+    // through the CBOR canonical pipeline used across the system.
+    match audit.validate_cbor() {
+        Ok(true) => Ok(()),
+        Ok(false) => Err(anyhow!(
+            "ZipLock JSON audit failed CBOR canonical validation",
+        )),
+        Err(e) => Err(anyhow!(
+            "ZipLock JSON audit CBOR canonical validation error: {}",
+            e
+        )),
     }
 }
 

@@ -11,7 +11,7 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use tokio::process::Command;
 use chrono::{DateTime, Utc};
-use tracing::{info, warn, error};
+use tracing::{info, warn};
 
 use crate::bso_k8_orchestrator::BsoK8Orchestrator;
 

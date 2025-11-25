@@ -48,6 +48,141 @@ pub struct TokenPricingPlan {
     pub gas_fee_percentage: f64,
 }
 
+#[tokio::main]
+async fn main() -> Result<()> {
+    tracing_subscriber::fmt::init();
+
+    info!("🔥 Starting BPCI-BPI Bridge Server (Component 5)");
+    info!("💰 Token Pricing: 10 CAD/month testnet with pilot account support");
+    info!("🌐 Pure Virtual Mode: NO static ports!");
+    info!("🎯 Features: Address Pool, CBOR WebSocket, Registry Tokens, Transaction Routing");
+
+    // 🚀 ENHANCED: Initialize unified infrastructure integrations with Pure Virtual Mode
+    info!("🔗 Initializing unified infrastructure integrations for Component 5 (Pure Virtual Mode)...");
+
+    // 1. Initialize Pure Virtual Addressing (NO STATIC PORTS!)
+    info!("🌐 Initializing Pure Virtual Addressing Mode...");
+    let virtual_config = VirtualAddressingConfig::pure_virtual("bridge");
+    let virtual_mgr = VirtualAddressingManager::new(virtual_config);
+    info!("✅ Virtual addressing initialized - NO static ports!");
+    info!("   Service name: {}", virtual_mgr.service_name());
+    info!("   IAAv6: {}", virtual_mgr.virtual_address().iaav6);
+
+    // 2. Initialize CommuteLock Runtime
+    let parser = EnvIniParser::new("config");
+    let env_config = match parser.parse_env_ini() {
+        Ok(config) => config,
+        Err(e) => {
+            warn!("⚠️ Could not load env.ini: {}, creating minimal config", e);
+            use std::collections::HashMap;
+            use pravyom_enterprise::config::env_ini_parser::EnvIniConfig;
+            EnvIniConfig {
+                sections: HashMap::new(),
+                globals: HashMap::new(),
+                vpod_env: None,
+                bso_k8_config: None,
+                commute_lock_config: None,
+            }
+        }
+    };
+    let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+    info!("✅ CommuteLock runtime initialized");
+
+    // 3. Initialize UnifiedNetworkingLayer (Pure Virtual - Dynamic Port!)
+    let networking = Arc::new(
+        UnifiedNetworkingLayer::new_virtual(commute_runtime).await?
+    );
+    info!("✅ UnifiedNetworkingLayer initialized (Pure Virtual Mode)");
+    info!("   Dynamic port assigned: {}", networking.local_addr().port());
+    info!("   NO static port configuration required!");
+
+    // 4. Register service in discovery (by name only!)
+    networking.register_service(
+        virtual_mgr.service_name(),
+        vec![networking.local_addr()],
+    ).await;
+    info!("✅ Service registered: '{}' → {}", virtual_mgr.service_name(), networking.local_addr());
+
+    // 5. Initialize Component Communication Hub
+    let communication_hub = Arc::new(ComponentCommunicationHub::new()?);
+    let _component_receiver = communication_hub.register_component(
+        ComponentType::BpiBridge,
+        "bpci-bpi-bridge-server".to_string(),
+        "0.0.0.0".to_string(),
+        networking.local_addr().port(),
+    ).await?;
+    info!("✅ Component Communication Hub initialized for Component 5");
+
+    // 6. Initialize Kernel Bridge for BPI-BPCI integration
+    let kernel_bridge = Arc::new(BlockchainOSKernelBridge::new().await?);
+    match kernel_bridge.connect().await {
+        Ok(_) => info!("✅ Kernel Bridge connected to BPI Core for Component 5"),
+        Err(e) => warn!("⚠️ Kernel Bridge connection failed (will retry): {}", e),
+    }
+
+    info!("✅ Resource Coordinator integration ready for Component 5");
+
+    // 4. Wait for Components 1-3 in background task (non-blocking)
+    let communication_hub_bg = communication_hub.clone();
+    tokio::spawn(async move {
+        info!("🔄 Background task: Waiting for Components 1-3 to be ready...");
+        let components = vec![
+            (ComponentType::Consensus, "Component 1 (Consensus)"),
+            (ComponentType::Blockchain, "Component 2 (Blockchain)"),
+            (ComponentType::AuctionMempool, "Component 3 (Auction Mempool)"),
+        ];
+
+        for (component_type, component_name) in components {
+            let mut component_ready = false;
+            let mut retry_count = 0;
+            const MAX_RETRIES: u32 = 30; // Wait up to 2.5 minutes per component
+
+            while !component_ready && retry_count < MAX_RETRIES {
+                match communication_hub_bg.send_to_component(
+                    component_type.clone(),
+                    InterComponentMessage::ComponentHealthUpdate {
+                        component: ComponentType::BpiBridge,
+                        status: pravyom_enterprise::inter_component_communication::HealthStatus::Healthy,
+                    },
+                    ComponentType::BpiBridge,
+                ).await {
+                    Ok(_) => {
+                        info!("✅ Background: Successfully connected to {}", component_name);
+                        component_ready = true;
+                    }
+                    Err(e) => {
+                        retry_count += 1;
+                        warn!("⚠️ Background: {} not ready yet (attempt {}/{}): {}", component_name, retry_count, MAX_RETRIES, e);
+                        if retry_count < MAX_RETRIES {
+                            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                        }
+                    }
+                }
+            }
+
+            if !component_ready {
+                warn!("⚠️ Background: {} not available after {} attempts", component_name, MAX_RETRIES);
+            }
+        }
+
+        info!("✅ Background: Component dependency check completed for Component 4");
+    });
+
+    // Create Bridge with Pure Virtual Mode networking
+    let bridge = BpciBpiBridge::new(networking.clone());
+
+    // Skip account creation during startup to avoid hanging
+    info!("⚡ Skipping account creation during startup for faster boot");
+    info!("📝 Accounts will be created on-demand via API endpoints");
+    info!("✅ Unified infrastructure integrations completed for Component 4");
+    info!("🚀 Starting BPCI-BPI Bridge operations with unified infrastructure...");
+
+    // Start HTTP server with Arc wrapper
+    let bridge_arc = Arc::new(bridge);
+    bridge_arc.start_http_server(6001).await?;
+
+    Ok(())
+}
 /// User Account with Enhanced Token Management
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BridgeUserAccount {
@@ -1158,138 +1293,228 @@ impl CborWebSocketProcessor {
     }
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    tracing_subscriber::fmt::init();
-    
-    info!("🔥 Starting BPCI-BPI Bridge Server (Component 5)");
-    info!("💰 Token Pricing: 10 CAD/month testnet with pilot account support");
-    info!("🌐 Pure Virtual Mode: NO static ports!");
-    info!("🎯 Features: Address Pool, CBOR WebSocket, Registry Tokens, Transaction Routing");
-    
-    // 🚀 ENHANCED: Initialize unified infrastructure integrations with Pure Virtual Mode
-    info!("🔗 Initializing unified infrastructure integrations for Component 5 (Pure Virtual Mode)...");
-    
-    // 1. Initialize Pure Virtual Addressing (NO STATIC PORTS!)
-    info!("🌐 Initializing Pure Virtual Addressing Mode...");
-    let virtual_config = VirtualAddressingConfig::pure_virtual("bridge");
-    let virtual_mgr = VirtualAddressingManager::new(virtual_config);
-    info!("✅ Virtual addressing initialized - NO static ports!");
-    info!("   Service name: {}", virtual_mgr.service_name());
-    info!("   IAAv6: {}", virtual_mgr.virtual_address().iaav6);
-    
-    // 2. Initialize CommuteLock Runtime
-    let parser = EnvIniParser::new("config");
-    let env_config = match parser.parse_env_ini() {
-        Ok(config) => config,
-        Err(e) => {
-            warn!("⚠️ Could not load env.ini: {}, creating minimal config", e);
-            use std::collections::HashMap;
-            use pravyom_enterprise::config::env_ini_parser::EnvIniConfig;
-            EnvIniConfig {
-                sections: HashMap::new(),
-                globals: HashMap::new(),
-                vpod_env: None,
-                bso_k8_config: None,
-                commute_lock_config: None,
-            }
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pravyom_enterprise::config::env_ini_parser::{
+        EnvIniConfig,
+        CommuteLockConfig,
+        CommunicationMode,
+        BpiDataConfig,
+        LockSettings,
+        EventSettings,
+        PerformanceSettings,
     };
-    let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
-    info!("✅ CommuteLock runtime initialized");
-    
-    // 3. Initialize UnifiedNetworkingLayer (Pure Virtual - Dynamic Port!)
-    let networking = Arc::new(
-        UnifiedNetworkingLayer::new_virtual(commute_runtime).await?
-    );
-    info!("✅ UnifiedNetworkingLayer initialized (Pure Virtual Mode)");
-    info!("   Dynamic port assigned: {}", networking.local_addr().port());
-    info!("   NO static port configuration required!");
-    
-    // 4. Register service in discovery (by name only!)
-    networking.register_service(
-        virtual_mgr.service_name(),
-        vec![networking.local_addr()],
-    ).await;
-    info!("✅ Service registered: '{}' → {}", virtual_mgr.service_name(), networking.local_addr());
-    
-    // 5. Initialize Component Communication Hub
-    let communication_hub = Arc::new(ComponentCommunicationHub::new()?);
-    let _component_receiver = communication_hub.register_component(
-        ComponentType::BpiBridge,
-        "bpci-bpi-bridge-server".to_string(),
-        "0.0.0.0".to_string(),
-        networking.local_addr().port(),
-    ).await?;
-    info!("✅ Component Communication Hub initialized for Component 5");
-    
-    // 6. Initialize Kernel Bridge for BPI-BPCI integration
-    let kernel_bridge = Arc::new(BlockchainOSKernelBridge::new().await?);
-    match kernel_bridge.connect().await {
-        Ok(_) => info!("✅ Kernel Bridge connected to BPI Core for Component 5"),
-        Err(e) => warn!("⚠️ Kernel Bridge connection failed (will retry): {}", e),
-    }
-    
-    info!("✅ Resource Coordinator integration ready for Component 5");
-    
-    // 4. Wait for Components 1-3 in background task (non-blocking)
-    let communication_hub_bg = communication_hub.clone();
-    tokio::spawn(async move {
-        info!("🔄 Background task: Waiting for Components 1-3 to be ready...");
-        let components = vec![
-            (ComponentType::Consensus, "Component 1 (Consensus)"),
-            (ComponentType::Blockchain, "Component 2 (Blockchain)"),
-            (ComponentType::AuctionMempool, "Component 3 (Auction Mempool)"),
-        ];
-        
-        for (component_type, component_name) in components {
-            let mut component_ready = false;
-            let mut retry_count = 0;
-            const MAX_RETRIES: u32 = 30; // Wait up to 2.5 minutes per component
-            
-            while !component_ready && retry_count < MAX_RETRIES {
-                match communication_hub_bg.send_to_component(
-                    component_type.clone(),
-                    InterComponentMessage::ComponentHealthUpdate {
-                        component: ComponentType::BpiBridge,
-                        status: pravyom_enterprise::inter_component_communication::HealthStatus::Healthy,
-                    },
-                    ComponentType::BpiBridge,
-                ).await {
-                    Ok(_) => {
-                        info!("✅ Background: Successfully connected to {}", component_name);
-                        component_ready = true;
-                    }
-                    Err(e) => {
-                        retry_count += 1;
-                        warn!("⚠️ Background: {} not ready yet (attempt {}/{}): {}", component_name, retry_count, MAX_RETRIES, e);
-                        if retry_count < MAX_RETRIES {
-                            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                        }
-                    }
-                }
-            }
-            
-            if !component_ready {
-                warn!("⚠️ Background: {} not available after {} attempts", component_name, MAX_RETRIES);
-            }
+    use std::collections::HashMap;
+    use std::path::PathBuf;
+
+    fn make_minimal_env_config(tmp_base: &str) -> EnvIniConfig {
+        let lock_dir = PathBuf::from(format!("{}/commute_lock/locks", tmp_base));
+        let shm_dir = PathBuf::from(format!("{}/commute_lock/shm", tmp_base));
+        let event_dir = PathBuf::from(format!("{}/commute_lock/events", tmp_base));
+
+        let mut component_shm_sizes = HashMap::new();
+        component_shm_sizes.insert("bpi_bridge".to_string(), 8u64); // 8 MB
+
+        let commute_lock_config = CommuteLockConfig {
+            enabled: true,
+            communication_mode: CommunicationMode::SharedMemory,
+            lock_dir,
+            shm_dir,
+            event_dir,
+            component_shm_sizes,
+            bpi_data_config: BpiDataConfig::default(),
+            lock_settings: LockSettings::default(),
+            event_settings: EventSettings::default(),
+            performance: PerformanceSettings::default(),
+        };
+
+        EnvIniConfig {
+            sections: HashMap::new(),
+            globals: HashMap::new(),
+            vpod_env: None,
+            bso_k8_config: None,
+            commute_lock_config: Some(commute_lock_config),
         }
-        
-        info!("✅ Background: Component dependency check completed for Component 4");
-    });
-    
-    // Create Bridge with Pure Virtual Mode networking
-    let bridge = BpciBpiBridge::new(networking.clone());
-    
-    // Skip account creation during startup to avoid hanging
-    info!("⚡ Skipping account creation during startup for faster boot");
-    info!("📝 Accounts will be created on-demand via API endpoints");
-    info!("✅ Unified infrastructure integrations completed for Component 4");
-    info!("🚀 Starting BPCI-BPI Bridge operations with unified infrastructure...");
-    
-    // Start HTTP server with Arc wrapper
-    let bridge_arc = Arc::new(bridge);
-    bridge_arc.start_http_server(6001).await?;
-    
-    Ok(())
+    }
+
+    /// LINK-01 style test: simulate a BPI node registering with the BPCI bridge
+    /// and ensure the internal mapping bpi_node_id -> bpci_cluster_node_id is
+    /// stored in the RegistryTokenManager.
+    #[tokio::test]
+    async fn test_bpi_node_registers_with_bridge_registry() {
+        // Minimal in-memory env config under /tmp
+        let env_config = make_minimal_env_config("/tmp/pravyom_bridge_tests");
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+
+        // Pure-virtual networking layer (no static ports)
+        let networking = Arc::new(
+            UnifiedNetworkingLayer::new_virtual(commute_runtime)
+                .await
+                .expect("unified networking"),
+        );
+
+        // Bridge with pure-virtual networking
+        let bridge = BpciBpiBridge::new(networking.clone());
+
+        // Simulate a BPI node announcing itself and being assigned to a BPCI cluster node
+        let bpi_node_id = "bpi-node-test-001".to_string();
+        let bpci_cluster_node_id = "bpci-cluster-node-42".to_string();
+
+        {
+            let mut mappings = bridge
+                .registry_manager
+                .bpi_bpci_mappings
+                .write()
+                .await;
+            mappings.insert(bpi_node_id.clone(), bpci_cluster_node_id.clone());
+        }
+
+        let mappings = bridge
+            .registry_manager
+            .bpi_bpci_mappings
+            .read()
+            .await;
+
+        println!(
+            "[bridge:LINK-01] mappings_count={} sample_mapping={{bpi_node_id: {}, bpci_cluster_node_id: {}}}",
+            mappings.len(),
+            bpi_node_id,
+            mappings.get(&bpi_node_id).cloned().unwrap_or_else(|| "<missing>".to_string()),
+        );
+
+        assert_eq!(mappings.get(&bpi_node_id), Some(&bpci_cluster_node_id));
+    }
+
+    /// LINK-07 style test: aggregate a component health snapshot via the bridge.
+    /// This calls `check_all_components_status` with localhost endpoints so it
+    /// remains self-contained even if real servers are not running.
+    #[tokio::test]
+    async fn test_bridge_aggregates_component_health_snapshot() {
+        // Minimal in-memory env config under /tmp
+        let env_config = make_minimal_env_config("/tmp/pravyom_bridge_health_tests");
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+
+        // Pure-virtual networking layer (no static ports)
+        let networking = Arc::new(
+            UnifiedNetworkingLayer::new_virtual(commute_runtime)
+                .await
+                .expect("unified networking"),
+        );
+
+        let mut bridge = BpciBpiBridge::new(networking.clone());
+
+        // Point all component endpoints at localhost; they may be down, but
+        // `check_all_components_status` will still produce a structured snapshot.
+        bridge.consensus_endpoint = "http://127.0.0.1:19001".to_string();
+        bridge.blockchain_endpoint = "http://127.0.0.1:19002".to_string();
+        bridge.auction_endpoint = "http://127.0.0.1:19003".to_string();
+
+        let status = bridge.check_all_components_status().await;
+
+        println!(
+            "[bridge:LINK-07] components={} keys={:?}",
+            status.len(),
+            status.keys().collect::<Vec<_>>(),
+        );
+
+        assert_eq!(status.len(), 4);
+        assert!(status.contains_key("component_1_consensus"));
+        assert!(status.contains_key("component_2_blockchain"));
+        assert!(status.contains_key("component_3_auction_mempool"));
+        assert!(status.contains_key("component_4_auction_db"));
+    }
+
+    /// LINK-04 style test (internal): simulate a minimal payment flow from BPI to
+    /// BPCI by creating a user account, computing gas, debiting balances, and
+    /// buffering a CBOR transaction, without depending on external HTTP services.
+    #[tokio::test]
+    async fn test_internal_payment_flow_updates_account_and_cbor_buffer() {
+        // Minimal in-memory env config under /tmp
+        let env_config = make_minimal_env_config("/tmp/pravyom_bridge_payments");
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config).unwrap());
+
+        // Pure-virtual networking layer (no static ports)
+        let networking = Arc::new(
+            UnifiedNetworkingLayer::new_virtual(commute_runtime)
+                .await
+                .expect("unified networking"),
+        );
+
+        let bridge = BpciBpiBridge::new(networking.clone());
+
+        // 1) Create a testnet user account (uses pricing plan + free allocation)
+        let bpi_addr = "bpi-test-user-001".to_string();
+        let account = bridge
+            .create_user_account(bpi_addr.clone(), AccountType::Testnet)
+            .await
+            .expect("create_user_account");
+
+        let initial_balance = account.available_balance;
+        let initial_monthly_usage = account.monthly_usage;
+
+        // 2) Compute gas fee for a small payment amount using same logic as bridge
+        let amount: u64 = 10;
+        let gas_fee = bridge
+            .calculate_gas_fee(&bpi_addr, amount)
+            .await
+            .expect("calculate_gas_fee");
+
+        // 3) Apply internal debit logic as in process_bpi_transaction
+        let total_cost = amount + gas_fee;
+        {
+            let mut accounts = bridge.user_accounts.write().await;
+            let acc = accounts
+                .get_mut(&bpi_addr)
+                .expect("account should exist after creation");
+
+            assert!(acc.available_balance >= total_cost);
+            acc.available_balance -= total_cost;
+            acc.monthly_usage += total_cost;
+        }
+
+        // 4) Create and buffer a CBOR transaction record
+        let tx_id = format!("test_link04_{}", uuid::Uuid::new_v4());
+        let cbor_tx = CborTransaction {
+            tx_id: tx_id.clone(),
+            from_bpi: bpi_addr.clone(),
+            to_bpci: "bpci-payment-target".to_string(),
+            amount,
+            gas_fee,
+            cbor_data: vec![],
+            timestamp: Utc::now(),
+            auction_group: Some("test-auction-group".to_string()),
+        };
+
+        {
+            let mut buffer = bridge.cbor_processor.transaction_buffer.write().await;
+            buffer.clear();
+            buffer.push(cbor_tx.clone());
+        }
+
+        // 5) Inspect final account + buffer state
+        let accounts = bridge.user_accounts.read().await;
+        let acc = accounts.get(&bpi_addr).unwrap();
+        let buffer = bridge.cbor_processor.transaction_buffer.read().await;
+
+        println!(
+            "[bridge:LINK-04] tx_id={} amount={} gas_fee={} initial_balance={} final_balance={} initial_monthly_usage={} final_monthly_usage={} buffer_len={}",
+            tx_id,
+            amount,
+            gas_fee,
+            initial_balance,
+            acc.available_balance,
+            initial_monthly_usage,
+            acc.monthly_usage,
+            buffer.len(),
+        );
+
+        assert_eq!(buffer.len(), 1);
+        assert_eq!(buffer[0].tx_id, tx_id);
+        assert_eq!(buffer[0].from_bpi, bpi_addr);
+        assert_eq!(buffer[0].amount, amount);
+        assert_eq!(buffer[0].gas_fee, gas_fee);
+        assert!(acc.available_balance < initial_balance);
+        assert!(acc.monthly_usage > initial_monthly_usage);
+    }
 }

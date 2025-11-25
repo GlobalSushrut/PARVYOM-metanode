@@ -9,11 +9,12 @@ members = [
     "bpci-enterprise",
     "bpci-enterprise/crates/hermes-lite-web4",
     "wallet-identity",
-    "capability-tests",
-    "comprehensive-350-tests",
     "bpi-immutable-os",
-    "tests",
     "pravyom-wallet",
+    "vpods-engine/crates/vpods-core",
+    "vpods-engine/crates/vpods-agent",
+    "vpods-engine/apps/vpods-daemon",
+    "vpods-engine/apps/vpods-cli",
 ]
 
 [workspace.package]

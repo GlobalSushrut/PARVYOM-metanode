@@ -4,27 +4,17 @@ use tracing::info;
 use crate::config::EnvIniParser;
 
 // ASCII art logo for Pravyom
-const PRAVYOM_LOGO: &str = r#"
-    ██████╗ ██████╗  █████╗ ██╗   ██╗██╗   ██╗ ██████╗ ███╗   ███╗
-    ██╔══██╗██╔══██╗██╔══██╗██║   ██║╚██╗ ██╔╝██╔═══██╗████╗ ████║
-    ██████╔╝██████╔╝███████║██║   ██║ ╚████╔╝ ██║   ██║██╔████╔██║
-    ██╔═══╝ ██╔══██╗██╔══██║╚██╗ ██╔╝  ╚██╔╝  ██║   ██║██║╚██╔╝██║
-    ██║     ██║  ██║██║  ██║ ╚████╔╝    ██║   ╚██████╔╝██║ ╚═╝ ██║
-    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝     ╚═╝    ╚═════╝ ╚═╝     ╚═╝
-"#;
+mod logos {
+    include!("../../../assets/logos.rs");
+}
 
-pub mod wallet;
-pub mod registry;
-pub mod mining;
-pub mod governance;
-pub mod network;
-pub mod notary;
-pub mod maintenance;
 pub mod web;
-pub mod bank_api_handlers;
-pub mod cuedb;
-pub mod cross_system;
-pub mod orchestration;
+pub mod mining;
+pub mod registry;
+pub mod wallet;
+pub mod governance;
+pub mod maintenance;
+pub mod mesh_deploy;
 pub mod mother_coin;
 pub mod internal_governance;
 // NOTE: portal_cli is commented out for main binary compatibility
@@ -36,15 +26,9 @@ use wallet::WalletCommands;
 use registry::RegistryCommands;
 use mining::MiningCommands;
 use governance::GovernanceCommands;
-use network::NetworkCommands;
-use notary::NotaryCommands;
 use maintenance::MaintenanceCommands;
 use web::WebCommands;
-use cuedb::CueDbArgs;
-use cross_system::CrossSystemCommands;
-use orchestration::OrchestrationArgs;
-use mother_coin::MotherCoinArgs;
-use crate::wallet_registry::WalletRegistryArgs;
+use mesh_deploy::{MeshDeployCommand, handle_mesh_deploy_command};
 
 /// BPCI Enterprise - Complete Blockchain Platform Command Interface
 /// Military-grade security, enterprise governance, autonomous economics
@@ -95,14 +79,6 @@ pub enum BpciCommands {
     #[command(subcommand)]
     Governance(GovernanceCommands),
 
-    /// Network management operations
-    #[command(subcommand)]
-    Network(NetworkCommands),
-
-    /// Notary and verification services
-    #[command(subcommand)]
-    Notary(NotaryCommands),
-
     /// System maintenance operations
     #[command(subcommand)]
     Maintenance(MaintenanceCommands),
@@ -111,17 +87,9 @@ pub enum BpciCommands {
     #[command(subcommand)]
     Web(WebCommands),
 
-    /// CueDB advanced database operations
+    /// Mesh deployment operations
     #[command(subcommand)]
-    CueDb(CueDbArgs),
-
-    /// Cross-system integration operations (Court, Shadow Registry, BPI Mesh)
-    #[command(subcommand)]
-    CrossSystem(CrossSystemCommands),
-
-    /// Revolutionary orchestration system (MetanodeClusterManager, DaemonTree, Agreements)
-    #[command(subcommand)]
-    Orchestration(OrchestrationArgs),
+    MeshDeploy(MeshDeployCommand),
 
     /// Mother Coin (GEN) Distribution System - Raise $1M safely with decentralization
     #[command(subcommand)]
@@ -165,9 +133,7 @@ impl BpciCli {
 
         // Display Pravyom logo for human-readable output
         if self.format == "human" {
-            println!("{}", PRAVYOM_LOGO);
-            println!("    🚀 Pravyom - Military-grade blockchain infrastructure");
-            println!();
+            logos::display_logo("pravyom");
         }
         
         info!("Pravyom Enterprise CLI v{}", env!("CARGO_PKG_VERSION"));
@@ -202,26 +168,15 @@ impl BpciCli {
             BpciCommands::Governance(cmd) => {
                 governance::handle_governance_command(cmd, self.is_json(), self.dry_run).await
             }
-            BpciCommands::Network(cmd) => {
-                network::handle_network_command(cmd, self.is_json(), self.dry_run).await
-            }
-            BpciCommands::Notary(cmd) => {
-                notary::handle_notary_command(cmd, self.is_json(), self.dry_run).await
-            }
             BpciCommands::Maintenance(cmd) => {
                 maintenance::handle_maintenance_command(cmd, self.is_json(), self.dry_run).await
             }
             BpciCommands::Web(cmd) => {
                 web::handle_web_command(cmd, self.is_json(), self.dry_run).await
             }
-            BpciCommands::CueDb(cmd) => {
-                cmd.execute().await
-            }
-            BpciCommands::CrossSystem(cmd) => {
-                cmd.execute().await
-            }
-            BpciCommands::Orchestration(cmd) => {
-                cmd.execute(self.is_json()).await
+            BpciCommands::MeshDeploy(cmd) => {
+                let mesh_cli = mesh_deploy::MeshDeployCli { command: cmd.clone() };
+                handle_mesh_deploy_command(mesh_cli).await
             }
             BpciCommands::MotherCoin(cmd) => {
                 let args = mother_coin::MotherCoinArgs { command: cmd.clone() };

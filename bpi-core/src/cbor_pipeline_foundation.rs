@@ -517,6 +517,22 @@ pub fn deserialize_canonical<T: for<'de> Deserialize<'de>>(data: &[u8]) -> Resul
         .map_err(|e| anyhow!("CBOR deserialization failed: {}", e))
 }
 
+/// Canonical CBOR serialization with an explicit maximum size bound. This can
+/// be used by higher-level components that need to guard against
+/// unexpectedly-large CBOR payloads while preserving the existing
+/// serialize_canonical behaviour for callers that do not require a bound.
+pub fn serialize_canonical_bounded<T: Serialize>(data: &T, max_bytes: usize) -> Result<Vec<u8>> {
+    let bytes = serialize_canonical(data)?;
+    if bytes.len() > max_bytes {
+        return Err(anyhow!(
+            "CBOR serialization exceeded maximum size: {} bytes > {} bytes",
+            bytes.len(),
+            max_bytes,
+        ));
+    }
+    Ok(bytes)
+}
+
 /// CBOR diagnostic notation converter (human-readable)
 pub fn to_diagnostic_notation<T: Serialize + std::fmt::Debug>(data: &T) -> Result<String> {
     let cbor_bytes = serialize_canonical(data)?;

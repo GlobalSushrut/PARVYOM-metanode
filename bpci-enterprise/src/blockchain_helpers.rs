@@ -8,11 +8,10 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
-use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, BpiNativeRegistry, BpiEndpoints, MiningSession};
+use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, BpiNativeRegistry, BpiEndpoints};
 use crypto_primitives::Ed25519KeyPair;
-use networking::{P2PNetwork, NetworkNode};
+use networking::P2PNetwork;
 
 /// Real blockchain statistics for CLI modules
 #[derive(Debug, Clone)]

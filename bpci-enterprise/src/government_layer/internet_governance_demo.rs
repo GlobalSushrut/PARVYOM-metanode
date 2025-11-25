@@ -5,9 +5,8 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 use anyhow::Result;
-use tracing::{info, warn, error};
+use tracing::info;
 use crate::government_layer::multi_jurisdiction_smartcontract_deployment;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,7 +40,6 @@ pub struct InternetGovernanceTestResults {
 use crate::government_layer::{
     MultiJurisdictionDeploymentManager,
     GovernmentSmartContract,
-    GovernmentSmartContractExamples,
 };
 
 /// Internet Governance Demonstration

@@ -8,8 +8,8 @@ use chrono::{DateTime, Utc};
 
 /// Cross-chain bridge interface
 pub trait CrossChainBridge {
-    async fn test_connection(&self) -> Result<BridgeStatus>;
-    async fn transfer_assets(&self, amount: u64, destination: &str) -> Result<TransactionResult>;
+    fn test_connection(&self) -> impl std::future::Future<Output = Result<BridgeStatus>> + Send;
+    fn transfer_assets(&self, amount: u64, destination: &str) -> impl std::future::Future<Output = Result<TransactionResult>> + Send;
 }
 
 /// Bridge connection status
@@ -54,22 +54,28 @@ impl EthereumBridge {
 }
 
 impl CrossChainBridge for EthereumBridge {
-    async fn test_connection(&self) -> Result<BridgeStatus> {
-        Ok(BridgeStatus {
-            is_connected: true,
-            last_ping: Utc::now(),
-            latency_ms: 150,
-            supported_assets: vec!["ETH".to_string(), "USDC".to_string(), "DAI".to_string()],
-        })
+    fn test_connection(&self) -> impl std::future::Future<Output = Result<BridgeStatus>> + Send {
+        async move {
+            Ok(BridgeStatus {
+                is_connected: true,
+                last_ping: Utc::now(),
+                latency_ms: 150,
+                supported_assets: vec!["ETH".to_string(), "USDC".to_string(), "DAI".to_string()],
+            })
+        }
     }
     
-    async fn transfer_assets(&self, amount: u64, destination: &str) -> Result<TransactionResult> {
-        Ok(TransactionResult {
-            transaction_id: Uuid::new_v4(),
-            status: "pending".to_string(),
-            block_height: 18500000,
-            gas_used: 21000,
-        })
+    fn transfer_assets(&self, amount: u64, destination: &str) -> impl std::future::Future<Output = Result<TransactionResult>> + Send {
+        let _amount = amount;
+        let _destination = destination.to_string();
+        async move {
+            Ok(TransactionResult {
+                transaction_id: Uuid::new_v4(),
+                status: "pending".to_string(),
+                block_height: 18500000,
+                gas_used: 21000,
+            })
+        }
     }
 }
 
@@ -83,21 +89,27 @@ impl FilecoinBridge {
 }
 
 impl CrossChainBridge for FilecoinBridge {
-    async fn test_connection(&self) -> Result<BridgeStatus> {
-        Ok(BridgeStatus {
-            is_connected: true,
-            last_ping: Utc::now(),
-            latency_ms: 200,
-            supported_assets: vec!["FIL".to_string(), "WFIL".to_string()],
-        })
+    fn test_connection(&self) -> impl std::future::Future<Output = Result<BridgeStatus>> + Send {
+        async move {
+            Ok(BridgeStatus {
+                is_connected: true,
+                last_ping: Utc::now(),
+                latency_ms: 200,
+                supported_assets: vec!["FIL".to_string(), "WFIL".to_string()],
+            })
+        }
     }
     
-    async fn transfer_assets(&self, amount: u64, destination: &str) -> Result<TransactionResult> {
-        Ok(TransactionResult {
-            transaction_id: Uuid::new_v4(),
-            status: "confirmed".to_string(),
-            block_height: 3200000,
-            gas_used: 5000000,
-        })
+    fn transfer_assets(&self, amount: u64, destination: &str) -> impl std::future::Future<Output = Result<TransactionResult>> + Send {
+        let _amount = amount;
+        let _destination = destination.to_string();
+        async move {
+            Ok(TransactionResult {
+                transaction_id: Uuid::new_v4(),
+                status: "confirmed".to_string(),
+                block_height: 3200000,
+                gas_used: 5000000,
+            })
+        }
     }
 }

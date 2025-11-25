@@ -2,12 +2,16 @@ pub mod types;
 pub mod node;
 pub mod config;
 pub mod chain;
+pub mod block;
 pub mod enterprise;
 pub mod docklock;
 pub mod http_cage;
 pub mod enc_cluster;
+pub mod vpods_cluster;
+pub mod vpods_workload;
 pub mod stubs;
 pub mod node_coordinator;
+pub mod cluster;
 
 // Re-export command types
 pub use types::*;
@@ -306,6 +310,8 @@ pub enum DocklockCommands {
     /// Manage DockLock security
     #[command(subcommand)]
     Security(DocklockSecurityCommands),
+    /// Run vPods exec integration test
+    ExecTest,
 }
 
 #[derive(Subcommand)]

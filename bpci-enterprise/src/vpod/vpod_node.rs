@@ -6,9 +6,8 @@
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, AtomicPtr, Ordering};
-use std::cell::Cell;
 use std::ptr;
 use std::time::Instant;
 
@@ -19,11 +18,10 @@ use crate::vpod::{
     VPodRuntime, VPodActor, ActorId, VPodConfig, Message
 };
 use crate::vpod::actor::ActorSpecialization;
-use crate::vpod::runtime::RuntimeMetrics;
 
 // Import existing node types for migration
-use crate::registry::node_types::{NodeType, BpiWalletStamp};
-use crate::mining::node_types::{ValidatorNode, MinerNode, NotaryNode};
+use crate::registry::node_types::NodeType;
+use crate::mining::node_types::{ValidatorNode, MinerNode};
 
 /// Arena allocator with hugepage backing
 #[derive(Debug)]
@@ -946,7 +944,7 @@ impl VPodNode {
     /// Create vPod node from legacy Enterprise node
     pub async fn from_bpci_enterprise(legacy_node: &NodeType) -> Result<Self> {
         if let NodeType::BpciEnterprise { 
-            validator, 
+             
             enhanced_security, 
             .. 
         } = legacy_node {

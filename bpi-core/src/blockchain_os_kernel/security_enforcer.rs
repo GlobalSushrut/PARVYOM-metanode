@@ -4,7 +4,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use crate::cbor_pipeline_foundation::CborSerializable;
 use anyhow::Result;
 use uuid::Uuid;
 
@@ -22,6 +23,7 @@ pub enum SecurityLevel {
 
 /// Post-quantum validation types
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum PostQuantumValidation {
     DigitalSignature(QuantumSignature),
     KeyExchange(QuantumKeyExchange),
@@ -31,7 +33,7 @@ pub enum PostQuantumValidation {
 }
 
 /// Quantum digital signature
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QuantumSignature {
     pub algorithm: QuantumSignatureAlgorithm,
     pub public_key: String,
@@ -42,6 +44,7 @@ pub struct QuantumSignature {
 
 /// Quantum signature algorithms
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumSignatureAlgorithm {
     Dilithium,      // CRYSTALS-Dilithium
     Falcon,         // FALCON
@@ -50,7 +53,7 @@ pub enum QuantumSignatureAlgorithm {
 }
 
 /// Quantum key exchange
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QuantumKeyExchange {
     pub algorithm: QuantumKEMAlgorithm,
     pub public_key: String,
@@ -60,6 +63,7 @@ pub struct QuantumKeyExchange {
 
 /// Quantum Key Encapsulation Mechanism algorithms
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumKEMAlgorithm {
     Kyber,          // CRYSTALS-Kyber
     NTRU,           // NTRU
@@ -69,6 +73,7 @@ pub enum QuantumKEMAlgorithm {
 
 /// Quantum encryption
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct QuantumEncryption {
     pub algorithm: QuantumEncryptionAlgorithm,
     pub key_id: String,
@@ -79,6 +84,7 @@ pub struct QuantumEncryption {
 
 /// Quantum encryption algorithms
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumEncryptionAlgorithm {
     AES256_GCM,     // AES-256-GCM (quantum-resistant key)
     ChaCha20Poly1305, // ChaCha20-Poly1305
@@ -87,6 +93,7 @@ pub enum QuantumEncryptionAlgorithm {
 
 /// Quantum authentication
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct QuantumAuthentication {
     pub identity: String,
     pub credentials: QuantumCredentials,
@@ -97,6 +104,7 @@ pub struct QuantumAuthentication {
 
 /// Quantum credentials
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct QuantumCredentials {
     pub credential_type: QuantumCredentialType,
     pub public_key: String,
@@ -106,6 +114,7 @@ pub struct QuantumCredentials {
 
 /// Quantum credential types
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumCredentialType {
     PostQuantumCertificate,
     BiometricTemplate,
@@ -115,6 +124,7 @@ pub enum QuantumCredentialType {
 
 /// Quantum integrity verification
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct QuantumIntegrity {
     pub hash_algorithm: QuantumHashAlgorithm,
     pub merkle_root: String,
@@ -124,6 +134,7 @@ pub struct QuantumIntegrity {
 
 /// Quantum hash algorithms
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumHashAlgorithm {
     SHA3_256,       // SHA-3 256-bit
     SHA3_512,       // SHA-3 512-bit
@@ -132,7 +143,7 @@ pub enum QuantumHashAlgorithm {
 }
 
 /// Security policy for processes
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecurityPolicy {
     pub policy_id: String,
     pub minimum_security_level: SecurityLevel,
@@ -144,6 +155,7 @@ pub struct SecurityPolicy {
 
 /// Monitoring levels for security
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum MonitoringLevel {
     None,
     Basic,
@@ -154,6 +166,7 @@ pub enum MonitoringLevel {
 
 /// Access control rules
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AccessControlRule {
     pub rule_id: String,
     pub resource_pattern: String,
@@ -163,6 +176,7 @@ pub struct AccessControlRule {
 
 /// Operations that can be controlled
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum Operation {
     Read,
     Write,
@@ -174,6 +188,7 @@ pub enum Operation {
 
 /// Access conditions
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum AccessCondition {
     TimeRange(u64, u64),
     IPAddress(String),
@@ -184,6 +199,7 @@ pub enum AccessCondition {
 
 /// Security audit event
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct SecurityAuditEvent {
     pub event_id: String,
     pub timestamp: u64,
@@ -197,6 +213,7 @@ pub struct SecurityAuditEvent {
 
 /// Security event types
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum SecurityEventType {
     AuthenticationAttempt,
     AuthorizationCheck,
@@ -207,7 +224,7 @@ pub enum SecurityEventType {
 }
 
 /// Validation results
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ValidationResult {
     pub validation_type: String,
     pub success: bool,
@@ -217,6 +234,7 @@ pub struct ValidationResult {
 
 /// Threat levels
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum ThreatLevel {
     None,
     Low,
@@ -248,7 +266,7 @@ pub struct QuantumSecurityEnforcer {
 }
 
 /// Security configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecurityConfig {
     pub default_security_level: SecurityLevel,
     pub quantum_validation_enabled: bool,
@@ -272,6 +290,19 @@ impl Default for SecurityConfig {
         }
     }
 }
+
+// CBOR Serializable implementations for security enforcer structs
+impl CborSerializable for QuantumSignature {}
+impl CborSerializable for QuantumKeyExchange {}
+impl CborSerializable for QuantumEncryption {}
+impl CborSerializable for QuantumAuthentication {}
+impl CborSerializable for QuantumCredentials {}
+impl CborSerializable for QuantumIntegrity {}
+impl CborSerializable for SecurityPolicy {}
+impl CborSerializable for AccessControlRule {}
+impl CborSerializable for SecurityAuditEvent {}
+impl CborSerializable for ValidationResult {}
+impl CborSerializable for SecurityConfig {}
 
 impl QuantumSecurityEnforcer {
     /// Create a new quantum security enforcer

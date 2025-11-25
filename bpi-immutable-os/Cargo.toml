@@ -49,13 +49,20 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 which = "5.0"
 
 # UUID generation
-uuid = { version = "1.6", features = ["v4"] }
+uuid = { version = "1.6", features = ["v4", "serde"] }
 
 # Time handling
 chrono = { version = "0.4", features = ["serde"] }
 
 # Process management
 subprocess = "0.2"
+
+# Utility
+hex = { workspace = true }
+
+# vPods engine integration
+vpods-core = { path = "../vpods-engine/crates/vpods-core" }
+vpods-agent = { path = "../vpods-engine/crates/vpods-agent" }
 
 [features]
 default = ["hardware-detection", "security-hardening", "bpi-integration"]

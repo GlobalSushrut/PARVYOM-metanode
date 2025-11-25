@@ -14,11 +14,13 @@ pub mod scheduler;
 pub mod resource_manager;
 pub mod security_enforcer;
 pub mod app_orchestrator;
+pub mod consensus_engine;
 
 pub use scheduler::{SmartContractScheduler, ProcessPriority, ProcessResourceRequirements};
 pub use resource_manager::BlockchainResourceManager;
 pub use security_enforcer::QuantumSecurityEnforcer;
 pub use app_orchestrator::VMApplicationOrchestrator;
+pub use consensus_engine::{SixDConsensusEngine, NotaryValidator, SixDCoordinates};
 
 /// Main Blockchain OS Kernel - Central coordination of all OS operations
 #[derive(Debug, Clone)]
@@ -31,6 +33,8 @@ pub struct BlockchainOSKernel {
     pub security_enforcer: Arc<QuantumSecurityEnforcer>,
     /// VM-based application orchestrator
     pub app_orchestrator: Arc<VMApplicationOrchestrator>,
+    /// 6D blockchain consensus engine
+    pub consensus_engine: Arc<SixDConsensusEngine>,
     /// Kernel state and metadata
     pub kernel_state: Arc<RwLock<KernelState>>,
 }
@@ -190,11 +194,21 @@ impl BlockchainOSKernel {
             },
         }));
         
+        // Create a default consensus engine for now
+        let consensus_config = consensus_engine::ConsensusConfig {
+            min_validators: 3,
+            finality_threshold: 0.67,
+            block_time_ms: 1000,
+        };
+        let consensus_engine = Arc::new(consensus_engine::SixDConsensusEngine::new(consensus_config).await
+            .map_err(|e| KernelError::InitializationError(format!("Consensus engine init failed: {}", e)))?);
+
         Ok(BlockchainOSKernel {
             process_scheduler,
             resource_allocator,
             security_enforcer,
             app_orchestrator,
+            consensus_engine,
             kernel_state,
         })
     }

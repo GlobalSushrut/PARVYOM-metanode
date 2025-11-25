@@ -2,12 +2,12 @@
 // Each component displays its appropriate logo when invoked
 
 pub const PRAVYOM_LOGO: &str = r#"
-    ██████╗ ██████╗  █████╗ ██╗   ██╗██╗   ██╗ ██████╗ ███╗   ███╗
-    ██╔══██╗██╔══██╗██╔══██╗██║   ██║╚██╗ ██╔╝██╔═══██╗████╗ ████║
-    ██████╔╝██████╔╝███████║██║   ██║ ╚████╔╝ ██║   ██║██╔████╔██║
-    ██╔═══╝ ██╔══██╗██╔══██║╚██╗ ██╔╝  ╚██╔╝  ██║   ██║██║╚██╔╝██║
-    ██║     ██║  ██║██║  ██║ ╚████╔╝    ██║   ╚██████╔╝██║ ╚═╝ ██║
-    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝     ╚═╝    ╚═════╝ ╚═╝     ╚═╝
+               ✶  PRAVYOM  ✶
+        ┌────────────────────────┐
+        │   COSMIC  LEDGER  CORE │
+        │  axis • balance • flow │
+        │  layers • rings •  6D  │
+        └────────────────────────┘
 "#;
 
 pub const DOCKLOCK_LOGO: &str = r#"
@@ -60,7 +60,7 @@ pub fn display_logo(component: &str) {
     match component {
         "pravyom" | "main" | "cli" => {
             println!("{}", PRAVYOM_LOGO);
-            println!("    🚀 Pravyom - Military-grade blockchain infrastructure");
+            println!("    🚀 Pravyom • Vedic digital infrastructure for Bharat & beyond");
         },
         "docklock" => {
             println!("{}", DOCKLOCK_LOGO);
@@ -84,7 +84,7 @@ pub fn display_logo(component: &str) {
         },
         _ => {
             println!("{}", PRAVYOM_LOGO);
-            println!("    🚀 Pravyom - Military-grade blockchain infrastructure");
+            println!("    🚀 Pravyom • Vedic digital infrastructure for Bharat & beyond");
         }
     }
     println!();

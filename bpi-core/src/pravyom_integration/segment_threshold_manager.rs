@@ -22,6 +22,13 @@ use uuid::Uuid;
 // Type aliases to resolve ambiguity
 type ActionRecord = pravyom_pipeline::ActionRecord;
 
+// Import all required types for tests
+#[cfg(test)]
+use pravyom_pipeline::{
+    VmInfo, ActorInfo, ActionInfo, ActionResult, ResourceUsage, IoUsage,
+    TimeInfo, TimeAnchor, HashChain, RecordSignature, ExecInfo
+};
+
 /// Manages segment thresholds and sealing logic (CBOR-enabled)
 /// Stage 1.3 CBOR Integration: Government enterprise-grade compliance
 #[derive(Debug, Clone, Serialize, Deserialize)]

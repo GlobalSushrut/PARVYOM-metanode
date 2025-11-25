@@ -7,9 +7,8 @@ use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use uuid::Uuid;
-use rust_decimal::Decimal;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, error, debug};
+use tracing::{info, warn, error};
 
 // Type alias to match the expected name in mod.rs
 pub type EnhancedGovernmentApi = GovernmentApiEnhanced;

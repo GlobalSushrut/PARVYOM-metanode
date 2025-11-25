@@ -28,7 +28,7 @@ class BpiDownloadService {
   private apiBaseUrl: string;
 
   constructor() {
-    this.apiBaseUrl = process.env.REACT_APP_API_URL || 'https://api.pravyom.com';
+    this.apiBaseUrl = process.env.REACT_APP_API_URL || 'https://pravyom.com';
   }
 
   // Get available BPI OS binaries
@@ -51,7 +51,7 @@ class BpiDownloadService {
           size: 29196240,
           md5: '5c00fd2667ec65d056db771d82b626f1',
           buildDate: '2024-11-01T03:31:00Z',
-          downloadUrl: '/downloads/bpi-os/bpi-core-linux-x64',
+          downloadUrl: 'https://pravyom.com/downloads/bpi-os/bpi-core-linux-x64',
           description: 'BPI OS Core - Production-ready blockchain operating system binary for Linux x64'
         }
       ];

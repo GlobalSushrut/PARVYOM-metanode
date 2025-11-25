@@ -621,6 +621,16 @@ impl SecurityDecision {
     }
 }
 
+/// Risk level classification for security decisions
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum RiskLevel {
+    Low,
+    Medium,
+    High,
+    Critical,
+    Emergency,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ResponseAction {
     LogThreat,

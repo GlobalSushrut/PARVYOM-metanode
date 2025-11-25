@@ -1,12 +1,12 @@
 //! # Orchestration CLI - Revolutionary Orchestration System Commands
 
 use anyhow::Result;
-use clap::{Args, Subcommand};
+use clap::Subcommand;
 use serde_json::json;
-use tracing::{error, info};
+use tracing::info;
 
 use crate::metanode_cluster_manager::{
-    MetanodeClusterManager, ResourceAllocation, NodeType, NodeCapabilities, AgreementType
+    MetanodeClusterManager, ResourceAllocation, AgreementType
 };
 use crate::daemon_tree::DaemonTreeManager;
 use crate::metanode_cluster_manager::DaemonResponsibility;

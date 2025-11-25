@@ -1,5 +1,4 @@
 use clap::{Args, Subcommand};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use anyhow::Result;
 use crate::wallet_registry::comprehensive_wallet_registry::{

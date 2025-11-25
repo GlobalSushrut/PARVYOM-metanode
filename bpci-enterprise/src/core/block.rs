@@ -38,7 +38,7 @@ pub struct BlockHeader {
 impl BlockHeader {
     /// Calculate the hash of this block header
     pub fn calculate_hash(&self) -> String {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&self.height.value().to_le_bytes());
         hasher.update(self.previous_hash.as_bytes());
         hasher.update(self.merkle_root.as_bytes());
@@ -190,7 +190,7 @@ impl Block {
             let mut next_level = Vec::new();
             
             for chunk in hashes.chunks(2) {
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(chunk[0].as_bytes());
                 if chunk.len() > 1 {
                     hasher.update(chunk[1].as_bytes());

@@ -3,9 +3,7 @@
 //! This demo proves that our 4D database is the most advanced database system ever created,
 //! with capabilities that are impossible in MongoDB or any other traditional database.
 
-use std::collections::HashMap;
 use std::time::Instant;
-use serde_json::json;
 
 /// Revolutionary 4D Database Demo
 pub struct Revolutionary4DDemo {

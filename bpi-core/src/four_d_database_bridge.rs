@@ -333,20 +333,48 @@ pub struct CacheConfig {
 /// Bridge metrics and monitoring
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BridgeMetrics {
-    /// Total queries processed
+    /// Total queries executed
     pub total_queries: u64,
     /// Successful queries
     pub successful_queries: u64,
     /// Failed queries
     pub failed_queries: u64,
-    /// Average response time
+    /// Average response time in milliseconds
     pub avg_response_time_ms: f64,
-    /// Cache hit ratio
+    /// Cache hit ratio (0.0 to 1.0)
     pub cache_hit_ratio: f64,
     /// Security violations
     pub security_violations: u64,
-    /// Last updated
+    /// Last updated timestamp
     pub last_updated: DateTime<Utc>,
+}
+
+/// Performance metrics for 4D database operations
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FourDPerformanceMetrics {
+    /// Average query execution time in milliseconds
+    pub average_query_time_ms: f64,
+    /// Queries processed per second
+    pub queries_per_second: f64,
+    /// Cache hit ratio (0.0 to 1.0)
+    pub cache_hit_ratio: f64,
+    /// Connection pool utilization (0.0 to 1.0)
+    pub connection_pool_utilization: f64,
+    /// Last updated timestamp
+    pub last_updated: DateTime<Utc>,
+}
+
+/// Health status for 4D database bridge
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FourDHealthStatus {
+    /// Overall health status
+    pub status: String,
+    /// Uptime in seconds
+    pub uptime_seconds: u64,
+    /// Number of active connections
+    pub active_connections: u32,
+    /// Last health check timestamp
+    pub last_check: DateTime<Utc>,
 }
 
 impl FourDDatabaseBridge {
@@ -378,6 +406,29 @@ impl FourDDatabaseBridge {
             connection_pool,
             query_cache,
             metrics,
+        })
+    }
+    
+    /// Get performance metrics from the 4D database bridge
+    pub async fn get_performance_metrics(&self) -> Result<FourDPerformanceMetrics> {
+        // Stub implementation for performance metrics
+        Ok(FourDPerformanceMetrics {
+            average_query_time_ms: 1.5,
+            queries_per_second: 1000.0,
+            cache_hit_ratio: 0.85,
+            connection_pool_utilization: 0.7,
+            last_updated: chrono::Utc::now(),
+        })
+    }
+    
+    /// Health check for the 4D database bridge
+    pub async fn health_check(&self) -> Result<FourDHealthStatus> {
+        // Stub implementation for health check
+        Ok(FourDHealthStatus {
+            status: "healthy".to_string(),
+            uptime_seconds: 3600,
+            active_connections: 5,
+            last_check: chrono::Utc::now(),
         })
     }
     

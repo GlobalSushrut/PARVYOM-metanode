@@ -4,10 +4,15 @@
 
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
+use serde_json;
+use chrono::Utc;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tracing::{info, warn, debug, error};
+use blake3;
+use hex;
+use crate::content_store::ContentStore;
 use crate::hardware_detection::HardwareProfile;
 
 /// Immutable filesystem configuration
@@ -53,6 +58,100 @@ pub enum BackupType {
     Logs,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum CoreServiceKind {
+    DockLock,
+    EncCluster,
+    VmSupervisor,
+    Court,
+    Db4D,
+    CueDb,
+    Ipfs,
+    ZkTerminal,
+    Logbook,
+    DynarouteGateway,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServiceDomain {
+    pub kind: CoreServiceKind,
+    pub logical_id: String,
+    pub hash: String,
+    pub data_root: PathBuf,
+    pub objects_root: PathBuf,
+    pub cgroup_path: String,
+    pub net_ns_name: String,
+    pub pid_ns_name: String,
+    pub mnt_ns_name: String,
+    pub uts_ns_name: String,
+}
+
+/// Basic OS-level dynaroute configuration entry
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DynarouteConfig {
+    /// Logical service name (e.g. "vm-server", "6d-blockchain")
+    pub service_name: String,
+    /// Local bind address (host:port) on this node
+    pub local_bind: String,
+    /// Target address or virtual identity (may be another service name or mesh endpoint)
+    pub target: String,
+    /// Optional EncCluster identifier for encrypted routing
+    pub enc_cluster: Option<String>,
+    /// Whether this dynaroute is currently enabled
+    pub enabled: bool,
+}
+
+impl ServiceDomain {
+    pub fn new(kind: CoreServiceKind, logical_id: String, era_root: PathBuf) -> Result<Self> {
+        let kind_str = match kind {
+            CoreServiceKind::DockLock => "docklock",
+            CoreServiceKind::EncCluster => "encclusters",
+            CoreServiceKind::VmSupervisor => "vm",
+            CoreServiceKind::Court => "courts",
+            CoreServiceKind::Db4D => "db4d",
+            CoreServiceKind::CueDb => "cuedb",
+            CoreServiceKind::Ipfs => "ipfs",
+            CoreServiceKind::ZkTerminal => "zk_terminal",
+            CoreServiceKind::Logbook => "logbook",
+            CoreServiceKind::DynarouteGateway => "dynaroute_gw",
+        };
+
+        let hash_input = format!("{}:{}", kind_str, logical_id);
+        let hash = blake3::hash(hash_input.as_bytes());
+        let full = hex::encode(hash.as_bytes());
+        let short = full.chars().take(12).collect::<String>();
+
+        let bpi_root = era_root.join("mutable").join("var").join("bpi");
+        let data_root = bpi_root.join(kind_str).join(&short);
+
+        let store_root = era_root.join("store");
+        let objects_root = match kind {
+            CoreServiceKind::Db4D => store_root.join("db4d"),
+            CoreServiceKind::Ipfs => store_root.join("ipfs"),
+            _ => store_root.join("objects"),
+        };
+
+        let cgroup_path = format!("/sys/fs/cgroup/bpi-core/{}/{}", kind_str, short);
+        let net_ns_name = format!("bpi-{}-net-{}", kind_str, short);
+        let pid_ns_name = format!("bpi-{}-pid-{}", kind_str, short);
+        let mnt_ns_name = format!("bpi-{}-mnt-{}", kind_str, short);
+        let uts_ns_name = format!("bpi-{}-uts-{}", kind_str, short);
+
+        Ok(Self {
+            kind,
+            logical_id,
+            hash: short,
+            data_root,
+            objects_root,
+            cgroup_path,
+            net_ns_name,
+            pid_ns_name,
+            mnt_ns_name,
+            uts_ns_name,
+        })
+    }
+}
+
 /// Filesystem Immutability Engine
 #[derive(Debug)]
 pub struct FilesystemImmutabilityEngine {
@@ -79,6 +178,12 @@ impl FilesystemImmutabilityEngine {
     pub async fn prepare_immutable_filesystem(&mut self, hardware_profile: &HardwareProfile) -> Result<()> {
         info!("💾 Preparing immutable filesystem transformation");
         
+        // Step 0: Ensure ERA-FS base layout and vPods integration points exist
+        self.ensure_era_layout().await?;
+        self.ensure_vpods_layout().await?;
+        self.ensure_bpi_core_layout().await?;
+        self.ensure_initial_generation().await?;
+
         // Step 1: Analyze current filesystem layout
         let current_layout = self.analyze_current_filesystem(hardware_profile).await?;
         info!("✅ Current filesystem analyzed");
@@ -87,7 +192,7 @@ impl FilesystemImmutabilityEngine {
         self.backup_critical_data(&current_layout).await?;
         info!("✅ Critical data backed up");
         
-        // Step 3: Design immutable filesystem layout
+        // Step 3: Design immutable filesystem layout (using vPods capacity if available)
         let immutable_config = self.design_immutable_layout(&current_layout, hardware_profile).await?;
         info!("✅ Immutable filesystem layout designed");
         
@@ -106,6 +211,308 @@ impl FilesystemImmutabilityEngine {
         self.config = Some(immutable_config);
         info!("💾 Immutable filesystem preparation completed");
         
+        Ok(())
+    }
+
+    /// Create or load the OS-level domain for the DockLock service
+    pub async fn create_docklock_domain(&self, logical_id: &str) -> Result<ServiceDomain> {
+        let era_root = PathBuf::from("/era");
+
+        let domain = ServiceDomain::new(
+            CoreServiceKind::DockLock,
+            logical_id.to_string(),
+            era_root.clone(),
+        )?;
+
+        // Ensure per-instance directories under /era/mutable/var/bpi/docklock/<hash>/
+        let manifests_dir = domain.data_root.join("manifests");
+        let runtime_dir = domain.data_root.join("runtime");
+        let logs_dir = domain.data_root.join("logs");
+
+        for dir in [&domain.data_root, &manifests_dir, &runtime_dir, &logs_dir] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create DockLock domain directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        Ok(domain)
+    }
+
+    /// Create or load the OS-level domain for the Dynaroute gateway service
+    pub async fn create_dynaroute_gateway_domain(&self, logical_id: &str) -> Result<ServiceDomain> {
+        let era_root = PathBuf::from("/era");
+
+        let domain = ServiceDomain::new(
+            CoreServiceKind::DynarouteGateway,
+            logical_id.to_string(),
+            era_root.clone(),
+        )?;
+
+        let state_dir = domain.data_root.join("state");
+        let logs_dir = domain.data_root.join("logs");
+
+        for dir in [&domain.data_root, &state_dir, &logs_dir] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create Dynaroute gateway directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        Ok(domain)
+    }
+
+    /// Persist a DynarouteConfig entry under /era/mutable/var/bpi/network/dynaroutes
+    pub async fn write_dynaroute_config(&self, name: &str, cfg: &DynarouteConfig) -> Result<PathBuf> {
+        let era_root = Path::new("/era");
+        let dynaroutes_root = era_root
+            .join("mutable")
+            .join("var")
+            .join("bpi")
+            .join("network")
+            .join("dynaroutes");
+
+        if !dynaroutes_root.exists() {
+            fs::create_dir_all(&dynaroutes_root)
+                .map_err(|e| anyhow!("Failed to create dynaroutes root {}: {}", dynaroutes_root.display(), e))?;
+        }
+
+        let json = serde_json::to_vec_pretty(cfg)
+            .map_err(|e| anyhow!("Failed to serialize DynarouteConfig: {}", e))?;
+
+        let file_path = dynaroutes_root.join(format!("{}.json", name));
+        fs::write(&file_path, &json)
+            .map_err(|e| anyhow!("Failed to write DynarouteConfig {}: {}", file_path.display(), e))?;
+
+        Ok(file_path)
+    }
+
+    /// Load a DynarouteConfig entry by name if it exists
+    pub async fn read_dynaroute_config(&self, name: &str) -> Result<Option<DynarouteConfig>> {
+        let era_root = Path::new("/era");
+        let file_path = era_root
+            .join("mutable")
+            .join("var")
+            .join("bpi")
+            .join("network")
+            .join("dynaroutes")
+            .join(format!("{}.json", name));
+
+        if !file_path.exists() {
+            return Ok(None);
+        }
+
+        let data = fs::read(&file_path)
+            .map_err(|e| anyhow!("Failed to read DynarouteConfig {}: {}", file_path.display(), e))?;
+        let cfg: DynarouteConfig = serde_json::from_slice(&data)
+            .map_err(|e| anyhow!("Failed to deserialize DynarouteConfig {}: {}", file_path.display(), e))?;
+
+        Ok(Some(cfg))
+    }
+
+    /// Ensure an initial ERA-FS generation exists and is content-addressed
+    async fn ensure_initial_generation(&self) -> Result<()> {
+        let era_root = Path::new("/era");
+        let generations_root = era_root.join("generations");
+
+        let gen_id = "001-initial";
+        let gen_dir = generations_root.join(gen_id);
+
+        if !gen_dir.exists() {
+            fs::create_dir_all(&gen_dir)
+                .map_err(|e| anyhow!("Failed to create ERA generation dir {}: {}", gen_dir.display(), e))?;
+        }
+
+        let manifest_path = gen_dir.join("manifest.json");
+
+        if !manifest_path.exists() {
+            #[derive(Serialize)]
+            struct GenerationMeta<'a> {
+                id: &'a str,
+                created_at: i64,
+            }
+
+            let meta = GenerationMeta {
+                id: gen_id,
+                created_at: Utc::now().timestamp(),
+            };
+
+            let meta_bytes = serde_json::to_vec(&meta)
+                .map_err(|e| anyhow!("Failed to serialize generation meta: {}", e))?;
+
+            let store = ContentStore::new_default();
+            let addr = store.write_object(&meta_bytes)?;
+
+            #[derive(Serialize)]
+            struct GenerationManifest<'a> {
+                id: &'a str,
+                content_dir: String,
+            }
+
+            let manifest = GenerationManifest {
+                id: gen_id,
+                content_dir: addr.to_dir_name(),
+            };
+
+            let manifest_json = serde_json::to_vec_pretty(&manifest)
+                .map_err(|e| anyhow!("Failed to serialize generation manifest: {}", e))?;
+
+            fs::write(&manifest_path, &manifest_json)
+                .map_err(|e| anyhow!("Failed to write generation manifest {}: {}", manifest_path.display(), e))?;
+        }
+
+        // Create /era/generations/current -> 001-initial symlink if not present
+        let current_link = generations_root.join("current");
+        if !current_link.exists() {
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs as unix_fs;
+                unix_fs::symlink(&gen_dir, &current_link)
+                    .map_err(|e| anyhow!("Failed to create ERA current generation symlink {} -> {}: {}", current_link.display(), gen_dir.display(), e))?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Ensure minimal ERA-FS layout exists under /era
+    async fn ensure_era_layout(&self) -> Result<()> {
+        let era_root = Path::new("/era");
+
+        // Base ERA-FS directories
+        let store = era_root.join("store");
+        let store_objects = store.join("objects");
+        let store_packages = store.join("packages");
+        let store_chains = store.join("chains");
+
+        let capabilities = era_root.join("capabilities");
+        let capabilities_domains = capabilities.join("domains");
+        let capabilities_grants = capabilities.join("grants");
+        let capabilities_policies = capabilities.join("policies");
+
+        let current = era_root.join("current");
+        let generations = era_root.join("generations");
+
+        let mutable = era_root.join("mutable");
+        let mutable_var = mutable.join("var");
+        let mutable_home = mutable.join("home");
+        let mutable_tmp = mutable.join("tmp");
+        let mutable_etc_overlay = mutable.join("etc-overlay");
+
+        // Create directories idempotently; if they already exist, this is a no-op.
+        for dir in [
+            era_root,
+            &store,
+            &store_objects,
+            &store_packages,
+            &store_chains,
+            &capabilities,
+            &capabilities_domains,
+            &capabilities_grants,
+            &capabilities_policies,
+            &current,
+            &generations,
+            &mutable,
+            &mutable_var,
+            &mutable_home,
+            &mutable_tmp,
+            &mutable_etc_overlay,
+        ] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create ERA-FS directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Ensure vPods-specific directories and policy paths are present under ERA-FS
+    async fn ensure_vpods_layout(&self) -> Result<()> {
+        let era_root = Path::new("/era");
+
+        // Mutable vPods runtime state (logs, SchedBlocks, metrics)
+        let vpods_var_root = era_root.join("mutable").join("var").join("vpods");
+        let vpods_logs = vpods_var_root.join("logs");
+        let vpods_schedblocks = vpods_var_root.join("schedblocks");
+        let vpods_metrics = vpods_var_root.join("metrics");
+
+        for dir in [&vpods_var_root, &vpods_logs, &vpods_schedblocks, &vpods_metrics] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create vPods directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        // Capability and policy locations for vPods roles and network firewall
+        let policies_root = era_root.join("capabilities").join("policies");
+        let vpods_policies_root = policies_root.join("vpods");
+        let vpods_roles_root = vpods_policies_root.join("roles");
+        let network_policies_root = policies_root.join("network");
+
+        for dir in [&vpods_policies_root, &vpods_roles_root, &network_policies_root] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create vPods policy directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn ensure_bpi_core_layout(&self) -> Result<()> {
+        let era_root = Path::new("/era");
+
+        let bpi_root = era_root.join("mutable").join("var").join("bpi");
+        let ledger_root = bpi_root.join("ledger");
+        let docklock_root = bpi_root.join("docklock");
+        let encclusters_root = bpi_root.join("encclusters");
+        let vm_root = bpi_root.join("vm");
+        let courts_root = bpi_root.join("courts");
+        let db4d_root = bpi_root.join("db4d");
+        let cuedb_root = bpi_root.join("cuedb");
+        let ipfs_root = bpi_root.join("ipfs");
+        let zk_terminal_root = bpi_root.join("zk_terminal");
+        let logbook_root = bpi_root.join("logbook");
+        let logbook_ziplock_root = logbook_root.join("ziplock");
+        let network_root = bpi_root.join("network");
+        let dynaroutes_root = network_root.join("dynaroutes");
+        let dynaroute_gateway_root = network_root.join("gateway");
+
+        for dir in [
+            &bpi_root,
+            &ledger_root,
+            &docklock_root,
+            &encclusters_root,
+            &vm_root,
+            &courts_root,
+            &db4d_root,
+            &cuedb_root,
+            &ipfs_root,
+            &zk_terminal_root,
+            &logbook_root,
+            &logbook_ziplock_root,
+            &network_root,
+            &dynaroutes_root,
+            &dynaroute_gateway_root,
+        ] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create BPI Core directory {}: {}", dir.display(), e))?;
+            }
+        }
+
+        let store_root = era_root.join("store");
+        let db4d_store_root = store_root.join("db4d");
+        let ipfs_store_root = store_root.join("ipfs");
+
+        for dir in [&db4d_store_root, &ipfs_store_root] {
+            if !dir.exists() {
+                fs::create_dir_all(dir)
+                    .map_err(|e| anyhow!("Failed to create BPI Core store directory {}: {}", dir.display(), e))?;
+            }
+        }
+
         Ok(())
     }
 
@@ -262,6 +669,33 @@ impl FilesystemImmutabilityEngine {
             .as_ref()
             .ok_or_else(|| anyhow!("No root partition found"))?
             .device.clone();
+
+        // Use vPods capacity to size immutable partitions if available
+        let (root_size_gb, overlay_limits) = if let Some(node_capacity) = &hardware_profile.node_capacity {
+            let cores = node_capacity.cores as f64;
+            let ram_gb = node_capacity.ram_mb as f64 / 1024.0;
+            
+            // Scale root partition based on cores (more cores = more services)
+            let root_size = (20.0 + cores * 2.0).min(50.0); // 20-50GB range
+            
+            // Scale overlay limits based on RAM (more RAM = larger working sets)
+            let home_limit = (ram_gb * 4.0).min(200.0); // 4x RAM, max 200GB
+            let var_limit = (ram_gb * 2.0).min(100.0);   // 2x RAM, max 100GB
+            
+            info!(
+                cores = cores,
+                ram_gb = ram_gb,
+                root_size_gb = root_size,
+                home_limit_gb = home_limit,
+                var_limit_gb = var_limit,
+                "vPods capacity-based filesystem sizing"
+            );
+            
+            (root_size, (home_limit, var_limit))
+        } else {
+            warn!("No vPods capacity available, using default sizing");
+            (20.0, (50.0, 30.0))
+        };
         
         // Create immutable partitions (read-only system)
         let mut immutable_partitions = vec![
@@ -269,7 +703,7 @@ impl FilesystemImmutabilityEngine {
                 mount_point: "/".to_string(),
                 device: root_device.clone(),
                 filesystem: "ext4".to_string(),
-                size_gb: 20.0, // 20GB for immutable root
+                size_gb: root_size_gb,
                 read_only: true,
             },
         ];
@@ -285,7 +719,7 @@ impl FilesystemImmutabilityEngine {
             });
         }
         
-        // Create overlay partitions (writable user data)
+        // Create overlay partitions (writable user data) with vPods-based sizing
         let overlay_partitions = vec![
             OverlayPartition {
                 name: "home_overlay".to_string(),
@@ -293,7 +727,7 @@ impl FilesystemImmutabilityEngine {
                 upper_dir: "/var/lib/bpi/overlays/home/upper".to_string(),
                 work_dir: "/var/lib/bpi/overlays/home/work".to_string(),
                 mount_point: "/home".to_string(),
-                size_limit_gb: Some(50.0),
+                size_limit_gb: Some(overlay_limits.0),
             },
             OverlayPartition {
                 name: "var_overlay".to_string(),
@@ -301,7 +735,7 @@ impl FilesystemImmutabilityEngine {
                 upper_dir: "/var/lib/bpi/overlays/var/upper".to_string(),
                 work_dir: "/var/lib/bpi/overlays/var/work".to_string(),
                 mount_point: "/var".to_string(),
-                size_limit_gb: Some(20.0),
+                size_limit_gb: Some(overlay_limits.1),
             },
             OverlayPartition {
                 name: "tmp_overlay".to_string(),

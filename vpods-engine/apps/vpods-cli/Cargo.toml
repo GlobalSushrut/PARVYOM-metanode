@@ -1,0 +1,13 @@
+[package]
+name = "vpods-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+uuid = { workspace = true, features = ["v4"] }
+vpods-core = { path = "../../crates/vpods-core" }
+vpods-agent = { path = "../../crates/vpods-agent" }

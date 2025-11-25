@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::{HashMap, HashSet};
-use crate::registry::geodid::{GeoDID, GeoScope, AdminLevel};
+use crate::registry::geodid::GeoDID;
 
 /// GeoLedger - On-chain registries for jurisdiction mapping and geopolitical relationships
 #[derive(Debug, Clone, Serialize, Deserialize)]

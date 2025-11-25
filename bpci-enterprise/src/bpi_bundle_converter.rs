@@ -307,7 +307,7 @@ impl BpiBundleConverter {
 
     /// Generate unique transaction ID
     fn generate_transaction_id(&self, bundle_id: &str, index: usize) -> [u8; 32] {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(bundle_id.as_bytes());
         hasher.update(index.to_be_bytes());
         hasher.update(Utc::now().timestamp().to_be_bytes());
@@ -323,7 +323,7 @@ impl BpiBundleConverter {
         let receipt_id = Uuid::new_v4().to_string();
         
         // Create conversion hash
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(bundle.bundle_id.as_bytes());
         hasher.update(bundle.bundle_hash.as_bytes());
         hasher.update(summary.conversion_timestamp.timestamp().to_be_bytes());
@@ -357,7 +357,7 @@ impl BpiBundleConverter {
 
     /// Hash string to bytes
     fn hash_string(&self, input: &str) -> [u8; 32] {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(input.as_bytes());
         let hash = hasher.finalize();
         let mut result = [0u8; 32];

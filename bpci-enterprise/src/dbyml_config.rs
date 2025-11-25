@@ -4,17 +4,16 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, debug, error};
+use tracing::{info, debug};
 
 use crate::cuedb_agreement::{
     CueDbAgreementType, MulticloudAccess, PipelinePermissions, StorageQuota,
-    CloudProvider, DatabaseRule, PipelineRule, StorageRule, ResourceLimits
+    CloudProvider, ResourceLimits
 };
 // Import from bpi-docklock crate for Enhanced Storage DB (available dependency)
 use bpi_docklock::enhanced_storage_db::{
-    EnhancedStorageDb, StorageEngine, StorageType, DataClassification, RetentionPolicy
+    StorageType, DataClassification, RetentionPolicy
 };
 
 // Define our own types for CueDB integration (BISO integration will be added later)

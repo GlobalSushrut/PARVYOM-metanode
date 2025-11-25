@@ -11,9 +11,6 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-use crate::registry::geodid::GeoDID;
-use crate::registry::geoledger::GeoLedger;
-use crate::registry::statewallet::StateWallet;
 
 /// Policy Agreement Manager - Central coordination for jurisdiction policy enforcement
 #[derive(Debug)]

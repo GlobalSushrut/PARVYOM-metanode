@@ -330,6 +330,12 @@ impl BPISecurityEngine {
         Ok(responses)
     }
 
+    /// Get high-level security-audit metrics for monitoring and infra tests
+    pub async fn get_audit_metrics(&self) -> Result<crate::security::security_audit_integration::SecurityAuditMetrics> {
+        let audit_integration = self.audit_integration.read().await;
+        audit_integration.get_metrics().await
+    }
+
     /// Start all security components
     pub async fn start_security_engine(&self) -> Result<()> {
         // Start Zero Trust monitoring

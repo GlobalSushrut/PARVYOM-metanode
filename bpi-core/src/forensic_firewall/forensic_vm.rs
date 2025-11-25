@@ -8,7 +8,8 @@ use anyhow::Result;
 use serde_json::json;
 
 use crate::forensic_firewall::ml_framework::{MlFramework, FeatureVector};
-use crate::forensic_firewall::audit_bridge::{ForensicAuditBridge, ForensicEventType, ForensicSeverity};
+use crate::forensic_firewall::audit_bridge::ForensicAuditBridge;
+use crate::forensic_firewall::shared_types::{ForensicEventType, ForensicSeverity};
 use crate::immutable_audit_system::ComponentType;
 
 // ZJL Comprehensive Audit Integration - Records EVERY forensic operation

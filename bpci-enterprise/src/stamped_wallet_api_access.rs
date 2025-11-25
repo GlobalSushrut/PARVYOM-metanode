@@ -7,7 +7,7 @@
 use axum::{
     extract::{Query, Path, State},
     response::Json,
-    routing::{get, post, put},
+    routing::{get, post},
     Router,
     http::StatusCode,
 };
@@ -17,7 +17,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use tracing::{info, warn, error, debug};
 
 /// Bank API Access Request
@@ -120,6 +120,7 @@ pub struct BankApiEndpoint {
     pub settlement_coin_access: bool,
     pub audit_required: bool,
 }
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GovernmentApiEndpoint {

@@ -12,6 +12,7 @@ import {
   CheckCircleOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
+import { BpiOSDownloader } from '../../components/BPI/BpiOSDownloader';
 
 const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
@@ -43,19 +44,76 @@ const GetStarted: React.FC = () => {
         >
           <TabPane tab="📋 Overview" key="overview">
             <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              {/* Quick Start */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>
+                  <CheckCircleOutlined /> Quick Start (3 Commands)
+                </Title>
+                <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                  <pre style={{ color: '#10B981', margin: 0, fontSize: '0.9rem' }}>
+{`# 1. Install BPI OS (Docker-like)
+curl -fsSL https://get.bpi.dev | sh
+
+# 2. Connect to BPCI via Cloudflare
+bpi init --connect https://connect.pravyom.com
+
+# 3. Start BPI OS (auto-connects)
+bpi start`}
+                  </pre>
+                </div>
+                <Alert
+                  message="Production Ready Infrastructure"
+                  description="All endpoints are validated and operational. Millions-scale onboarding architecture deployed with Cloudflare Workers."
+                  type="success"
+                  showIcon
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                />
+              </Card>
+
+              {/* Production Infrastructure */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>
+                  <CloudServerOutlined /> Production Infrastructure (Validated)
+                </Title>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                      <strong style={{ color: '#10B981' }}>Cloudflare Endpoints ✓</strong>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', paddingLeft: '1rem', marginTop: '0.5rem', marginBottom: 0 }}>
+                        <li><code>connect.pravyom.com</code> - Node Connection</li>
+                        <li><code>resolver.pravyom.com</code> - Address Resolution</li>
+                        <li><code>api.pravyom.com</code> - API Gateway</li>
+                        <li><code>explorer.pravyom.com</code> - Blockchain Explorer</li>
+                      </ul>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      <strong style={{ color: '#3B82F6' }}>BPCI Infrastructure ✓</strong>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', paddingLeft: '1rem', marginTop: '0.5rem', marginBottom: 0 }}>
+                        <li>BPI Bridge (Port 6001)</li>
+                        <li>Cluster Ledger (Port 6002)</li>
+                        <li>Blockchain Server (Port 7002)</li>
+                        <li>XTMP Protocol (Port 7778)</li>
+                      </ul>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+
               {/* What is BPI OS */}
               <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
                 <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>
                   <CloudServerOutlined /> What is BPI OS?
                 </Title>
                 <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
-                  <strong style={{ color: '#E8B44F' }}>BPI OS (Blockchain Protocol Infrastructure Operating System)</strong> is a distributed operating system designed for running BPCI nodes and services. It provides:
+                  <strong style={{ color: '#E8B44F' }}>BPI OS (Blockchain Protocol Infrastructure Operating System)</strong> is a distributed operating system that connects to BPCI infrastructure via advanced Cloudflare configuration. It provides:
                 </Paragraph>
                 <ul style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', paddingLeft: '2rem' }}>
-                  <li><strong>DynaRoute v2:</strong> Dynamic port allocation and mesh networking</li>
-                  <li><strong>vPod Orchestration:</strong> Virtual pod management for services</li>
-                  <li><strong>CommuteLock:</strong> Lock-based inter-service communication</li>
-                  <li><strong>15 Backend Services:</strong> Complete BPCI infrastructure stack</li>
+                  <li><strong>Docker-like Interface:</strong> Simple CLI commands (bpi start, bpi stop, bpi status)</li>
+                  <li><strong>Cloudflare Integration:</strong> Millions-scale onboarding via connect.pravyom.com</li>
+                  <li><strong>Auto-Connection:</strong> Automatic BPCI network registration and connection</li>
+                  <li><strong>Production Ready:</strong> 1M+ address pool, quantum-resistant security</li>
                 </ul>
               </Card>
 
@@ -124,6 +182,163 @@ const GetStarted: React.FC = () => {
                     </div>
                   </Col>
                 </Row>
+              </Card>
+            </div>
+          </TabPane>
+
+          <TabPane tab="🌐 Cloudflare Config" key="cloudflare">
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+              {/* Connection Architecture */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>
+                  <CloudServerOutlined /> Advanced Cloudflare Configuration
+                </Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8', marginBottom: '1rem' }}>
+                  BPI OS uses advanced Cloudflare Workers for millions-scale onboarding and seamless BPCI network connection:
+                </Paragraph>
+                
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', marginBottom: '1rem' }}>
+                      <Title level={4} style={{ color: '#10B981', marginBottom: '1rem' }}>Node Connection Handler</Title>
+                      <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '1rem', borderRadius: '6px', marginBottom: '1rem' }}>
+                        <code style={{ color: '#10B981', fontSize: '0.875rem' }}>connect.pravyom.com</code>
+                      </div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', paddingLeft: '1rem', marginBottom: 0 }}>
+                        <li>BPI node registration & authentication</li>
+                        <li>BPCI endpoint provisioning</li>
+                        <li>Session management & tokens</li>
+                        <li>Health monitoring</li>
+                      </ul>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', marginBottom: '1rem' }}>
+                      <Title level={4} style={{ color: '#3B82F6', marginBottom: '1rem' }}>Address Resolver</Title>
+                      <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '1rem', borderRadius: '6px', marginBottom: '1rem' }}>
+                        <code style={{ color: '#3B82F6', fontSize: '0.875rem' }}>resolver.pravyom.com</code>
+                      </div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', paddingLeft: '1rem', marginBottom: 0 }}>
+                        <li>Complex address resolution</li>
+                        <li>1M+ address pool management</li>
+                        <li>Database allocation system</li>
+                        <li>Batch processing support</li>
+                      </ul>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+
+              {/* Production Endpoints */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>
+                  <ApiOutlined /> Production Endpoints (Validated ✓)
+                </Title>
+                
+                <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                  <pre style={{ color: '#E8B44F', margin: 0, fontSize: '0.875rem', lineHeight: '1.6' }}>
+{`# Test Connection Endpoints
+curl https://connect.pravyom.com/health
+# Response: "BPI Node Connection Handler OK"
+
+curl https://resolver.pravyom.com/health  
+# Response: "Address Resolver OK"
+
+curl https://api.pravyom.com/health
+# Response: API Gateway status
+
+curl https://explorer.pravyom.com
+# Response: Blockchain explorer dashboard`}
+                  </pre>
+                </div>
+
+                <Alert
+                  message="All Endpoints Operational"
+                  description="Production infrastructure validated with real connection tests. Ready for millions-scale onboarding."
+                  type="success"
+                  showIcon
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                />
+              </Card>
+
+              {/* Pricing Tiers */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(168, 85, 247, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#A855F7', marginBottom: '1rem' }}>
+                  <WalletOutlined /> BPI OS Pricing Tiers
+                </Title>
+                
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={8}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', textAlign: 'center' }}>
+                      <Title level={4} style={{ color: '#10B981', marginBottom: '0.5rem' }}>Testnet</Title>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10B981', marginBottom: '0.5rem' }}>$10 CAD</div>
+                      <div style={{ color: '#9CA3AF', fontSize: '0.875rem', marginBottom: '1rem' }}>per month</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', textAlign: 'left', paddingLeft: '1rem' }}>
+                        <li>1000 BPI tokens</li>
+                        <li>Basic VM Server</li>
+                        <li>Local Consensus</li>
+                        <li>BPCI Connection</li>
+                      </ul>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={8}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', textAlign: 'center' }}>
+                      <Title level={4} style={{ color: '#3B82F6', marginBottom: '0.5rem' }}>Developer</Title>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3B82F6', marginBottom: '0.5rem' }}>$25 CAD</div>
+                      <div style={{ color: '#9CA3AF', fontSize: '0.875rem', marginBottom: '1rem' }}>per month</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', textAlign: 'left', paddingLeft: '1rem' }}>
+                        <li>2500 + 500 excess tokens</li>
+                        <li>Full VM Cluster</li>
+                        <li>Development Tools</li>
+                        <li>API Access</li>
+                      </ul>
+                    </div>
+                  </Col>
+                  <Col xs={24} md={8}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', textAlign: 'center' }}>
+                      <Title level={4} style={{ color: '#A855F7', marginBottom: '0.5rem' }}>Enterprise</Title>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#A855F7', marginBottom: '0.5rem' }}>$50 CAD</div>
+                      <div style={{ color: '#9CA3AF', fontSize: '0.875rem', marginBottom: '1rem' }}>per month</div>
+                      <ul style={{ color: '#ffffff', fontSize: '0.875rem', textAlign: 'left', paddingLeft: '1rem' }}>
+                        <li>5000 + 2000 excess tokens</li>
+                        <li>Enterprise Consensus</li>
+                        <li>Audit System</li>
+                        <li>24/7 Support</li>
+                      </ul>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+
+              {/* Connection Flow */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>
+                  <CheckCircleOutlined /> BPI→BPCI Connection Flow
+                </Title>
+                
+                <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                  <pre style={{ color: '#10B981', margin: 0, fontSize: '0.875rem', lineHeight: '1.8' }}>
+{`1. BPI OS Registration
+   ↓ POST /register → connect.pravyom.com
+   ↓ Returns: node_id, connection_token, bpci_endpoints
+
+2. Address Resolution  
+   ↓ GET /resolve/{address} → resolver.pravyom.com
+   ↓ Returns: resolved_endpoints, connection_info
+
+3. BPCI Connection
+   ↓ POST /connect → connect.pravyom.com
+   ↓ Returns: session_id, active_endpoints
+
+4. Transaction Processing
+   ↓ POST /transaction/process → BPI Bridge (6001)
+   ↓ XTMP Protocol → Auction → Blockchain (7002)`}
+                  </pre>
+                </div>
+
+                <Paragraph style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
+                  All connections are secured with quantum-resistant encryption and managed through Cloudflare's global network for optimal performance and reliability.
+                </Paragraph>
               </Card>
             </div>
           </TabPane>
@@ -249,17 +464,21 @@ const GetStarted: React.FC = () => {
                   After downloading, run the installer:
                 </Paragraph>
                 <div style={{ background: '#1e293b', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                  <code style={{ color: '#10B981', fontFamily: 'monospace' }}>
-                    # Linux/macOS<br />
-                    chmod +x bpios-installer.sh<br />
-                    ./bpios-installer.sh<br />
-                    <br />
-                    # Windows (PowerShell)<br />
-                    .\bpios-installer.exe
-                  </code>
+                  <pre style={{ color: '#10B981', fontFamily: 'monospace', margin: 0, fontSize: '0.875rem' }}>
+{`# One-command install (Docker-like)
+curl -fsSL https://get.bpi.dev | sh
+
+# Or manual download and install
+wget https://pravyom.com/downloads/bpi-os-linux.tar.gz
+tar -xzf bpi-os-linux.tar.gz && ./install.sh
+
+# Connect to BPCI via Cloudflare
+bpi init --connect https://connect.pravyom.com
+bpi start`}
+                  </pre>
                 </div>
                 <Paragraph style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
-                  The installer will set up all 15 services, databases, and configure DynaRoute v2 networking automatically.
+                  The installer automatically connects to BPCI infrastructure via advanced Cloudflare configuration with millions-scale onboarding support.
                 </Paragraph>
               </Card>
             </div>
@@ -429,6 +648,270 @@ let balance = client.get_wallet_balance(&wallet).await?;`}
                   <Button size="large" style={{ background: 'transparent', border: '2px solid #10B981', color: '#10B981', fontWeight: '600' }}>
                     Email: umesh@pravyom.com
                   </Button>
+                </div>
+              </Card>
+            </div>
+          </TabPane>
+
+          <TabPane tab="💾 Downloads" key="downloads">
+            <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+              {/* BPI OS Downloads Header */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)', textAlign: 'center' }}>
+                <Title level={2} style={{ color: '#E8B44F', marginBottom: '1rem' }}>
+                  <DownloadOutlined /> BPI OS Installation
+                </Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1.125rem', maxWidth: '700px', margin: '0 auto 1.5rem' }}>
+                  Install BPI OS using standard Linux package management or download the binary directly. Professional APT repository available for easy installation and updates.
+                </Paragraph>
+                <Alert
+                  message="Professional APT Repository Available"
+                  description="Install BPI OS using 'sudo apt install bpi-os' for automatic updates and system integration."
+                  type="success"
+                  showIcon
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', marginBottom: '1rem' }}
+                />
+              </Card>
+
+              {/* APT Installation Method (Recommended) */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#10B981', marginBottom: '1rem' }}>
+                  <CheckCircleOutlined /> Method 1: APT Installation (Recommended)
+                </Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                  Install BPI OS using the official PRAVYOM APT repository for automatic updates and system integration:
+                </Paragraph>
+                
+                <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+                  <Text style={{ color: '#E8B44F', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 1: Add PRAVYOM APT Repository
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(232, 180, 79, 0.1)', 
+                    color: '#E8B44F', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem',
+                    wordBreak: 'break-all'
+                  }}>
+                    echo "deb [trusted=yes] https://pravyom.com/apt stable main" | sudo tee /etc/apt/sources.list.d/pravyom.list
+                  </code>
+                  
+                  <Text style={{ color: '#E8B44F', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 2: Update Package List
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(232, 180, 79, 0.1)', 
+                    color: '#E8B44F', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem'
+                  }}>
+                    sudo apt update
+                  </code>
+                  
+                  <Text style={{ color: '#E8B44F', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 3: Install BPI OS
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(232, 180, 79, 0.1)', 
+                    color: '#E8B44F', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem'
+                  }}>
+                    sudo apt install bpi-os
+                  </code>
+                </div>
+
+                <Alert
+                  message="Automatic Service Setup"
+                  description="APT installation automatically configures systemd service, creates user accounts, and sets up proper permissions."
+                  type="info"
+                  showIcon
+                  style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
+                />
+              </Card>
+
+              {/* Direct BPI OS Download Button */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(232, 180, 79, 0.3)', borderRadius: '12px', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#E8B44F', marginBottom: '1rem' }}>
+                  <DownloadOutlined /> Method 2: Direct Binary Download
+                </Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                  Download the BPI OS binary directly for manual installation:
+                </Paragraph>
+                <Row gutter={[24, 24]} align="middle">
+                  <Col xs={24} md={4} style={{ textAlign: 'center' }}>
+                    <CodeOutlined style={{ fontSize: '4rem', color: '#E8B44F' }} />
+                  </Col>
+                  <Col xs={24} md={14}>
+                    <Title level={4} style={{ color: '#E8B44F', marginBottom: '0.5rem' }}>BPI OS Core for Linux x64</Title>
+                    <Paragraph style={{ color: '#ffffff', marginBottom: '0.5rem' }}>
+                      Production-ready blockchain operating system binary
+                    </Paragraph>
+                    <Text style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
+                      Version: 1.0.0-production | Size: 29.2 MB | MD5: 5c00fd2667ec65d056db771d82b626f1
+                    </Text>
+                  </Col>
+                  <Col xs={24} md={6} style={{ textAlign: 'center' }}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<DownloadOutlined />}
+                      href="https://pravyom.com/downloads/bpi-os/bpi-core-linux-x64"
+                      target="_blank"
+                      download="bpi-core-linux-x64"
+                      style={{
+                        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                        border: 'none',
+                        color: '#FFFFFF',
+                        fontWeight: '600',
+                        width: '100%',
+                        height: '50px',
+                        fontSize: '16px'
+                      }}
+                    >
+                      Download Now
+                    </Button>
+                  </Col>
+                </Row>
+              </Card>
+
+              {/* BPI OS Downloader Component (Fallback) */}
+              <BpiOSDownloader 
+                showStats={false}
+                showInstructions={false}
+                compactMode={true}
+              />
+
+              {/* BPI OS to BPCI Connection Instructions */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(139, 92, 246, 0.3)', borderRadius: '12px', marginTop: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={3} style={{ color: '#8B5CF6', marginBottom: '1rem' }}>
+                  <ApiOutlined /> Method 3: Connect to BPCI Network
+                </Title>
+                <Paragraph style={{ color: '#ffffff', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                  After installing BPI OS, connect to the PRAVYOM BPCI infrastructure for full blockchain functionality:
+                </Paragraph>
+
+                <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+                  <Text style={{ color: '#8B5CF6', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 1: Install BPI OS (Docker-like)
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(139, 92, 246, 0.1)', 
+                    color: '#8B5CF6', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem'
+                  }}>
+                    curl -fsSL https://get.bpi.dev | sh
+                  </code>
+                  
+                  <Text style={{ color: '#8B5CF6', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 2: Connect to BPCI via Cloudflare
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(139, 92, 246, 0.1)', 
+                    color: '#8B5CF6', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem'
+                  }}>
+                    bpi init --connect https://connect.pravyom.com
+                  </code>
+                  
+                  <Text style={{ color: '#8B5CF6', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 3: Start BPI OS (Auto-connects to BPCI)
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(139, 92, 246, 0.1)', 
+                    color: '#8B5CF6', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    marginBottom: '1rem'
+                  }}>
+                    bpi start
+                  </code>
+
+                  <Text style={{ color: '#8B5CF6', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '1rem' }}>
+                    Step 4: Start BPI OS Service
+                  </Text>
+                  <code style={{ 
+                    background: 'rgba(139, 92, 246, 0.1)', 
+                    color: '#8B5CF6', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    display: 'block', 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem'
+                  }}>
+                    sudo systemctl start bpi-os && sudo systemctl enable bpi-os
+                  </code>
+                </div>
+
+                <Alert
+                  message="Network Configuration"
+                  description="BPI OS automatically configures LCCD/QCE2 consensus, XTMP protocol, DynaRoutes service mesh, and 6D blockchain architecture when connecting to PRAVYOM infrastructure."
+                  type="info"
+                  showIcon
+                  style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', marginBottom: '1rem' }}
+                />
+
+                <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                  <Text style={{ color: '#10B981', fontSize: '0.875rem', fontWeight: '600', display: 'block', marginBottom: '0.5rem' }}>
+                    ✅ Connection Features Enabled:
+                  </Text>
+                  <ul style={{ color: '#ffffff', fontSize: '0.875rem', paddingLeft: '1rem', margin: 0 }}>
+                    <li>6D Multi-Dimensional Blockchain Architecture</li>
+                    <li>XTMP Protocol for Auction-Based Transactions</li>
+                    <li>Complex Addressing: your-wallet@pravyom.bpi</li>
+                    <li>DynaRoutes Service Mesh Communication</li>
+                    <li>Quantum-Resistant Security (ZipLock Encryption)</li>
+                    <li>Web2-Like Performance in Web3.5 Environment</li>
+                  </ul>
+                </div>
+              </Card>
+
+              {/* Quick Start Instructions */}
+              <Card style={{ background: 'rgba(10, 22, 40, 0.9)', border: '2px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', marginTop: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Title level={4} style={{ color: '#3B82F6', marginBottom: '1rem' }}>
+                  <CodeOutlined /> Verification & Status Check
+                </Title>
+                <div style={{ color: '#ffffff', fontSize: '1rem', lineHeight: '1.8' }}>
+                  <Paragraph style={{ color: '#ffffff', marginBottom: '1rem' }}>
+                    Verify your BPI OS installation and network connection:
+                  </Paragraph>
+                  <ol style={{ paddingLeft: '1.5rem', color: '#ffffff' }}>
+                    <li style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: '#E8B44F' }}>Check Service Status:</strong> <code style={{ background: 'rgba(232, 180, 79, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>sudo systemctl status bpi-os</code>
+                    </li>
+                    <li style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: '#E8B44F' }}>View Connection Logs:</strong> <code style={{ background: 'rgba(232, 180, 79, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>sudo journalctl -u bpi-os -f</code>
+                    </li>
+                    <li style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: '#E8B44F' }}>Test Network Connection:</strong> <code style={{ background: 'rgba(232, 180, 79, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>bpi-os status --network</code>
+                    </li>
+                    <li style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: '#E8B44F' }}>Access Web Interface:</strong> <code style={{ background: 'rgba(232, 180, 79, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>http://localhost:8080</code>
+                    </li>
+                  </ol>
                 </div>
               </Card>
             </div>

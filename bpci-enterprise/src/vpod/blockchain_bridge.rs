@@ -513,7 +513,7 @@ impl BlockchainBridge {
     /// Hash data using configured hash function
     fn hash_data(&self, data: &[u8]) -> [u8; 32] {
         use sha2::{Sha256, Digest};
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(data);
         hasher.finalize().into()
     }
@@ -596,7 +596,7 @@ impl VPodAuditSystem {
         
         // Hash all steps in the epoch
         use sha2::{Sha256, Digest};
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         
         for step in epoch_steps {
             // TODO: Replace with proper bincode serialization when dependency is available
@@ -655,7 +655,7 @@ impl MerkleTreeBuilder {
     /// Hash a pair of nodes
     fn hash_pair(&self, left: &[u8; 32], right: &[u8; 32]) -> [u8; 32] {
         use sha2::{Sha256, Digest};
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(left);
         hasher.update(right);
         hasher.finalize().into()

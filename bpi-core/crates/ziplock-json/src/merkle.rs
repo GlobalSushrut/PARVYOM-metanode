@@ -1,10 +1,10 @@
 //! Merkle rollups and micro-receipt logic for ZIPLOCK-JSON
 
-use blake3::{Hasher, Hash};
+use blake3::Hasher;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use crate::{ZjlResult, ZjlError};
-use crate::blocks::{SecondRoot, MinuteRoot, HourRoot, DayRoot, BlockType, Block};
+use crate::blocks::{SecondRoot, MinuteRoot, HourRoot, DayRoot, Block};
 
 /// Merkle tree node
 #[derive(Debug, Clone, PartialEq)]

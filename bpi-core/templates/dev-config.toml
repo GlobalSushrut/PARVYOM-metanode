@@ -1,0 +1,59 @@
+# BPI Core Development Configuration Template
+# Optimized for development and testing
+
+[metadata]
+version = "1.0.0"
+environment = "development"
+developer = "Your Name"
+
+[network]
+# Development network settings
+host = "localhost"
+port = 8080
+protocol = "http"  # HTTP for development
+timeout_seconds = 10
+max_connections = 100
+
+[security]
+# Relaxed security for development
+level = "medium"
+quantum_safe = false  # Disabled for faster development
+encryption_algorithm = "standard"
+key_rotation_hours = 168  # Weekly
+audit_enabled = false
+
+[development]
+# Development-specific settings
+hot_reload = true
+debug_mode = true
+test_mode = true
+mock_services = true
+verbose_logging = true
+
+[testing]
+# Testing configuration
+test_database = "./test/test.db"
+test_data_path = "./test/data"
+integration_tests = true
+performance_tests = false
+cleanup_after_tests = true
+
+[storage]
+# Development storage
+data_path = "./dev-data"
+backup_path = "./dev-backups"
+backup_enabled = false  # Disabled for development
+retention_days = 7
+
+[logging]
+# Verbose development logging
+level = "debug"
+file_path = "./logs/dev.log"
+console_output = true
+structured_logging = true
+
+[performance]
+# Development performance
+worker_threads = 2
+memory_limit_gb = 4
+cache_size_mb = 256

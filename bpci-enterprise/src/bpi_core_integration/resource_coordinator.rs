@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, debug, error};
+use tracing::{info, warn, debug};
 
 use crate::central_orchestration::BPCICentralOrchestrator;
 

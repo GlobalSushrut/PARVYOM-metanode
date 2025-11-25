@@ -3,14 +3,12 @@ use std::collections::HashMap;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
-use tracing::{info, warn, error};
+use tracing::info;
 use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use crate::cargo_portal::{CargoPortal, CargoPortalProcessor};
-use crate::wallet_address_orchestrator::WalletAddressOrchestrator;
-use crate::unified_manager::component_manager::UnifiedComponentManager;
 
 /// Server-Side Portal Downloader - cargo.portal-driven portal initiation
 pub struct PortalDownloader {

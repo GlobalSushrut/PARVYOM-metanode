@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
-use rust_decimal::prelude::FromPrimitive;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -8,11 +7,10 @@ use tokio::sync::RwLock;
 use anyhow::Result;
 use thiserror::Error;
 use uuid::Uuid;
-use tracing::{info, warn, error};
+use tracing::{info, error};
 
-use crate::autonomous_economy::{CoinDistributionEngine, CoinType, DistributionResult};
+use crate::autonomous_economy::{CoinDistributionEngine, CoinType};
 use crate::registry::node_types::BpiWalletStamp;
-use crate::mining::node_types::{ValidatorNode, MinerNode, NotaryNode};
 
 /// BPCI Treasury Integration - Handles 100% Gas/Rent with 25%/75% Split
 /// 

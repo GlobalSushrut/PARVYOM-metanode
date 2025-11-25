@@ -2,10 +2,10 @@ use std::sync::Arc;
 use std::collections::HashMap;
 use tokio::sync::RwLock;
 use chrono::{DateTime, Utc};
-use tracing::{info, warn, error};
+use tracing::{info, error};
 
-use super::makefilelock::{MakefileLock, DeploymentHandle};
-use super::bso_engine::{BsoDeploymentEngine, BsoError, BsoNode};
+use super::makefilelock::MakefileLock;
+use super::bso_engine::{BsoDeploymentEngine, BsoError};
 
 /// ICO (Integrated Cellular Operations) Framework
 /// Coordinates cellular node lifecycle, autonomous replication, and inter-cellular communication

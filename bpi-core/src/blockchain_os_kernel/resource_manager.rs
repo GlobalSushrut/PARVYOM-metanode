@@ -4,14 +4,15 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use crate::cbor_pipeline_foundation::CborSerializable;
 use anyhow::Result;
 use uuid::Uuid;
 
 use super::{ProcessType, OrchestrationMode};
 
 /// Resource allocation information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceAllocation {
     pub allocation_id: String,
     pub process_id: String,
@@ -27,7 +28,7 @@ pub struct ResourceAllocation {
 }
 
 /// Consensus-based resource allocation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConsensusAllocation {
     pub allocation_id: String,
     pub consensus_round: u64,
@@ -38,7 +39,7 @@ pub struct ConsensusAllocation {
 }
 
 /// Validator signature for consensus
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ValidatorSignature {
     pub validator_id: String,
     pub signature: String,
@@ -48,6 +49,7 @@ pub struct ValidatorSignature {
 
 /// Consensus vote types
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum ConsensusVote {
     Approve,
     Reject,
@@ -55,7 +57,7 @@ pub enum ConsensusVote {
 }
 
 /// Allocation proof for blockchain verification
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AllocationProof {
     pub merkle_root: String,
     pub proof_hash: String,
@@ -65,6 +67,7 @@ pub struct AllocationProof {
 
 /// Finality status of consensus
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum FinalityStatus {
     Pending,
     Confirmed,
@@ -74,6 +77,7 @@ pub enum FinalityStatus {
 
 /// Quantum access levels
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum QuantumAccessLevel {
     None,
     Basic,
@@ -82,7 +86,7 @@ pub enum QuantumAccessLevel {
 }
 
 /// System resource pool
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourcePool {
     pub total_cpu_cores: u32,
     pub available_cpu_cores: u32,
@@ -99,7 +103,7 @@ pub struct ResourcePool {
 }
 
 /// Resource utilization metrics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceUtilization {
     pub cpu_utilization: f64,
     pub memory_utilization: f64,
@@ -133,7 +137,7 @@ pub struct BlockchainResourceManager {
 }
 
 /// Resource manager configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceManagerConfig {
     pub consensus_threshold: f64,
     pub allocation_timeout_seconds: u64,
@@ -144,7 +148,7 @@ pub struct ResourceManagerConfig {
 }
 
 /// Load balancing algorithms
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum LoadBalancingAlgorithm {
     RoundRobin,
     LeastLoaded,
@@ -166,9 +170,18 @@ impl Default for ResourceManagerConfig {
     }
 }
 
+// CBOR Serializable implementations for resource manager structs
+impl CborSerializable for ResourceAllocation {}
+impl CborSerializable for ConsensusAllocation {}
+impl CborSerializable for ValidatorSignature {}
+impl CborSerializable for AllocationProof {}
+impl CborSerializable for ResourcePool {}
+impl CborSerializable for ResourceUtilization {}
+impl CborSerializable for ResourceManagerConfig {}
+
 impl BlockchainResourceManager {
     /// Create a new blockchain resource manager
-    pub async fn new() -> Result<Self> {
+    pub fn new() -> Result<Self> {
         // Initialize with default system resources
         let resource_pool = ResourcePool {
             total_cpu_cores: 16,
@@ -538,14 +551,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_resource_manager_creation() {
-        let manager = BlockchainResourceManager::new().await.unwrap();
+        let manager = BlockchainResourceManager::new().unwrap();
         assert!(manager.initialize().await.is_ok());
         assert!(manager.shutdown().await.is_ok());
     }
 
     #[tokio::test]
     async fn test_resource_allocation() {
-        let manager = BlockchainResourceManager::new().await.unwrap();
+        let manager = BlockchainResourceManager::new().unwrap();
         manager.initialize().await.unwrap();
 
         let process_id = "test_process";
@@ -560,7 +573,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_utilization_tracking() {
-        let manager = BlockchainResourceManager::new().await.unwrap();
+        let manager = BlockchainResourceManager::new().unwrap();
         manager.initialize().await.unwrap();
 
         let initial_utilization = manager.get_utilization().await.unwrap();

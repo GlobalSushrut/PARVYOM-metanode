@@ -72,7 +72,7 @@ impl AuctionTransaction {
     }
     
     pub fn compute_hash(&self) -> [u8; 32] {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(self.tx_id);
         hasher.update(self.chain_id.to_be_bytes());
         hasher.update(self.bid_amount.to_be_bytes());
@@ -224,7 +224,7 @@ impl AuctionMerkleTree {
             let current_nodes = &self.merkle_nodes[current_level];
             
             for chunk in current_nodes.chunks(2) {
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(chunk[0]);
                 
                 if chunk.len() > 1 {
@@ -299,7 +299,7 @@ impl AuctionMerkleTree {
         let mut current_index = proof.leaf_index;
         
         for sibling_hash in &proof.proof_hashes {
-            let mut hasher = Sha256::new();
+            let mut hasher = <Sha256 as Digest>::new();
             
             if current_index % 2 == 0 {
                 // Left child

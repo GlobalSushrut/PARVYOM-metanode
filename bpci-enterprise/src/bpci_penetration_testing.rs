@@ -7,13 +7,11 @@
 //! - Blockchain consensus attack simulation
 //! - Advanced hacker-level exploit testing
 
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Serialize, Deserialize};
-use tokio::time::sleep;
-use tracing::{info, warn, error, debug};
+use tracing::info;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 use sha2::{Sha256, Digest};

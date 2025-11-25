@@ -2,7 +2,7 @@
 
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
 use serde::{Deserialize, Serialize};
-use crate::{ZjlResult, ZjlError};
+// Removed unused ZjlResult and ZjlError imports
 
 /// Block type constants
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

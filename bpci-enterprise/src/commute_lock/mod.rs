@@ -46,14 +46,12 @@
 use anyhow::{Result, anyhow};
 use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
-use std::io::{Read, Write, Seek, SeekFrom};
+use std::io::{Read, Write};
 use std::os::unix::io::AsRawFd;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use parking_lot::RwLock;
-use memmap2::{MmapMut, MmapOptions};
 use nix::fcntl::{flock, FlockArg};
-use serde::{Serialize, Deserialize};
 
 use crate::config::env_ini_parser::{CommuteLockConfig, EnvIniConfig};
 

@@ -8,7 +8,6 @@
 //! Examples include India, China, Karnataka as demonstrations, but the system
 //! supports any jurisdiction globally with customizable templates.
 
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Government SmartContract++ Examples

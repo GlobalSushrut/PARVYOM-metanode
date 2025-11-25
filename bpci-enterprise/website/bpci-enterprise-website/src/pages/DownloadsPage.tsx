@@ -254,7 +254,7 @@ export const DownloadsPage: React.FC = () => {
               <Space direction="vertical">
                 <Text>📚 <strong>Documentation:</strong> <a href="https://pravyom.com/docs" target="_blank" rel="noopener noreferrer">pravyom.com/docs</a></Text>
                 <Text>💬 <strong>Community:</strong> <a href="https://pravyom.com/community" target="_blank" rel="noopener noreferrer">pravyom.com/community</a></Text>
-                <Text>🐛 <strong>Issues:</strong> <a href="https://github.com/pravyom/bpi-os/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a></Text>
+                <Text>🐛 <strong>Issues:</strong> <a href="https://github.com/GlobalSushrut/PARVYOM-metanode/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a></Text>
               </Space>
             </div>
           }

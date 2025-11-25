@@ -89,6 +89,16 @@ pub enum AuditEvent {
     ContractDeploy { vm_id: String, contract_type: String, contract_id: String, config: Value },
     ContractExecution { vm_id: String, contract_id: String, action: String, params: Value, result: Value },
     ContractError { vm_id: String, contract_id: String, error: String },
+    // BATCH 5 FIX: Add missing enum variant
+    DeploymentCompleted { 
+        vm_id: String, 
+        deployment_id: String, 
+        status: String, 
+        duration_ms: u64,
+        // BATCH 6 FIX: Add missing fields
+        template_id: String,
+        target_environment: String,
+    },
     
     // CUE Orchestration Events
     CueValidation { vm_id: String, cue_file: String, validation_result: bool, errors: Vec<String> },

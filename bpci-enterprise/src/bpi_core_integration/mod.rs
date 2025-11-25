@@ -9,11 +9,10 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, debug, error};
+use tracing::{info, debug, error};
 
 // Import from central orchestration
 use crate::central_orchestration::BPCICentralOrchestrator;
-use crate::registry::{BpciRegistry, NodeRegistration};
 
 pub mod kernel_bridge;
 pub mod service_mapper;

@@ -28,6 +28,7 @@ pub mod blockchain_helpers;
 pub mod config;
 pub mod commute_lock;
 pub mod dynaroute_integration;
+pub mod xtmp_client;
 pub mod virtual_addressing;
 pub mod court_bpi_mesh_integration;
 pub mod court_shadow_bridge;
@@ -45,6 +46,40 @@ pub mod unified_audit_system;
 // Advanced security and mathematical foundation modules
 pub mod quantum_safe_channels;
 pub mod hermes_lite_web4_mesh;
+
+// Real ZK proof system and quantum synchronization (Phase 7)
+pub mod real_zk_proof_system;
+pub mod quantum_sync_system;
+pub mod evolutionary_bpci_server;
+
+// Hyperscale Proxy Architecture - Organic Community-Driven Growth
+pub mod hyperscale_proxy_architecture;
+pub mod mesh_deployment_system; 
+pub mod native_deployment_architecture;
+
+// HERMES P2P Mesh Integration - Production O(log n) service discovery
+pub mod hermes_integration;
+
+// BPI Chain State - 6-D State Vector (Σ⃗) for W4-FT
+pub mod bpi_chain_state;
+
+// Slot Marketplace - BPI resource offers and BPCI allocator
+pub mod slot_marketplace;
+
+// W4-FT Fluid Transport - Adaptive network transport with fluid dynamics
+pub mod w4_fluid;
+
+// LCCD - Living Cellular Consensus Division
+pub mod lccd;
+
+// ZK Proofs - Zero-knowledge proofs for cryptographic verification
+pub mod zk_proofs;
+
+// P2P Mesh - Serverless service discovery and mesh networking
+pub mod p2p_mesh;
+
+// Advanced Proxy System - DynaRoute + HERMES + Load Balancing
+pub mod advanced_proxy;
 
 // Inter-component communication for unified infrastructure
 pub mod inter_component_communication;

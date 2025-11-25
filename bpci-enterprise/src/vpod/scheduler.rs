@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 use std::ptr;
 use std::hash::Hasher;
 use tokio::sync::{RwLock, Mutex};
-use tokio::time::{interval, sleep};
+use tokio::time::interval;
 
 use crate::vpod::{VPodActor, ActorId};
 

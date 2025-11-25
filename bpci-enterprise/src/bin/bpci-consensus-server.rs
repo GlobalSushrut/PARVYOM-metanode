@@ -420,3 +420,65 @@ async fn shutdown_signal() {
         },
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Lightweight integration-style check that we can create a Hermes mesh
+    /// in a consensus-server-like context and query its health.
+    #[tokio::test]
+    async fn test_consensus_server_initializes_hermes_mesh_health() {
+        // Initialize LCCD foundation as main() would
+        let lccd_foundation = Arc::new(LccdMathematicalFoundation::new());
+
+        // Create a local Web4 address for this validator node (loopback for tests)
+        let web4_address = Web4Address {
+            node_id: MeshNodeId::generate(),
+            ip_address: "127.0.0.1".to_string(),
+            port: 19002,
+            quantum_channel: Some(format!("quantum-test-{}", uuid::Uuid::new_v4())),
+            mesh_layer: 0,
+        };
+
+        // Initialize Hermes mesh with LCCD foundation
+        let hermes_mesh = Arc::new(
+            HermesLiteWeb4Mesh::new(web4_address, lccd_foundation)
+                .expect("Hermes mesh should initialize"),
+        );
+
+        // Join mesh with no bootstrap nodes so local node is registered in topology
+        hermes_mesh
+            .join_mesh(Vec::new())
+            .await
+            .expect("join_mesh should succeed");
+
+        // Run a single consensus round to exercise the integration
+        let confidence = hermes_mesh
+            .process_mesh_consensus_round(0.9)
+            .await
+            .expect("consensus round should succeed");
+
+        let health = hermes_mesh
+            .get_mesh_health()
+            .await
+            .expect("mesh health query should succeed");
+
+        println!(
+            "[consensus:test_consensus_server_initializes_hermes_mesh_health] mesh_id={} total_nodes={} health_ratio={:.3} avg_kappa={:.6} avg_confidence={:.3} consensus_rounds={} overall_confidence={:.3}",
+            health.mesh_id,
+            health.total_nodes,
+            health.health_ratio,
+            health.average_kappa,
+            health.average_confidence,
+            health.consensus_rounds,
+            confidence.overall_confidence(),
+        );
+
+        // Basic sanity checks
+        assert!(!health.mesh_id.is_empty());
+        assert!(health.total_nodes >= 1);
+        assert!(health.health_ratio >= 0.0 && health.health_ratio <= 1.0);
+        assert!(health.consensus_rounds >= 0);
+    }
+}

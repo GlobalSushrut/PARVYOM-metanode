@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, debug, error};
+use tracing::{info, debug};
 
 /// Bridge to BPI Core Blockchain OS Kernel
 /// Provides seamless integration between BPCI Enterprise and BPI Core OS

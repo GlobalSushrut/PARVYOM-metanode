@@ -1,0 +1,1 @@
+{"rustc":11410426090777951712,"features":"[]","declared_features":"[]","target":16879409016869057827,"profile":15657897354478470176,"path":7581364862978266713,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"debug/.fingerprint/thin-slice-3dc41de06974fd3d/dep-lib-thin_slice","checksum":false}}],"rustflags":["-C","opt-level=0"],"config":2069994364910194474,"compile_kind":0}

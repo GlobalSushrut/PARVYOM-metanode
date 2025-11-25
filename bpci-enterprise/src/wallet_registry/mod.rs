@@ -38,7 +38,6 @@ pub use wallet_registry_cli::{
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 /// Global wallet registry instance for BPCI Enterprise
 static GLOBAL_WALLET_REGISTRY: once_cell::sync::Lazy<Arc<ComprehensiveWalletRegistry>> = 

@@ -12,7 +12,7 @@
 //! - Cryptographic hash verification
 //! - Version pinning and dependency resolution
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -22,7 +22,7 @@ use chrono::{DateTime, Utc};
 use toml;
 
 /// Environment configuration from env.ini
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EnvIniConfig {
     /// Configuration sections
     pub sections: HashMap<String, EnvSection>,
@@ -266,6 +266,16 @@ pub struct BpiDataConfig {
     pub max_addresses: usize,
 }
 
+impl Default for BpiDataConfig {
+    fn default() -> Self {
+        Self {
+            bpi_data_dir: PathBuf::from("/tmp/bpi_data"),
+            per_address_mb: 64,
+            max_addresses: 1000,
+        }
+    }
+}
+
 /// Lock settings for commute.lock
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LockSettings {
@@ -277,6 +287,16 @@ pub struct LockSettings {
     pub enable_monitoring: bool,
 }
 
+impl Default for LockSettings {
+    fn default() -> Self {
+        Self {
+            timeout_ms: 5000,
+            retry_count: 3,
+            enable_monitoring: true,
+        }
+    }
+}
+
 /// Event notification settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EventSettings {
@@ -284,6 +304,15 @@ pub struct EventSettings {
     pub buffer_size: usize,
     /// Event timeout in milliseconds
     pub timeout_ms: u64,
+}
+
+impl Default for EventSettings {
+    fn default() -> Self {
+        Self {
+            buffer_size: 1024,
+            timeout_ms: 1000,
+        }
+    }
 }
 
 /// Performance tuning settings
@@ -295,6 +324,16 @@ pub struct PerformanceSettings {
     pub lock_free_queues: bool,
     /// NUMA-aware memory allocation
     pub numa_aware: bool,
+}
+
+impl Default for PerformanceSettings {
+    fn default() -> Self {
+        Self {
+            zero_copy_enabled: true,
+            lock_free_queues: true,
+            numa_aware: false,
+        }
+    }
 }
 
 /// commute.lock snapshot for envtoml.lock
@@ -516,7 +555,7 @@ impl EnvIniParser {
     
     /// Hash a value using SHA256
     fn hash_value(&self, value: &str) -> String {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(value.as_bytes());
         format!("{:x}", hasher.finalize())
     }

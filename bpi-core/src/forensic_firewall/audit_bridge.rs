@@ -12,6 +12,7 @@ use crate::immutable_audit_system::{
     CpuState, MemoryState, ProcessState, NetworkState
 };
 use crate::forensic_firewall::{
+    shared_types::{ForensicEventType, ForensicSeverity},
     behavioral_analysis::{BehavioralConfig, UserActivity, BehavioralAnalysisResult, DetectedAnomaly},
     dynamic_response::{DynamicResponseConfig, ResponseType},
     cue_engine::{CueRuleEngine, SecurityDecision, SecurityAction},
@@ -47,33 +48,7 @@ pub struct ForensicEvent {
     pub digital_signature: String,
 }
 
-/// Types of forensic events
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ForensicEventType {
-    SecurityThreatDetected,
-    BehavioralAnomalyDetected,
-    CueRuleViolation,
-    PolicyEnforcementAction,
-    ForensicEvidenceCollected,
-    IncidentResponse,
-    ComplianceViolation,
-    SystemCompromise,
-    DataExfiltration,
-    UnauthorizedAccess,
-    MaliciousActivity,
-    SuspiciousPattern,
-}
 
-/// Forensic severity levels
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ForensicSeverity {
-    Info,
-    Low,
-    Medium,
-    High,
-    Critical,
-    Emergency,
-}
 
 /// Forensic evidence collection
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -245,10 +220,11 @@ impl ForensicAuditBridge {
         source_component: ComponentType,
     ) -> Result<Uuid> {
         let severity = match analysis_result.risk_level {
-            crate::forensic_firewall::behavioral_analysis::RiskLevel::Low => ForensicSeverity::Low,
-            crate::forensic_firewall::behavioral_analysis::RiskLevel::Medium => ForensicSeverity::Medium,
-            crate::forensic_firewall::behavioral_analysis::RiskLevel::High => ForensicSeverity::High,
-            crate::forensic_firewall::behavioral_analysis::RiskLevel::Critical => ForensicSeverity::Critical,
+            crate::forensic_firewall::cue_engine::RiskLevel::Low => ForensicSeverity::Low,
+            crate::forensic_firewall::cue_engine::RiskLevel::Medium => ForensicSeverity::Medium,
+            crate::forensic_firewall::cue_engine::RiskLevel::High => ForensicSeverity::High,
+            crate::forensic_firewall::cue_engine::RiskLevel::Critical => ForensicSeverity::Critical,
+            crate::forensic_firewall::cue_engine::RiskLevel::Emergency => ForensicSeverity::Critical,
         };
 
         let description = format!(

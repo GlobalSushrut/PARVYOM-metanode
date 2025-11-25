@@ -138,7 +138,7 @@ impl Transaction {
         let timestamp = Timestamp::now();
         
         // Calculate hash
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(id.as_str().as_bytes());
         hasher.update(from.as_str().as_bytes());
         hasher.update(&serde_json::to_vec(&tx_type).unwrap_or_default());
@@ -163,7 +163,7 @@ impl Transaction {
     
     /// Sign the transaction (simplified - in production would use proper cryptography)
     pub fn sign(&mut self, private_key: &[u8]) -> Result<()> {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&self.hash.as_bytes());
         hasher.update(private_key);
         self.signature = hasher.finalize().to_vec();
@@ -176,7 +176,7 @@ impl Transaction {
             return false;
         }
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&self.hash.as_bytes());
         hasher.update(public_key);
         let expected_signature = hasher.finalize().to_vec();

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use crate::registry::geodid::{GeoDID, GeoScope};
+use crate::registry::geodid::GeoScope;
 
 /// StateWallet - Exactly one per state (geo-bound), constructed as:
 /// StateWallet = CourtDID + 5×BPIWallets (independent cross-credibility)

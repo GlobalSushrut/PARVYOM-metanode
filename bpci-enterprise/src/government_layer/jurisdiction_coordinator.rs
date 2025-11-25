@@ -6,9 +6,8 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use uuid::Uuid;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, error, debug};
+use tracing::info;
 
 /// Jurisdiction Coordinator
 #[derive(Debug, Clone)]

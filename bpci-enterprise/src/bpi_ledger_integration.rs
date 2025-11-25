@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use tracing::info;
-use reqwest;
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
 // Define ValidatorInfo locally to avoid import issues
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ValidatorInfo {
@@ -23,6 +23,8 @@ pub struct ValidatorInfo {
 /// Real BPI Ledger Client for real endpoint communication
 #[derive(Debug)]
 pub struct BpiLedgerClient {
+    /// Unified networking layer for all communication
+    pub networking: Arc<UnifiedNetworkingLayer>,
     /// Node endpoints for BPI ledger communication
     pub node_endpoints: Arc<RwLock<HashMap<String, String>>>,
     /// Ledger connections
@@ -31,8 +33,6 @@ pub struct BpiLedgerClient {
     pub zk_proof_system: Arc<ZkProofSystem>,
     /// Economic coordinator
     pub economic_coordinator: Arc<EconomicCoordinator>,
-    /// HTTP client for API communication
-    pub http_client: reqwest::Client,
 }
 
 /// Real BPI Ledger Connection
@@ -363,9 +363,9 @@ pub struct TransactionResult {
 }
 
 impl BpiLedgerClient {
-    /// Create new BPI ledger client with real endpoints
-    pub async fn new() -> Result<Self> {
-        tracing::info!("Initializing real BPI ledger client");
+    /// Create new BPI ledger client with UnifiedNetworkingLayer
+    pub async fn new(networking: Arc<UnifiedNetworkingLayer>) -> Result<Self> {
+        tracing::info!("Initializing real BPI ledger client with UnifiedNetworkingLayer");
         
         // Initialize real BPI node endpoints from coordinator
         let node_endpoints = Arc::new(RwLock::new(Self::discover_bpi_endpoints().await?));
@@ -377,11 +377,11 @@ impl BpiLedgerClient {
         let economic_coordinator = Arc::new(EconomicCoordinator::new().await?);
         
         Ok(Self {
+            networking,
             node_endpoints,
             ledger_connections: Arc::new(RwLock::new(HashMap::new())),
             zk_proof_system,
             economic_coordinator,
-            http_client: reqwest::Client::new(),
         })
     }
     
@@ -495,45 +495,30 @@ impl BpiLedgerClient {
             }
         };
 
-        // Submit to BPI ledger with proof
-        let response_result = self.http_client
-            .post(&format!("{}/submit_transaction", connection.ledger_endpoint))
-            .json(&serde_json::json!({
-                "transaction_data": transaction_data,
-                "proof": proof,
-                "timestamp": chrono::Utc::now().timestamp()
-            }))
-            .send()
-            .await;
-
-        match response_result {
-            Ok(response) if response.status().is_success() => {
-                let result: serde_json::Value = response.json().await?;
+        // Submit to BPI ledger with proof via UnifiedNetworkingLayer
+        let request_data = serde_json::json!({
+            "transaction_data": transaction_data,
+            "proof": proof,
+            "timestamp": chrono::Utc::now().timestamp()
+        });
+        
+        let target_endpoint = &connection.ledger_endpoint;
+        let message_data = serde_json::to_vec(&request_data)?;
+        
+        match self.networking.send_message(target_endpoint, &message_data).await {
+            Ok(_) => {
+                // Transaction sent successfully via UnifiedNetworkingLayer
+                // For now, return a success result with placeholder data
+                // TODO: Implement proper response handling when networking layer supports request/response
                 Ok(TransactionResult {
-                    transaction_id: result["transaction_id"].as_str().unwrap_or("unknown").to_string(),
-                    confirmation_hash: result["confirmation_hash"].as_str().unwrap_or("unknown").to_string(),
-                    receipt: result["receipt"].as_str().unwrap_or("unknown").to_string(),
-                    processed_by_node: result["processed_by"].as_str().unwrap_or("unknown").to_string(),
+                    transaction_id: format!("tx_{}", uuid::Uuid::new_v4()),
+                    confirmation_hash: format!("hash_{}", chrono::Utc::now().timestamp()),
+                    receipt: "submitted_via_unified_networking".to_string(),
+                    processed_by_node: target_endpoint.to_string(),
                 })
-            }
-            Ok(response) => {
-                Err(anyhow!("Transaction submission failed: {}", response.status()))
             }
             Err(e) => {
-                // Handle connection failures gracefully in test/development environments
-                // This allows tests to continue using real implementations without requiring a running BPI ledger
-                tracing::warn!("BPI ledger connection failed ({}), simulating successful transaction for test environment", e);
-                
-                // Generate a simulated successful transaction result
-                let transaction_id = uuid::Uuid::new_v4().to_string();
-                let confirmation_hash = format!("test_confirmation_{}", &transaction_id[..8]);
-                
-                Ok(TransactionResult {
-                    transaction_id,
-                    confirmation_hash,
-                    receipt: format!("test_receipt_{}", chrono::Utc::now().timestamp()),
-                    processed_by_node: "test_node_001".to_string(),
-                })
+                Err(anyhow!("Network error during transaction submission: {}", e))
             }
         }
     }
@@ -834,7 +819,7 @@ impl ZkProofSystem {
     async fn generate_verification_key_data(proof_type: &ProofType) -> Result<Vec<u8>> {
         use sha2::{Sha256, Digest};
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(format!("verification_key_{:?}", proof_type));
         hasher.update(b"metanode_bpi_ledger_zk_system");
         let key_data = hasher.finalize().to_vec();
@@ -888,7 +873,7 @@ impl ZkProofSystem {
     async fn generate_proof_data(&self, proof_type: &ProofType, data: &[u8]) -> Result<Vec<u8>> {
         use sha2::{Sha256, Digest};
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(format!("zk_proof_{:?}", proof_type));
         hasher.update(data);
         hasher.update(Utc::now().timestamp().to_be_bytes());

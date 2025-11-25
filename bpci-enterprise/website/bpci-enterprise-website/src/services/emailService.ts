@@ -24,15 +24,15 @@ const EMAIL_CONFIG = {
   // TODO: Add your email service API key
   apiKey: import.meta.env.VITE_EMAIL_API_KEY || '',
   // Default recipient email (can be configured)
-  defaultRecipient: 'contact@parvyom.com',
-  // Email templates by category
+  defaultRecipient: 'umesh@pravyom.com',
+  // Email templates by category - all go to umesh@pravyom.com
   categoryEmails: {
-    enterprise: 'enterprise@parvyom.com',
-    research: 'research@parvyom.com',
-    community: 'community@parvyom.com',
-    pilot: 'pilot@parvyom.com',
-    technical: 'support@parvyom.com',
-    general: 'contact@parvyom.com'
+    enterprise: 'umesh@pravyom.com',
+    research: 'umesh@pravyom.com',
+    community: 'umesh@pravyom.com',
+    pilot: 'umesh@pravyom.com',
+    technical: 'umesh@pravyom.com',
+    general: 'umesh@pravyom.com'
   }
 };
 

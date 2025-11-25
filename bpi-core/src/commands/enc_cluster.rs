@@ -1,8 +1,10 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use serde_json::json;
 use uuid::Uuid;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use std::path::Path;
+use std::fs;
 use crate::immutable_audit_system::{ImmutableAuditSystem, ComponentType, AuditRecord, RuntimeEvent, SecurityEvent};
 
 // ZJL Comprehensive Audit Integration - Records EVERY ENC cluster operation
@@ -20,6 +22,169 @@ pub enum EncClusterCommands {
     Metrics,
     Config,
     Scale { replicas: u32 },
+}
+
+fn enc_root() -> String {
+    let era_root = "/era/mutable/var/bpi/enc_cluster";
+    if Path::new(era_root).exists() {
+        era_root.to_string()
+    } else {
+        "/tmp/bpi_enc_cluster".to_string()
+    }
+}
+
+fn clusters_root() -> String {
+    format!("{}/clusters", enc_root())
+}
+
+fn current_cluster_path() -> String {
+    format!("{}/current_cluster.json", enc_root())
+}
+
+fn save_current_cluster_id(cluster_id: &str) -> Result<()> {
+    let root = enc_root();
+    fs::create_dir_all(&root)?;
+    let value = json!({ "cluster_id": cluster_id });
+    fs::write(current_cluster_path(), serde_json::to_string_pretty(&value)?)?;
+    Ok(())
+}
+
+fn load_current_cluster_id() -> Option<String> {
+    let path = current_cluster_path();
+    let content = fs::read_to_string(&path).ok()?;
+    let value: serde_json::Value = serde_json::from_str(&content).ok()?;
+    value.get("cluster_id").and_then(|v| v.as_str()).map(|s| s.to_string())
+}
+
+fn cluster_state_path(cluster_id: &str) -> String {
+    format!("{}/clusters/{}/cluster_state.json", enc_root(), cluster_id)
+}
+
+fn load_cluster_state() -> Option<(String, serde_json::Value)> {
+    let cluster_id = load_current_cluster_id()?;
+    let path = cluster_state_path(&cluster_id);
+    let content = fs::read_to_string(&path).ok()?;
+    let value = serde_json::from_str(&content).ok()?;
+    Some((cluster_id, value))
+}
+
+fn save_cluster_state(cluster_id: &str, state: &serde_json::Value) -> Result<()> {
+    let dir = format!("{}/{}", clusters_root(), cluster_id);
+    fs::create_dir_all(&dir)?;
+    let path = cluster_state_path(cluster_id);
+    fs::write(path, serde_json::to_string_pretty(state)?)?;
+    Ok(())
+}
+
+fn init_enc_cluster_state(cluster_id: &str) -> Result<()> {
+    let now = chrono::Utc::now().timestamp();
+    let node_id = format!("enc-node-{}", Uuid::new_v4().simple());
+    let state = json!({
+        "cluster_id": cluster_id,
+        "created_at": now,
+        "desired_replicas": 1,
+        "nodes": [
+            {
+                "node_id": node_id,
+                "status": "active",
+                "roles": ["control-plane"],
+                "created_at": now,
+                "ip": "127.0.0.1",
+                "port": 0,
+                "transport": "mesh",
+                "mesh_service": "enc-control-plane",
+                "zk_hash_id": format!("zk-{}", Uuid::new_v4().simple()),
+            }
+        ]
+    });
+    save_cluster_state(cluster_id, &state)
+}
+
+fn add_node_to_active_cluster(node_id: &str) -> Result<()> {
+    let (cluster_id, mut state) = load_cluster_state().ok_or_else(|| anyhow!("No active ENC cluster found"))?;
+
+    let now = chrono::Utc::now().timestamp();
+
+    if state.get("nodes").is_none() {
+        state["nodes"] = json!([]);
+    }
+
+    if let Some(nodes) = state.get_mut("nodes").and_then(|v| v.as_array_mut()) {
+        if nodes.len() >= 10 {
+            return Err(anyhow!("ENC cluster node limit reached (10 nodes); remove a node before adding another"));
+        }
+        if !nodes.iter().any(|n| n["node_id"].as_str() == Some(node_id)) {
+            nodes.push(json!({
+                "node_id": node_id,
+                "status": "active",
+                "roles": ["worker"],
+                "created_at": now,
+                "ip": node_id,
+                "port": 0,
+                "transport": "mesh",
+                "mesh_service": format!("enc-node-{}", node_id),
+                "zk_hash_id": format!("zk-{}", Uuid::new_v4().simple()),
+            }));
+        }
+    }
+
+    save_cluster_state(&cluster_id, &state)
+}
+
+fn remove_node_from_active_cluster(node_id: &str) -> Result<()> {
+    let (cluster_id, mut state) = load_cluster_state().ok_or_else(|| anyhow!("No active ENC cluster found"))?;
+
+    if let Some(nodes) = state.get_mut("nodes").and_then(|v| v.as_array_mut()) {
+        nodes.retain(|n| n["node_id"].as_str() != Some(node_id));
+    }
+
+    save_cluster_state(&cluster_id, &state)
+}
+
+fn set_desired_replicas_for_active_cluster(replicas: u32) -> Result<()> {
+    let (cluster_id, mut state) = load_cluster_state().ok_or_else(|| anyhow!("No active ENC cluster found"))?;
+    state["desired_replicas"] = json!(replicas);
+    save_cluster_state(&cluster_id, &state)
+}
+
+fn get_active_node_count_from_state() -> Option<u32> {
+    let (_cluster_id, state) = load_cluster_state()?;
+    let nodes = state.get("nodes")?.as_array()?;
+    Some(nodes.len() as u32)
+}
+
+fn get_cluster_uptime_from_state() -> Option<u64> {
+    let (_cluster_id, state) = load_cluster_state()?;
+    let created_at = state.get("created_at")?.as_i64().unwrap_or(0);
+    let now = chrono::Utc::now().timestamp();
+    if now > created_at {
+        Some((now - created_at) as u64)
+    } else {
+        Some(0)
+    }
+}
+
+fn get_cluster_nodes_from_state() -> Option<Vec<serde_json::Value>> {
+    let (_cluster_id, state) = load_cluster_state()?;
+    let nodes = state.get("nodes")?.as_array()?;
+    Some(nodes.clone())
+}
+
+fn select_enc_node_for_key(key: &str) -> Option<serde_json::Value> {
+    let (_cluster_id, state) = load_cluster_state()?;
+    let nodes = state.get("nodes")?.as_array()?;
+    if nodes.is_empty() {
+        return None;
+    }
+
+    let hash = blake3::hash(key.as_bytes());
+    let bytes = hash.as_bytes();
+    let mut acc: u64 = 0;
+    for b in &bytes[0..8] {
+        acc = (acc << 8) | (*b as u64);
+    }
+    let idx = (acc % nodes.len() as u64) as usize;
+    Some(nodes[idx].clone())
 }
 
 pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -> Result<()> {
@@ -56,6 +221,9 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
                 audit_record
             ).await?;
             drop(audit);
+
+            init_enc_cluster_state(&cluster_id)?;
+            save_current_cluster_id(&cluster_id)?;
 
             // Create real ENC Cluster configuration audit
             create_enc_cluster_config_audit(&cluster_id).await?;
@@ -98,7 +266,12 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
-            let active_nodes = get_real_active_nodes().await;
+            // Prefer real node count derived from persistent cluster state
+            let active_nodes = if let Some(n) = get_active_node_count_from_state() {
+                n
+            } else {
+                get_real_active_nodes().await
+            };
 
             if json_output {
                 println!("{}", json!({
@@ -133,7 +306,12 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
-            let nodes = get_real_cluster_nodes().await;
+            // Prefer real node list derived from persistent cluster state
+            let nodes = if let Some(nodes) = get_cluster_nodes_from_state() {
+                nodes
+            } else {
+                get_real_cluster_nodes().await
+            };
 
             if json_output {
                 println!("{}", json!({
@@ -163,12 +341,14 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
+            add_node_to_active_cluster(&node_id)?;
+
             if json_output {
                 println!("{}", json!({
                     "status": "node_added",
                     "audit_record": add_record,
                     "node_id": node_id,
-                    "cluster_nodes": get_real_active_nodes().await + 1,
+                    "cluster_nodes": get_real_active_nodes().await,
                     "real_audit": true
                 }));
             } else {
@@ -188,12 +368,14 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
+            remove_node_from_active_cluster(&node_id)?;
+
             if json_output {
                 println!("{}", json!({
                     "status": "node_removed",
                     "audit_record": remove_record,
                     "node_id": node_id,
-                    "cluster_nodes": get_real_active_nodes().await.saturating_sub(1),
+                    "cluster_nodes": get_real_active_nodes().await,
                     "real_audit": true
                 }));
             } else {
@@ -213,10 +395,19 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
-            let active_nodes = get_real_active_nodes().await;
+            // Derive active node count and uptime from cluster state when available
+            let active_nodes = if let Some(n) = get_active_node_count_from_state() {
+                n
+            } else {
+                get_real_active_nodes().await
+            };
             let encryption_ops = get_real_encryption_ops().await;
             let orchestration_tasks = get_real_orchestration_tasks().await;
-            let uptime = get_real_cluster_uptime().await;
+            let uptime = if let Some(u) = get_cluster_uptime_from_state() {
+                u
+            } else {
+                get_real_cluster_uptime().await
+            };
 
             if json_output {
                 println!("{}", json!({
@@ -286,12 +477,14 @@ pub async fn handle(cmd: EncClusterCommands, json_output: bool, dry_run: bool) -
             ).await?;
             drop(audit);
 
+            set_desired_replicas_for_active_cluster(replicas)?;
+
             if json_output {
                 println!("{}", json!({
                     "status": "scaling",
                     "audit_record": scale_record,
                     "target_replicas": replicas,
-                    "current_nodes": get_real_active_nodes().await,
+                    "current_nodes": if let Some(n) = get_active_node_count_from_state() { n } else { get_real_active_nodes().await },
                     "real_audit": true
                 }));
             } else {
@@ -357,10 +550,16 @@ async fn create_enc_deployment_verification(cluster_id: &str) -> Result<()> {
     let audit_dir = format!("/tmp/bpi_audit/enc_cluster/clusters/{}/deployment", cluster_id);
     fs::create_dir_all(&audit_dir)?;
     
+    let nodes_initialized = if let Some(n) = get_active_node_count_from_state() {
+        n
+    } else {
+        get_real_active_nodes().await
+    };
+
     let deployment_record = json!({
         "cluster_id": cluster_id,
         "deployment_status": "success",
-        "nodes_initialized": get_real_active_nodes().await,
+        "nodes_initialized": nodes_initialized,
         "encryption_active": true,
         "orchestration_active": true,
         "security_verified": true,

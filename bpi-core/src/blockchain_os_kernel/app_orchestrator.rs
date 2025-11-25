@@ -4,7 +4,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use crate::cbor_pipeline_foundation::CborSerializable;
 use anyhow::Result;
 use uuid::Uuid;
 
@@ -12,6 +13,7 @@ use super::OrchestrationMode;
 
 /// Application deployment information
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AppDeployment {
     pub deployment_id: String,
     pub app_name: String,
@@ -40,6 +42,7 @@ pub enum VMType {
 
 /// Deployment configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct DeploymentConfig {
     pub replicas: u32,
     pub auto_scaling: AutoScalingConfig,
@@ -51,6 +54,7 @@ pub struct DeploymentConfig {
 
 /// Auto-scaling configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AutoScalingConfig {
     pub enabled: bool,
     pub min_replicas: u32,
@@ -63,6 +67,7 @@ pub struct AutoScalingConfig {
 
 /// Health check configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct HealthCheckConfig {
     pub enabled: bool,
     pub endpoint: String,
@@ -74,6 +79,7 @@ pub struct HealthCheckConfig {
 
 /// Networking configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct NetworkingConfig {
     pub port_mappings: Vec<PortMapping>,
     pub load_balancer: LoadBalancerConfig,
@@ -83,6 +89,7 @@ pub struct NetworkingConfig {
 
 /// Port mapping configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct PortMapping {
     pub container_port: u16,
     pub host_port: u16,
@@ -90,7 +97,7 @@ pub struct PortMapping {
 }
 
 /// Network protocols
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum NetworkProtocol {
     TCP,
     UDP,
@@ -100,7 +107,7 @@ pub enum NetworkProtocol {
 }
 
 /// Load balancer configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct LoadBalancerConfig {
     pub algorithm: LoadBalancingAlgorithm,
     pub session_affinity: bool,
@@ -108,7 +115,7 @@ pub struct LoadBalancerConfig {
 }
 
 /// Load balancing algorithms
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum LoadBalancingAlgorithm {
     RoundRobin,
     LeastConnections,
@@ -119,6 +126,7 @@ pub enum LoadBalancingAlgorithm {
 
 /// Ingress rules
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct IngressRule {
     pub host: String,
     pub path: String,
@@ -128,6 +136,7 @@ pub struct IngressRule {
 
 /// Storage configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct StorageConfig {
     pub volumes: Vec<VolumeMount>,
     pub persistent_storage: bool,
@@ -135,7 +144,7 @@ pub struct StorageConfig {
 }
 
 /// Volume mount configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VolumeMount {
     pub name: String,
     pub mount_path: String,
@@ -145,7 +154,7 @@ pub struct VolumeMount {
 }
 
 /// Volume types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum VolumeType {
     EmptyDir,
     HostPath,
@@ -156,6 +165,7 @@ pub enum VolumeType {
 
 /// Backup policy
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct BackupPolicy {
     pub enabled: bool,
     pub schedule: String, // Cron expression
@@ -166,6 +176,7 @@ pub struct BackupPolicy {
 
 /// Application resource allocation
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AppResourceAllocation {
     pub cpu_cores: f64,
     pub memory_mb: u64,
@@ -177,6 +188,7 @@ pub struct AppResourceAllocation {
 
 /// Priority classes for applications
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum PriorityClass {
     System,
     High,
@@ -187,6 +199,7 @@ pub enum PriorityClass {
 
 /// Application security policy
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AppSecurityPolicy {
     pub security_context: AppSecurityContext,
     pub network_policies: Vec<NetworkPolicy>,
@@ -196,6 +209,7 @@ pub struct AppSecurityPolicy {
 
 /// Application security context
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct AppSecurityContext {
     pub run_as_user: Option<u32>,
     pub run_as_group: Option<u32>,
@@ -208,6 +222,7 @@ pub struct AppSecurityContext {
 
 /// Security capabilities
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct SecurityCapabilities {
     pub add: Vec<String>,
     pub drop: Vec<String>,
@@ -215,6 +230,7 @@ pub struct SecurityCapabilities {
 
 /// Network security policies
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct NetworkPolicy {
     pub policy_name: String,
     pub ingress_rules: Vec<NetworkPolicyRule>,
@@ -223,6 +239,7 @@ pub struct NetworkPolicy {
 
 /// Network policy rules
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct NetworkPolicyRule {
     pub ports: Vec<u16>,
     pub protocols: Vec<NetworkProtocol>,
@@ -232,6 +249,7 @@ pub struct NetworkPolicyRule {
 
 /// Role-Based Access Control rules
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct RBACRule {
     pub role_name: String,
     pub resources: Vec<String>,
@@ -241,6 +259,7 @@ pub struct RBACRule {
 
 /// Pod security standards
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct PodSecurityStandards {
     pub enforce: SecurityStandard,
     pub audit: SecurityStandard,
@@ -249,6 +268,7 @@ pub struct PodSecurityStandards {
 
 /// Security standards
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum SecurityStandard {
     Privileged,
     Baseline,
@@ -257,6 +277,7 @@ pub enum SecurityStandard {
 
 /// Deployment status
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum DeploymentStatus {
     Pending,
     Deploying,
@@ -269,6 +290,7 @@ pub enum DeploymentStatus {
 
 /// Orchestration policy
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct OrchestrationPolicy {
     pub policy_name: String,
     pub auto_deployment: bool,
@@ -302,7 +324,7 @@ pub struct VMApplicationOrchestrator {
 }
 
 /// VM type information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VMTypeInfo {
     pub vm_type: VMType,
     pub description: String,
@@ -314,6 +336,7 @@ pub struct VMTypeInfo {
 
 /// Orchestrator configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct OrchestratorConfig {
     pub max_deployments: u32,
     pub default_replicas: u32,
@@ -325,6 +348,7 @@ pub struct OrchestratorConfig {
 
 /// Orchestration statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub struct OrchestrationStats {
     pub total_deployments: u64,
     pub active_deployments: u32,
@@ -333,6 +357,31 @@ pub struct OrchestrationStats {
     pub average_deployment_time: f64,
     pub resource_utilization: f64,
 }
+
+// CBOR Serializable implementations for app orchestrator structs
+impl CborSerializable for AppDeployment {}
+impl CborSerializable for DeploymentConfig {}
+impl CborSerializable for AutoScalingConfig {}
+impl CborSerializable for HealthCheckConfig {}
+impl CborSerializable for NetworkingConfig {}
+impl CborSerializable for PortMapping {}
+impl CborSerializable for LoadBalancerConfig {}
+impl CborSerializable for IngressRule {}
+impl CborSerializable for StorageConfig {}
+impl CborSerializable for VolumeMount {}
+impl CborSerializable for BackupPolicy {}
+impl CborSerializable for AppResourceAllocation {}
+impl CborSerializable for AppSecurityPolicy {}
+impl CborSerializable for AppSecurityContext {}
+impl CborSerializable for SecurityCapabilities {}
+impl CborSerializable for NetworkPolicy {}
+impl CborSerializable for NetworkPolicyRule {}
+impl CborSerializable for RBACRule {}
+impl CborSerializable for PodSecurityStandards {}
+impl CborSerializable for OrchestrationPolicy {}
+impl CborSerializable for VMTypeInfo {}
+impl CborSerializable for OrchestratorConfig {}
+impl CborSerializable for OrchestrationStats {}
 
 impl Default for OrchestratorConfig {
     fn default() -> Self {

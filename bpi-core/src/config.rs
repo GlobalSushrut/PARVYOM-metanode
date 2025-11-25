@@ -6,9 +6,10 @@ use serde::{Serialize, Deserialize};
 use std::env;
 use std::path::PathBuf;
 use crate::errors::{BpiError, BpiResult};
+use crate::cbor_pipeline_foundation::CborSerializable;
 
 /// Main BPI configuration with environment variable support
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BpiConfig {
     pub network: NetworkConfig,
     pub security: SecurityConfig,
@@ -19,7 +20,7 @@ pub struct BpiConfig {
 }
 
 /// Network configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NetworkConfig {
     pub domain: String,
     pub vm_port: u16,
@@ -30,7 +31,7 @@ pub struct NetworkConfig {
 }
 
 /// Security configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecurityConfig {
     pub quantum_safe: bool,
     pub audit_enabled: bool,
@@ -40,7 +41,7 @@ pub struct SecurityConfig {
 }
 
 /// Storage configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StorageConfig {
     pub data_dir: PathBuf,
     pub backup_enabled: bool,
@@ -49,7 +50,7 @@ pub struct StorageConfig {
 }
 
 /// Logging configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LoggingConfig {
     pub level: String,
     pub format: String,
@@ -59,7 +60,7 @@ pub struct LoggingConfig {
 }
 
 /// Pilot-specific configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PilotConfig {
     pub enabled: bool,
     pub auto_setup: bool,
@@ -69,7 +70,7 @@ pub struct PilotConfig {
 }
 
 /// Services configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ServicesConfig {
     pub vm_server_enabled: bool,
     pub bpci_bridge_enabled: bool,
@@ -160,6 +161,170 @@ impl Default for ServicesConfig {
             orchestrator_enabled: true,
             monitoring_enabled: true,
         }
+    }
+}
+
+// CBOR Serializable implementations for all config structs
+impl CborSerializable for BpiConfig {}
+impl CborSerializable for NetworkConfig {}
+impl CborSerializable for SecurityConfig {}
+impl CborSerializable for StorageConfig {}
+impl CborSerializable for LoggingConfig {}
+impl CborSerializable for PilotConfig {}
+impl CborSerializable for ServicesConfig {}
+
+/// Kernel-level configuration wrapper used by the universal BPI OS kernel
+/// boot path. This keeps node identity and profile-specific configuration
+/// in one place so `start_kernel(profile)` can remain simple and honest.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct KernelConfig {
+    /// Logical kernel profile (e.g. "pilot", "devnet", "mainnet")
+    pub profile: String,
+    /// Node identifier used by CommuteLink/CommuteLock and mesh services
+    pub node_id: String,
+    /// Underlying BPI configuration (network, security, storage, services)
+    pub bpi: BpiConfig,
+}
+
+impl KernelConfig {
+    /// Validate basic NX network invariants for this kernel profile.
+    pub fn validate_nx_network(&self) -> BpiResult<()> {
+        let net = &self.bpi.network;
+
+        if net.vm_port == 0 {
+            return Err(BpiError::config_error(
+                "NX vm_port must be non-zero",
+                None,
+                Some("BPI_VM_PORT"),
+            ));
+        }
+
+        if net.bpci_port == 0 {
+            return Err(BpiError::config_error(
+                "NX BPCI port must be non-zero",
+                None,
+                Some("BPI_BPCI_PORT"),
+            ));
+        }
+
+        if net.vm_port == net.bpci_port {
+            return Err(BpiError::config_error(
+                "NX vm_port and bpci_port must differ",
+                None,
+                None,
+            ));
+        }
+
+        if net.bind_address.trim().is_empty() {
+            return Err(BpiError::config_error(
+                "NX bind_address must not be empty",
+                None,
+                Some("BPI_BIND_ADDRESS"),
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+/// Explicit NX network configuration loaded from `./config/nx_network-<env>.toml`.
+/// This is optional: if the file is absent, the kernel will proceed using
+/// derived defaults. If present, it must be valid or kernel boot will fail
+/// fast with a clear configuration error.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NxNetworkConfig {
+    /// Expected kernel profile for this NX configuration.
+    pub profile: String,
+    /// Optional expected node_id; if set, must match the kernel's node_id.
+    pub node_id: Option<String>,
+    /// Whether internal mesh-native paths are required for this profile.
+    pub mesh_internal_required: bool,
+    /// Lane endpoints for this node/profile.
+    pub lanes: NxLaneConfig,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NxLaneConfig {
+    pub vm: String,
+    pub http_cage: String,
+    pub xtmp_bpci: String,
+    pub shadow_registry: String,
+}
+
+impl NxNetworkConfig {
+    /// Load NX network config for a given environment. Returns Ok(None) if the
+    /// config file does not exist.
+    pub fn for_environment(env: &str) -> BpiResult<Option<Self>> {
+        let config_file = format!("./config/nx_network-{}.toml", env);
+
+        if !std::path::Path::new(&config_file).exists() {
+            return Ok(None);
+        }
+
+        let content = std::fs::read_to_string(&config_file).map_err(|e| {
+            BpiError::config_error(
+                &format!("Failed to read NX network config file: {}", e),
+                Some(&config_file),
+                None,
+            )
+        })?;
+
+        let cfg: Self = toml::from_str(&content).map_err(|e| {
+            BpiError::config_error(
+                &format!("Failed to parse NX network config TOML: {}", e),
+                Some(&config_file),
+                None,
+            )
+        })?;
+
+        Ok(Some(cfg))
+    }
+
+    /// Validate that this NX config is self-consistent and matches the
+    /// kernel-level profile/node_id where specified.
+    pub fn validate_consistency(&self, kernel: &KernelConfig) -> BpiResult<()> {
+        if self.profile != kernel.profile {
+            return Err(BpiError::config_error(
+                &format!(
+                    "NX profile '{}' does not match kernel profile '{}'",
+                    self.profile, kernel.profile
+                ),
+                None,
+                Some("NX_PROFILE"),
+            ));
+        }
+
+        if let Some(node_id) = &self.node_id {
+            if node_id != &kernel.node_id {
+                return Err(BpiError::config_error(
+                    "NX node_id does not match kernel node_id",
+                    None,
+                    Some("NX_NODE_ID"),
+                ));
+            }
+        }
+
+        if self.lanes.vm.trim().is_empty()
+            || self.lanes.http_cage.trim().is_empty()
+            || self.lanes.xtmp_bpci.trim().is_empty()
+            || self.lanes.shadow_registry.trim().is_empty()
+        {
+            return Err(BpiError::config_error(
+                "NX lane endpoints must not be empty",
+                None,
+                Some("nx_network-<env>.toml"),
+            ));
+        }
+
+        if self.mesh_internal_required && !is_mesh_internal_enabled() {
+            return Err(BpiError::config_error(
+                "NX config requires internal mesh-native paths (BPI_MESH_INTERNAL_ENABLED)",
+                None,
+                Some("BPI_MESH_INTERNAL_ENABLED"),
+            ));
+        }
+
+        Ok(())
     }
 }
 
@@ -398,7 +563,43 @@ impl BpiConfig {
             ("BPI_VM_SERVER_ENABLED", "Enable VM Server"),
             ("BPI_BPCI_BRIDGE_ENABLED", "Enable BPCI Bridge"),
             ("BPI_DATABASE_ENABLED", "Enable 4D Database"),
+            ("BPI_MESH_INTERNAL_ENABLED", "Enable internal mesh-native paths (true/1/yes/on)"),
         ]
+    }
+}
+
+impl KernelConfig {
+    /// Load kernel configuration for a given profile.
+    ///
+    /// Behaviour:
+    /// - Uses `BPI_ENV` if set, otherwise falls back to `profile` for selecting the
+    ///   environment-specific BpiConfig via `BpiConfig::for_environment`.
+    /// - Derives `node_id` from `BPI_NODE_ID` or uses `bpi-node-{profile}`
+    ///   (preserving the existing start_kernel behaviour).
+    pub fn load_for_profile(profile: &str) -> BpiResult<Self> {
+        let env_name = env::var("BPI_ENV").unwrap_or_else(|_| profile.to_string());
+        let bpi = BpiConfig::for_environment(&env_name)?;
+
+        let node_id = env::var("BPI_NODE_ID")
+            .unwrap_or_else(|_| format!("bpi-node-{}", profile));
+
+        Ok(Self {
+            profile: profile.to_string(),
+            node_id,
+            bpi,
+        })
+    }
+}
+
+/// Global helper to check if internal mesh-native paths are enabled.
+/// Controlled via BPI_MESH_INTERNAL_ENABLED=true/1/yes/on.
+pub fn is_mesh_internal_enabled() -> bool {
+    match env::var("BPI_MESH_INTERNAL_ENABLED") {
+        Ok(val) => {
+            let v = val.to_ascii_lowercase();
+            v == "1" || v == "true" || v == "yes" || v == "on"
+        }
+        Err(_) => false,
     }
 }
 
@@ -436,8 +637,8 @@ mod tests {
         // Valid config should pass
         assert!(config.validate().is_ok());
         
-        // Invalid port should fail
-        config.network.vm_port = 99999;
+        // Invalid port should fail (must be >= 1024)
+        config.network.vm_port = 100; // Below minimum valid port (1024)
         assert!(config.validate().is_err());
     }
 }

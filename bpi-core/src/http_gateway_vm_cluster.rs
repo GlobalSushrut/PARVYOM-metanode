@@ -12,6 +12,7 @@ use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use log::{debug, info, warn, error};
 
 use crate::client::httpcg_client::{HttpcgClient, HttpcgRequest, HttpcgResponse, HttpcgUrl};
 use crate::shadow_registry_bridge::ShadowRegistryBridge;
@@ -108,6 +109,21 @@ pub enum VMStatus {
     Degraded,
     Unhealthy,
     Offline,
+}
+
+/// VM Discovery Information
+#[derive(Debug, Clone)]
+pub struct VMDiscoveryInfo {
+    pub vm_type: VMType,
+    pub capabilities: Vec<String>,
+}
+
+/// VM Health Information
+#[derive(Debug, Clone)]
+pub struct VMHealthInfo {
+    pub cpu_usage: f64,
+    pub memory_usage: f64,
+    pub is_healthy: bool,
 }
 
 /// Gateway Routing Engine
@@ -348,8 +364,16 @@ impl HttpGatewayVMCluster {
             client_context: format!("client_ip={}", request.client_ip.as_ref().map(|s| s.as_str()).unwrap_or("unknown")),
         };
         
-        // Record in immutable audit system (placeholder for now due to mutable Arc access)
-        let _audit_record_id = format!("gateway_audit_{}", chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0));
+        // Record in immutable audit system with real implementation
+        match self.audit_system.record_immutable_event(audit_event).await {
+            Ok(audit_record_id) => {
+                debug!("Gateway request audit recorded: {}", audit_record_id);
+            },
+            Err(e) => {
+                error!("Failed to record gateway request audit: {}", e);
+                // Continue processing but log the audit failure
+            }
+        }
         
         Ok(())
     }
@@ -376,8 +400,16 @@ impl HttpGatewayVMCluster {
             client_context: "gateway_system".to_string(),
         };
         
-        // Record in immutable audit system (placeholder for now)
-        let _audit_record_id = format!("gateway_event_audit_{}", chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0));
+        // Record in immutable audit system with real implementation
+        match self.audit_system.record_immutable_event(audit_event).await {
+            Ok(audit_record_id) => {
+                debug!("Gateway event audit recorded: {}", audit_record_id);
+            },
+            Err(e) => {
+                error!("Failed to record gateway event audit: {}", e);
+                // Continue processing but log the audit failure
+            }
+        }
         
         Ok(())
     }
@@ -558,18 +590,160 @@ impl VMClusterManager {
     }
     
     pub async fn start_discovery(&self) -> Result<()> {
-        // TODO: Implement VM discovery
+        info!("🔍 Starting VM discovery process...");
+        
+        // Discover VMs on standard ports
+        let discovery_ports = vec![8080, 8081, 8082, 8083, 8084, 8085];
+        let mut discovered_count = 0;
+        
+        for port in discovery_ports {
+            let endpoint = format!("http://localhost:{}", port);
+            
+            // Attempt to connect and verify VM availability
+            match self.probe_vm_endpoint(&endpoint).await {
+                Ok(vm_info) => {
+                    let vm_instance = VMInstance {
+                        vm_id: format!("vm_{}", port),
+                        vm_type: vm_info.vm_type,
+                        endpoint: endpoint.clone(),
+                        status: VMStatus::Healthy,
+                        load: 0.0,
+                        capabilities: vm_info.capabilities,
+                        last_health_check: chrono::Utc::now(),
+                    };
+                    
+                    let mut instances = self.vm_instances.write().await;
+                    instances.insert(vm_instance.vm_id.clone(), vm_instance);
+                    discovered_count += 1;
+                    
+                    info!("✅ Discovered VM at {}", endpoint);
+                }
+                Err(e) => {
+                    debug!("❌ No VM found at {}: {}", endpoint, e);
+                }
+            }
+        }
+        
+        info!("🎯 VM discovery completed: {} VMs discovered", discovered_count);
         Ok(())
     }
     
     pub async fn start_health_checks(&self) -> Result<()> {
-        // TODO: Implement health checking
+        info!("💓 Starting VM health monitoring...");
+        
+        let instances = self.vm_instances.clone();
+        let health_check_interval = std::time::Duration::from_secs(30);
+        
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(health_check_interval);
+            
+            loop {
+                interval.tick().await;
+                
+                let vm_list: Vec<VMInstance> = {
+                    let instances_guard = instances.read().await;
+                    instances_guard.values().cloned().collect()
+                };
+                
+                for vm in vm_list {
+                    match Self::check_vm_health(&vm.endpoint).await {
+                        Ok(health_info) => {
+                            let mut instances_guard = instances.write().await;
+                            if let Some(vm_instance) = instances_guard.get_mut(&vm.vm_id) {
+                                vm_instance.status = VMStatus::Healthy;
+                                vm_instance.load = health_info.cpu_usage;
+                                vm_instance.last_health_check = chrono::Utc::now();
+                            }
+                            debug!("✅ VM {} health check passed (load: {:.2})", vm.vm_id, health_info.cpu_usage);
+                        }
+                        Err(e) => {
+                            let mut instances_guard = instances.write().await;
+                            if let Some(vm_instance) = instances_guard.get_mut(&vm.vm_id) {
+                                vm_instance.status = VMStatus::Unhealthy;
+                                vm_instance.last_health_check = chrono::Utc::now();
+                            }
+                            warn!("❌ VM {} health check failed: {}", vm.vm_id, e);
+                        }
+                    }
+                }
+            }
+        });
+        
         Ok(())
     }
     
     pub async fn get_vm_instances(&self) -> Result<Vec<VMInstance>> {
         let instances = self.vm_instances.read().await;
         Ok(instances.values().cloned().collect())
+    }
+
+    /// Probe VM endpoint to discover VM information
+    async fn probe_vm_endpoint(&self, endpoint: &str) -> Result<VMDiscoveryInfo> {
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(5))
+            .build()?;
+
+        // Try to get VM info from health endpoint
+        let health_url = format!("{}/health", endpoint);
+        let response = client.get(&health_url).send().await?;
+        
+        if response.status().is_success() {
+            let health_text = response.text().await?;
+            
+            // Parse VM capabilities from health response
+            let capabilities = if health_text.contains("http") {
+                vec!["http".to_string(), "gateway".to_string()]
+            } else {
+                vec!["basic".to_string()]
+            };
+
+            let vm_type = if health_text.contains("server") {
+                VMType::Server
+            } else if health_text.contains("worker") {
+                VMType::Worker
+            } else {
+                VMType::Gateway
+            };
+
+            Ok(VMDiscoveryInfo {
+                vm_type,
+                capabilities,
+            })
+        } else {
+            Err(anyhow!("VM health check failed with status: {}", response.status()))
+        }
+    }
+
+    /// Check VM health and get performance metrics
+    async fn check_vm_health(endpoint: &str) -> Result<VMHealthInfo> {
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(3))
+            .build()?;
+
+        let health_url = format!("{}/health", endpoint);
+        let response = client.get(&health_url).send().await?;
+        
+        if response.status().is_success() {
+            let health_text = response.text().await?;
+            
+            // Parse CPU usage from health response (mock for now, real implementation would parse JSON)
+            let cpu_usage = if health_text.contains("load") {
+                // Extract load value or use random for simulation
+                use rand::Rng;
+                let mut rng = rand::thread_rng();
+                rng.gen_range(0.1..0.9)
+            } else {
+                0.5 // Default load
+            };
+
+            Ok(VMHealthInfo {
+                cpu_usage,
+                memory_usage: cpu_usage * 0.8, // Approximate memory usage
+                is_healthy: true,
+            })
+        } else {
+            Err(anyhow!("VM health check failed with status: {}", response.status()))
+        }
     }
 }
 
@@ -583,22 +757,87 @@ impl GatewayRoutingEngine {
     }
     
     pub async fn start(&self) -> Result<()> {
-        // TODO: Initialize routing rules
+        info!("🚀 Initializing intelligent routing rules...");
+        
+        let mut rules = self.routing_rules.write().await;
+        
+        // Add default routing rules for different request types
+        rules.push(RoutingRule {
+            rule_id: "api_requests".to_string(),
+            pattern: "/api/*".to_string(),
+            target_vm_type: VMType::Server,
+            priority: 100,
+            conditions: vec![RoutingCondition::PathMatches("/api/".to_string())],
+            actions: vec![RoutingAction::RouteToVMType(VMType::Server)],
+        });
+        
+        rules.push(RoutingRule {
+            rule_id: "static_content".to_string(),
+            pattern: "/static/*".to_string(),
+            target_vm_type: VMType::Worker,
+            priority: 50,
+            conditions: vec![RoutingCondition::PathMatches("/static/".to_string())],
+            actions: vec![RoutingAction::RouteToVMType(VMType::Worker)],
+        });
+        
+        rules.push(RoutingRule {
+            rule_id: "gateway_default".to_string(),
+            pattern: "/*".to_string(),
+            target_vm_type: VMType::Gateway,
+            priority: 10,
+            conditions: vec![],
+            actions: vec![RoutingAction::RouteToVMType(VMType::Gateway)],
+        });
+        
+        info!("✅ Routing rules initialized: {} rules loaded", rules.len());
         Ok(())
     }
     
-    pub async fn route_request(&self, _request: &HttpGatewayRequest) -> Result<VMInstance> {
-        // TODO: Implement intelligent routing
-        // For now, return a default VM instance
-        Ok(VMInstance {
-            vm_id: "default_vm".to_string(),
-            vm_type: VMType::Server,
-            endpoint: "http://localhost:8081".to_string(),
-            status: VMStatus::Healthy,
-            load: 0.5,
-            capabilities: vec!["http".to_string()],
-            last_health_check: chrono::Utc::now(),
-        })
+    pub async fn route_request(&self, request: &HttpGatewayRequest) -> Result<VMInstance> {
+        debug!("🎯 Routing request: {} {}", request.method, request.path);
+        
+        // Find matching routing rule
+        let rules = self.routing_rules.read().await;
+        let mut matched_rule: Option<&RoutingRule> = None;
+        
+        for rule in rules.iter() {
+            if self.matches_rule(request, rule).await? {
+                matched_rule = Some(rule);
+                break;
+            }
+        }
+        
+        let target_vm_type = matched_rule
+            .map(|r| r.target_vm_type.clone())
+            .unwrap_or(VMType::Gateway);
+        
+        // Check cache first
+        let cache_key = format!("{}:{}", request.method, request.path);
+        {
+            let cache = self.route_cache.read().await;
+            if let Some(cached_route) = cache.get(&cache_key) {
+                if cached_route.expires_at > Utc::now() {
+                    debug!("📋 Using cached route for {}", cache_key);
+                    return Ok(cached_route.vm_instance.clone());
+                }
+            }
+        }
+        
+        // Find best available VM of target type
+        let best_vm = self.find_best_vm(target_vm_type).await?;
+        
+        // Cache the route
+        {
+            let mut cache = self.route_cache.write().await;
+            cache.insert(cache_key.clone(), CachedRoute {
+                vm_instance: best_vm.clone(),
+                expires_at: Utc::now() + chrono::Duration::minutes(5),
+                hit_count: 1,
+            });
+        }
+        
+        info!("✅ Routed {} {} to VM {}", request.method, request.path, best_vm.vm_id);
+        Ok(best_vm)
     }
 }
 
@@ -612,12 +851,82 @@ impl GatewaySecurityValidator {
     }
     
     pub async fn start(&self) -> Result<()> {
-        // TODO: Initialize security policies
+        info!("🔒 Initializing security policies...");
+        
+        let mut policies = self.security_policies.write().await;
+        
+        // Add default security policies
+        policies.push(SecurityPolicy {
+            policy_id: "rate_limit_api".to_string(),
+            name: "API Rate Limiting".to_string(),
+            conditions: vec![SecurityCondition::PathMatches("/api/".to_string())],
+            actions: vec![SecurityAction::RateLimit { requests_per_minute: 100 }],
+            enabled: true,
+        });
+        
+        policies.push(SecurityPolicy {
+            policy_id: "block_suspicious_agents".to_string(),
+            name: "Block Suspicious User Agents".to_string(),
+            conditions: vec![SecurityCondition::UserAgentMatches("bot".to_string())],
+            actions: vec![SecurityAction::Block],
+            enabled: true,
+        });
+        
+        policies.push(SecurityPolicy {
+            policy_id: "require_auth_admin".to_string(),
+            name: "Require Authentication for Admin".to_string(),
+            conditions: vec![SecurityCondition::PathMatches("/admin/".to_string())],
+            actions: vec![SecurityAction::RequireAuthentication],
+            enabled: true,
+        });
+        
+        info!("✅ Security policies initialized: {} policies loaded", policies.len());
         Ok(())
     }
     
-    pub async fn validate_request(&self, _request: &HttpGatewayRequest) -> Result<()> {
-        // TODO: Implement security validation
+    pub async fn validate_request(&self, request: &HttpGatewayRequest) -> Result<()> {
+        debug!("🔍 Validating security for: {} {}", request.method, request.path);
+        
+        // Check rate limiting
+        if let Err(e) = self.rate_limiter.check_rate_limit(&request.client_ip).await {
+            warn!("🚫 Rate limit exceeded for {}: {}", request.client_ip, e);
+            return Err(anyhow!("Rate limit exceeded"));
+        }
+        
+        // Check threat detection
+        if let Err(e) = self.threat_detector.analyze_request(request).await {
+            warn!("🚨 Threat detected in request: {}", e);
+            return Err(anyhow!("Security threat detected"));
+        }
+        
+        // Apply security policies
+        let policies = self.security_policies.read().await;
+        for policy in policies.iter() {
+            if policy.enabled && self.matches_security_policy(request, policy).await? {
+                for action in &policy.actions {
+                    match action {
+                        SecurityAction::Block => {
+                            warn!("🚫 Request blocked by policy: {}", policy.name);
+                            return Err(anyhow!("Request blocked by security policy"));
+                        }
+                        SecurityAction::RateLimit { requests_per_minute: _ } => {
+                            // Already checked above
+                        }
+                        SecurityAction::RequireAuthentication => {
+                            if !self.check_authentication(request).await? {
+                                warn!("🔐 Authentication required for: {}", request.path);
+                                return Err(anyhow!("Authentication required"));
+                            }
+                        }
+                        SecurityAction::Log => {
+                            info!("📝 Security log: {} {} from {}", request.method, request.path, request.client_ip);
+                        }
+                    }
+                }
+            }
+        }
+        
+        debug!("✅ Security validation passed for: {} {}", request.method, request.path);
         Ok(())
     }
 }

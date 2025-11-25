@@ -40,9 +40,9 @@ pub struct PostQuantumKeyPair {
 impl PostQuantumKeyPair {
     /// Generate new post-quantum key pair using real quantum-resistant algorithms
     pub fn generate(algorithm: QuantumSafeAlgorithm) -> Self {
-        use sha2::{Sha256, Sha512, Digest};
-        use rand::rngs::OsRng;
-        use rand::RngCore;
+        
+        
+        
         
         // Real quantum-resistant key generation using cryptographic primitives
         let (public_key, private_key, security_level) = match algorithm {
@@ -92,14 +92,14 @@ impl PostQuantumKeyPair {
         rng.fill_bytes(&mut seed);
         
         // Generate lattice polynomial coefficients
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&seed);
         hasher.update(b"lattice_public");
         let pub_hash = hasher.finalize();
         
         let mut public_key = vec![0u8; pub_size];
         for (i, chunk) in public_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&pub_hash);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -108,14 +108,14 @@ impl PostQuantumKeyPair {
         }
         
         // Generate private key with noise
-        hasher = Sha256::new();
+        hasher = <Sha256 as Digest>::new();
         hasher.update(&seed);
         hasher.update(b"lattice_private");
         let priv_hash = hasher.finalize();
         
         let mut private_key = vec![0u8; priv_size];
         for (i, chunk) in private_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&priv_hash);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -182,14 +182,14 @@ impl PostQuantumKeyPair {
         rng.fill_bytes(&mut seed);
         
         // Generate NTRU polynomial f
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&seed);
         hasher.update(b"ntru_f_poly");
         let f_seed = hasher.finalize();
         
         let mut private_key = vec![0u8; priv_size];
         for (i, chunk) in private_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&f_seed);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -198,14 +198,14 @@ impl PostQuantumKeyPair {
         }
         
         // Generate public key h = g/f mod q
-        hasher = Sha256::new();
+        hasher = <Sha256 as Digest>::new();
         hasher.update(&f_seed);
         hasher.update(b"ntru_public");
         let pub_seed = hasher.finalize();
         
         let mut public_key = vec![0u8; pub_size];
         for (i, chunk) in public_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&pub_seed);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -227,7 +227,7 @@ impl PostQuantumKeyPair {
         rng.fill_bytes(&mut master_seed);
         
         // Generate Merkle tree root (public key)
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&master_seed);
         hasher.update(b"sphincs_merkle_root");
         let root_hash = hasher.finalize();
@@ -236,14 +236,14 @@ impl PostQuantumKeyPair {
         public_key[..32.min(pub_size)].copy_from_slice(&root_hash[..32.min(pub_size)]);
         
         // Generate private key (seed for one-time signatures)
-        hasher = Sha256::new();
+        hasher = <Sha256 as Digest>::new();
         hasher.update(&master_seed);
         hasher.update(b"sphincs_private_seed");
         let priv_hash = hasher.finalize();
         
         let mut private_key = vec![0u8; priv_size];
         for (i, chunk) in private_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&priv_hash);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -265,14 +265,14 @@ impl PostQuantumKeyPair {
         rng.fill_bytes(&mut seed);
         
         // Generate generator matrix G
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&seed);
         hasher.update(b"mceliece_generator");
         let gen_seed = hasher.finalize();
         
         let mut public_key = vec![0u8; pub_size];
         for (i, chunk) in public_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&gen_seed);
             h.update(&(i as u64).to_le_bytes());
             let hash = h.finalize();
@@ -281,14 +281,14 @@ impl PostQuantumKeyPair {
         }
         
         // Generate private key (parity check matrix)
-        hasher = Sha256::new();
+        hasher = <Sha256 as Digest>::new();
         hasher.update(&seed);
         hasher.update(b"mceliece_private");
         let priv_seed = hasher.finalize();
         
         let mut private_key = vec![0u8; priv_size];
         for (i, chunk) in private_key.chunks_mut(32).enumerate() {
-            let mut h = Sha256::new();
+            let mut h = <Sha256 as Digest>::new();
             h.update(&priv_seed);
             h.update(&(i as u32).to_le_bytes());
             let hash = h.finalize();
@@ -327,7 +327,7 @@ impl PostQuantumKeyPair {
             },
             QuantumSafeAlgorithm::Falcon1024 => {
                 // Real Falcon-like NTRU signature
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key);
                 hasher.update(data);
                 hasher.update(b"falcon_sign");
@@ -335,7 +335,7 @@ impl PostQuantumKeyPair {
                 
                 let mut signature = Vec::with_capacity(2305);
                 for i in 0..73 { // 2305 / 32 = ~73 chunks
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&hash);
                     h.update(&(i as u32).to_le_bytes());
                     h.update(&self.private_key[i * 16.min(self.private_key.len())..]);
@@ -347,7 +347,7 @@ impl PostQuantumKeyPair {
             },
             QuantumSafeAlgorithm::SPHINCS_SHA256 => {
                 // Real SPHINCS-like hash-based signature
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key);
                 hasher.update(data);
                 hasher.update(b"sphincs_one_time_sign");
@@ -356,7 +356,7 @@ impl PostQuantumKeyPair {
                 // Generate one-time signature
                 let mut signature = Vec::with_capacity(128);
                 for i in 0..4 { // 128 / 32 = 4 chunks
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&message_hash);
                     h.update(&(i as u32).to_le_bytes());
                     h.update(&self.private_key);
@@ -367,7 +367,7 @@ impl PostQuantumKeyPair {
             },
             _ => {
                 // Generic quantum-resistant signature for other algorithms
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key);
                 hasher.update(data);
                 hasher.update(format!("{:?}_generic_sign", self.algorithm).as_bytes());
@@ -375,7 +375,7 @@ impl PostQuantumKeyPair {
                 
                 let mut signature = Vec::with_capacity(256);
                 for i in 0..8 {
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&hash);
                     h.update(&(i as u32).to_le_bytes());
                     let sig_chunk = h.finalize();
@@ -423,7 +423,7 @@ impl PostQuantumKeyPair {
                     return false;
                 }
                 
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key); // In real implementation, would use public key
                 hasher.update(data);
                 hasher.update(b"falcon_sign");
@@ -431,7 +431,7 @@ impl PostQuantumKeyPair {
                 
                 let mut expected_signature = Vec::with_capacity(2305);
                 for i in 0..73 {
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&expected_hash);
                     h.update(&(i as u32).to_le_bytes());
                     h.update(&self.private_key[i * 16.min(self.private_key.len())..]);
@@ -448,7 +448,7 @@ impl PostQuantumKeyPair {
                     return false;
                 }
                 
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key); // In real implementation, would use public key
                 hasher.update(data);
                 hasher.update(b"sphincs_one_time_sign");
@@ -456,7 +456,7 @@ impl PostQuantumKeyPair {
                 
                 let mut expected_signature = Vec::with_capacity(128);
                 for i in 0..4 {
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&message_hash);
                     h.update(&(i as u32).to_le_bytes());
                     h.update(&self.private_key);
@@ -472,7 +472,7 @@ impl PostQuantumKeyPair {
                     return false;
                 }
                 
-                let mut hasher = Sha256::new();
+                let mut hasher = <Sha256 as Digest>::new();
                 hasher.update(&self.private_key); // In real implementation, would use public key
                 hasher.update(data);
                 hasher.update(format!("{:?}_generic_sign", self.algorithm).as_bytes());
@@ -480,7 +480,7 @@ impl PostQuantumKeyPair {
                 
                 let mut expected_signature = Vec::with_capacity(256);
                 for i in 0..8 {
-                    let mut h = Sha256::new();
+                    let mut h = <Sha256 as Digest>::new();
                     h.update(&expected_hash);
                     h.update(&(i as u32).to_le_bytes());
                     let sig_chunk = h.finalize();
@@ -550,7 +550,7 @@ impl QuantumSafeChannel {
             // Real quantum-resistant encryption using key derivation
             use sha2::{Sha256, Digest};
             
-            let mut hasher = Sha256::new();
+            let mut hasher = <Sha256 as Digest>::new();
             hasher.update(&key_pair.public_key);
             hasher.update(b"quantum_encrypt_key");
             let encryption_key = hasher.finalize();
@@ -573,7 +573,7 @@ impl QuantumSafeChannel {
             use sha2::{Sha256, Digest};
             
             // Reconstruct the same encryption key (same as encryption)
-            let mut hasher = Sha256::new();
+            let mut hasher = <Sha256 as Digest>::new();
             hasher.update(&key_pair.public_key);
             hasher.update(b"quantum_encrypt_key");
             let decryption_key = hasher.finalize();

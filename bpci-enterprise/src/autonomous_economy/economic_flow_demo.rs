@@ -1,5 +1,4 @@
 use rust_decimal::Decimal;
-use std::collections::HashMap;
 use serde_json;
 
 use crate::autonomous_economy::{
@@ -7,7 +6,6 @@ use crate::autonomous_economy::{
     BpciTreasuryIntegration,
     TreasuryConfig,
     CoinDistributionEngine,
-    CoinType,
     SettlementCoinEngine,
     SettlementConfig,
     FundSource,

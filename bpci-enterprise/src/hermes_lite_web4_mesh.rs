@@ -374,8 +374,8 @@ impl HermesLiteWeb4Mesh {
         let mut queue = self.message_queue.write().await;
         queue.push(message.clone());
         
-        // Send through consensus channel
-        self.consensus_channel.send(message)?;
+        // Send through consensus channel (best-effort; ignore if no receiver yet)
+        let _ = self.consensus_channel.send(message);
         
         // Update stats
         let mut stats = self.mesh_stats.write().await;
@@ -473,7 +473,11 @@ mod tests {
         let state_hash = Hash32::from_data(b"test_mesh_node");
         let living_state = LivingStateObject::new(state_hash);
         let mesh_node = LivingMeshNode::new(address, living_state);
-        
+
+        println!("[hermes:test_living_mesh_node_creation] node_id={} mesh_health={}",
+                 mesh_node.node_id.0,
+                 mesh_node.mesh_health);
+
         assert!(mesh_node.is_healthy());
         assert_eq!(mesh_node.mesh_health, 1.0);
     }
@@ -497,8 +501,9 @@ mod tests {
         
         router.add_mesh_node(node1).await.unwrap();
         router.update_kappa_weights(&MeshNodeId("node1".to_string()), 1.5).await.unwrap();
-        
+
         let weights = router.kappa_weights.read().await;
+        println!("[hermes:test_kappa_aware_routing] weights={:?}", *weights);
         assert!(weights.contains_key(&MeshNodeId("node1".to_string())));
     }
     
@@ -515,13 +520,229 @@ mod tests {
         };
         
         let mesh = HermesLiteWeb4Mesh::new(local_address, lccd_foundation).unwrap();
-        
+
+        // Seed router topology with local node so health accounting sees one node
+        {
+            let local_node = mesh.local_node.read().await.clone();
+            mesh.router.add_mesh_node(local_node).await.unwrap();
+        }
+
         // Test mesh consensus round
         let confidence = mesh.process_mesh_consensus_round(0.9).await.unwrap();
+        println!(
+            "[hermes:test_hermes_lite_web4_mesh] kappa_confidence alpha={:.3} beta={:.3} gamma={:.3} overall={:.3}",
+            confidence.alpha,
+            confidence.beta,
+            confidence.gamma,
+            confidence.overall_confidence(),
+        );
         assert!(confidence.overall_confidence() >= 0.0);
-        
+
         // Test mesh health
         let health = mesh.get_mesh_health().await.unwrap();
+        println!(
+            "[hermes:test_hermes_lite_web4_mesh] mesh_id={} total_nodes={} health_ratio={:.3} messages_throughput={}",
+            health.mesh_id,
+            health.total_nodes,
+            health.health_ratio,
+            health.messages_throughput,
+        );
         assert_eq!(health.total_nodes, 1);
+    }
+    
+    #[tokio::test]
+    async fn test_kappa_router_optimal_path_prefers_best_intermediate() {
+        let router = KappaAwareMeshRouter::new();
+
+        // Helper to create a simple healthy mesh node
+        fn make_node(id: &str, ip: &str, port: u16) -> LivingMeshNode {
+            let address = Web4Address {
+                node_id: MeshNodeId(id.to_string()),
+                ip_address: ip.to_string(),
+                port,
+                quantum_channel: None,
+                mesh_layer: 0,
+            };
+
+            let state_hash = Hash32::from_data(id.as_bytes());
+            let living_state = LivingStateObject::new(state_hash);
+            LivingMeshNode::new(address, living_state)
+        }
+
+        let source = make_node("source", "10.0.0.1", 8001);
+        let target = make_node("target", "10.0.0.2", 8002);
+        let mid_good = make_node("mid_good", "10.0.0.3", 8003);
+        let mid_bad = make_node("mid_bad", "10.0.0.4", 8004);
+
+        router.add_mesh_node(source.clone()).await.unwrap();
+        router.add_mesh_node(target.clone()).await.unwrap();
+        router.add_mesh_node(mid_good.clone()).await.unwrap();
+        router.add_mesh_node(mid_bad.clone()).await.unwrap();
+
+        // Lower κ => higher routing weight
+        router.update_kappa_weights(&mid_good.node_id, 0.1).await.unwrap();
+        router.update_kappa_weights(&mid_bad.node_id, 10.0).await.unwrap();
+
+        let path = router
+            .find_optimal_path(&source.node_id, &target.node_id)
+            .await
+            .unwrap();
+        println!(
+            "[hermes:test_kappa_router_optimal_path_prefers_best_intermediate] path={:?}",
+            path
+        );
+        // Path should be source -> best_intermediate -> target
+        assert_eq!(path.first().unwrap(), &source.node_id);
+        assert_eq!(path.last().unwrap(), &target.node_id);
+        assert_eq!(path.len(), 3);
+        assert_eq!(path[1], mid_good.node_id);
+    }
+
+    #[tokio::test]
+    async fn test_mesh_health_status_rollup_is_consistent() {
+        let lccd_foundation = Arc::new(LccdMathematicalFoundation::new());
+
+        let local_address = Web4Address {
+            node_id: MeshNodeId::generate(),
+            ip_address: "127.0.0.1".to_string(),
+            port: 9100,
+            quantum_channel: Some("health-test".to_string()),
+            mesh_layer: 0,
+        };
+
+        let mesh = HermesLiteWeb4Mesh::new(local_address, lccd_foundation).unwrap();
+
+        // Seed router topology with local node so health accounting sees one node
+        {
+            let local_node = mesh.local_node.read().await.clone();
+            mesh.router.add_mesh_node(local_node).await.unwrap();
+        }
+
+        // Run a couple of consensus rounds to update stats
+        for round in 0..2 {
+            let conf = mesh.process_mesh_consensus_round(0.9).await.unwrap();
+            println!(
+                "[hermes:test_mesh_health_status_rollup_is_consistent] round={} overall_confidence={:.3}",
+                round,
+                conf.overall_confidence(),
+            );
+        }
+
+        let health = mesh.get_mesh_health().await.unwrap();
+        println!(
+            "[hermes:test_mesh_health_status_rollup_is_consistent] mesh_id={} total_nodes={} health_ratio={:.3} avg_kappa={:.6} avg_confidence={:.3} consensus_rounds={} throughput={}",
+            health.mesh_id,
+            health.total_nodes,
+            health.health_ratio,
+            health.average_kappa,
+            health.average_confidence,
+            health.consensus_rounds,
+            health.messages_throughput,
+        );
+
+        assert_eq!(health.total_nodes, 1);
+        assert!(health.health_ratio >= 0.0 && health.health_ratio <= 1.0);
+        assert!(health.consensus_rounds >= 1);
+        assert!(health.messages_throughput > 0);
+    }
+
+    #[tokio::test]
+    async fn test_join_mesh_with_bootstrap_nodes_updates_topology_and_health() {
+        let lccd_foundation = Arc::new(LccdMathematicalFoundation::new());
+
+        let local_address = Web4Address {
+            node_id: MeshNodeId::generate(),
+            ip_address: "127.0.0.1".to_string(),
+            port: 9200,
+            quantum_channel: Some("join-mesh-local".to_string()),
+            mesh_layer: 0,
+        };
+
+        let mesh = HermesLiteWeb4Mesh::new(local_address, lccd_foundation).unwrap();
+
+        // Prepare two bootstrap nodes
+        let bootstrap_nodes = vec![
+            Web4Address {
+                node_id: MeshNodeId::generate(),
+                ip_address: "127.0.0.2".to_string(),
+                port: 9201,
+                quantum_channel: Some("bootstrap-1".to_string()),
+                mesh_layer: 0,
+            },
+            Web4Address {
+                node_id: MeshNodeId::generate(),
+                ip_address: "127.0.0.3".to_string(),
+                port: 9202,
+                quantum_channel: Some("bootstrap-2".to_string()),
+                mesh_layer: 0,
+            },
+        ];
+
+        mesh.join_mesh(bootstrap_nodes.clone()).await.unwrap();
+
+        let health = mesh.get_mesh_health().await.unwrap();
+        println!(
+            "[hermes:test_join_mesh_with_bootstrap_nodes] mesh_id={} total_nodes={} healthy_nodes={} health_ratio={:.3}",
+            health.mesh_id,
+            health.total_nodes,
+            health.healthy_nodes,
+            health.health_ratio,
+        );
+
+        // Expect 3 nodes in topology: 1 local + 2 bootstrap
+        assert_eq!(health.total_nodes, 3);
+        assert!(health.healthy_nodes >= 1);
+        assert!(health.health_ratio > 0.0);
+    }
+
+    #[tokio::test]
+    async fn test_cellular_division_broadcasts_notice_and_updates_stats() {
+        let lccd_foundation = Arc::new(LccdMathematicalFoundation::new());
+
+        let local_address = Web4Address {
+            node_id: MeshNodeId::generate(),
+            ip_address: "127.0.0.1".to_string(),
+            port: 9300,
+            quantum_channel: Some("cell-division".to_string()),
+            mesh_layer: 0,
+        };
+
+        let mesh = HermesLiteWeb4Mesh::new(local_address, lccd_foundation).unwrap();
+
+        // Seed router topology with local node
+        {
+            let local_node = mesh.local_node.read().await.clone();
+            mesh.router.add_mesh_node(local_node.clone()).await.unwrap();
+        }
+
+        // Make local cell ready for division
+        {
+            let mut local_node = mesh.local_node.write().await;
+            local_node.living_state.division_readiness = 1.0;
+            local_node.living_state.metabolic_rate = 1.0;
+            local_node.cellular_division_ready = true;
+        }
+
+        mesh.handle_cellular_division().await.unwrap();
+
+        let queue = mesh.message_queue.read().await;
+        let division_notices: Vec<_> = queue
+            .iter()
+            .filter(|msg| matches!(msg.message_type, Web4MessageType::CellularDivisionNotice))
+            .collect();
+
+        println!(
+            "[hermes:test_cellular_division_broadcasts_notice_and_updates_stats] division_notices={}",
+            division_notices.len(),
+        );
+
+        assert!(!division_notices.is_empty());
+
+        let stats = mesh.mesh_stats.read().await;
+        println!(
+            "[hermes:test_cellular_division_broadcasts_notice_and_updates_stats] cellular_divisions={}",
+            stats.cellular_divisions,
+        );
+        assert!(stats.cellular_divisions >= 1);
     }
 }

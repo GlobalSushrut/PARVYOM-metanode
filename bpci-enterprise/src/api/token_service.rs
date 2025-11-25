@@ -8,13 +8,11 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use tokio::sync::RwLock;
 use uuid::Uuid;
 
 use crate::integrated_token_system::{IntegratedTokenSystem, IntegratedTokenSystemConfig};
 use crate::storage::FourDConfig;
 use crate::mdns_proxy_manager::MdnsProxyConfig;
-use std::collections::HashMap;
 
 /// API Response wrapper for consistent frontend integration
 #[derive(Serialize, Deserialize, Debug)]

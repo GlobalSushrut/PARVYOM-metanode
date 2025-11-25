@@ -4,25 +4,18 @@
 //! for the BPCI web interface with secure session management
 
 use axum::{
-    extract::{Query, Path},
     http::StatusCode,
     response::{Json, Html},
-    routing::{get, post, put, delete},
-    Router,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock, Mutex};
+use std::sync::{Arc, RwLock};
 use std::sync::atomic::{AtomicU32, Ordering};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use ed25519_dalek::{SigningKey, VerifyingKey, Signer};
-use rand::rngs::OsRng;
-use tracing::{info, warn, error};
-use anyhow::{Result, anyhow};
+use tracing::info;
+use anyhow::Result;
 use sha2::{Sha256, Digest};
 
-use crate::bpi_ledger_integration::BpiLedgerClient;
 
 /// User account structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -319,7 +312,7 @@ pub async fn serve_register_page() -> Html<&'static str> {
 
 /// Hash password using SHA256
 pub fn hash_password(password: &str) -> String {
-    let mut hasher = Sha256::new();
+    let mut hasher = <Sha256 as Digest>::new();
     hasher.update(password.as_bytes());
     format!("{:x}", hasher.finalize())
 }
@@ -337,7 +330,7 @@ pub fn generate_session_token() -> String {
 /// Encrypt private key (simplified - in production use proper encryption)
 pub fn encrypt_private_key(private_key: &str, password: &str) -> String {
     // Simplified encryption - in production, use proper encryption like AES
-    let mut hasher = Sha256::new();
+    let mut hasher = <Sha256 as Digest>::new();
     hasher.update(private_key.as_bytes());
     hasher.update(password.as_bytes());
     format!("{:x}", hasher.finalize())
@@ -345,7 +338,7 @@ pub fn encrypt_private_key(private_key: &str, password: &str) -> String {
 
 /// Generate BPI address from public key
 pub fn generate_bpi_address(public_key: &str) -> String {
-    let mut hasher = Sha256::new();
+    let mut hasher = <Sha256 as Digest>::new();
     hasher.update(public_key.as_bytes());
     let hash = hasher.finalize();
     format!("bpi_{}", hex::encode(&hash[..16]))

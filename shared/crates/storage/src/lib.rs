@@ -9,7 +9,6 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use std::collections::HashMap;
-use uuid::Uuid;
 
 #[derive(Error, Debug)]
 pub enum StorageError {

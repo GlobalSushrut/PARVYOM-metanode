@@ -1,9 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
 use serde_json::{self};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 use crate::blockchain_helpers::*;
 
 #[derive(Subcommand)]
@@ -96,7 +93,7 @@ pub enum GovernanceCommands {
     /// Show governance parameters
     Parameters {
         /// Show parameter history
-        #[arg(short, long)]
+        #[arg(long)]
         history: bool,
     },
 
@@ -323,7 +320,7 @@ async fn handle_execute_proposal(proposal_id: &str, force: bool, json: bool, dry
 async fn handle_governance_stats(detailed: bool, json: bool) -> Result<()> {
     // Get real governance statistics from blockchain and registry
     use crate::blockchain_helpers::get_blockchain_stats;
-    use crate::mining::wallet_registry_bridge::WalletRegistryMiningBridge;
+    
     
     // Get real blockchain statistics for governance calculations
     let stats = match get_blockchain_stats().await {

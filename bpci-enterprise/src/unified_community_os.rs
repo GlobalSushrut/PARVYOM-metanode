@@ -16,6 +16,8 @@ use crate::community_installer_os::{CommunityInstallerOS, InstallerConfig, Insta
 use crate::round_table_oracle::{RoundTableOracle, OracleConfig, PartnerChainConfig};
 use crate::court_bpi_mesh_integration::{CourtBpiMeshBridge, CourtBpiMeshConfig};
 use crate::bpi_ledger_integration::BpiLedgerClient;
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
+use crate::commute_lock::CommuteLockRuntime;
 
 /// Deployment modes for unified Community OS
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -239,7 +241,11 @@ impl UnifiedCommunityOS {
         info!("🚀 Initializing Unified Community OS");
         
         // Initialize BPI ledger client
-        let bpi_client = Arc::new(BpiLedgerClient::new().await?);
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini()?;
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await?);
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await?);
         
         // Initialize community installer
         let installer = CommunityInstallerOS::new(Some(config.installer.clone()));

@@ -2,19 +2,16 @@ use anyhow::Result;
 use clap::Subcommand;
 use serde::{Deserialize, Serialize};
 use serde_json::{self};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use std::collections::HashMap;
 use crate::blockchain_helpers::*;
 use std::sync::{Arc, RwLock};
-use std::time::{SystemTime, UNIX_EPOCH};
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock as AsyncRwLock;
 use std::fs;
 use std::path::Path;
 
-use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, MiningType, MiningSession, WalletMiningResponse};
-use crate::registry::BpciRegistry;
+use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, MiningType};
 // Real BPI Core Integration for Native Blockchain Operations
 use crate::mining::wallet_registry_bridge::BpiNativeRegistry;
 use crypto_primitives::Ed25519KeyPair;
@@ -413,7 +410,7 @@ async fn handle_start_mining(pool: Option<&str>, threads: u32, difficulty: Optio
 
     // Real mining start with persistent state and real blockchain data
     match {
-        let mut state = MINING_STATE.write().unwrap();
+        let state = MINING_STATE.write().unwrap();
         let mut state_clone = state.clone();
         drop(state);
         
@@ -540,7 +537,7 @@ async fn handle_stop_mining(force: bool, json: bool, dry_run: bool) -> Result<()
 
     // Stop mining and save state
     {
-        let mut state = MINING_STATE.write().unwrap();
+        let state = MINING_STATE.write().unwrap();
         let mut state_clone = state.clone();
         drop(state);
         

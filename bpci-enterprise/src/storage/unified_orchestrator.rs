@@ -17,14 +17,13 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 // Import existing storage systems
-use crate::cuedb_agreement::CueDbAgreement;
 // Note: CueType and CueDbOperation not available - using placeholder types
 use crate::cuedb_manager::CueDbAgreementManager;
 
 // Import 4D Hash-Graph Database
 use super::{
     FourDHashGraphKernel, FourDConfig, FourDCoordinate,
-    SecurityLevel, QueryResult, DatabaseStats
+    SecurityLevel, DatabaseStats
 };
 
 /// Unified Storage Orchestrator Configuration

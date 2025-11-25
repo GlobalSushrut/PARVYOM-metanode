@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
-use rust_decimal::prelude::*;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use anyhow::Result;

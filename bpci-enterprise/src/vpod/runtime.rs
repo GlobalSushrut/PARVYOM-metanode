@@ -13,7 +13,7 @@ use anyhow::{Result, anyhow};
 use serde::{Serialize, Deserialize};
 
 use crate::vpod::{
-    VPodActor, VPodScheduler, ActorId, SPSCRingBuffer, ActorSpecialization, Message, ActorStatus
+    VPodActor, VPodScheduler, ActorId, ActorSpecialization, Message, ActorStatus
 };
 use tokio::sync::mpsc;
 

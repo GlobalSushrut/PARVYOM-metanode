@@ -4,10 +4,10 @@
 //! Operating on 4D relational algebra with hash-graph theory
 
 use serde::{Serialize, Deserialize};
-use std::collections::{HashMap, BTreeMap};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use uuid::Uuid;
 use blake3::Hash;
 

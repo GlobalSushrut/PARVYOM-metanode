@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
-use rust_decimal::prelude::FromPrimitive;
 use chrono::{DateTime, Utc, Duration};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -9,8 +8,7 @@ use anyhow::Result;
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::autonomous_economy::CoinType;
-use crate::registry::node_types::{BpiWalletStamp, BankType, BankLicense};
+use crate::registry::node_types::BankLicense;
 
 /// Settlement Coin (SC4/AUR) - Bank-to-Bank Settlement Infrastructure
 /// 

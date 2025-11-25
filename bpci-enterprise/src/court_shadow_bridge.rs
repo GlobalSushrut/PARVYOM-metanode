@@ -10,9 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, error};
 use uuid::Uuid;
-use crate::bpi_ledger_integration::{BpiLedgerClient, LedgerConnectionType, ProofType};
+use crate::bpi_ledger_integration::{BpiLedgerClient, ProofType};
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
+use crate::commute_lock::CommuteLockRuntime;
 
 /// Type alias for contract mapping
 type ContractMapping = ShadowContractMapping;
@@ -298,7 +300,11 @@ pub struct ShadowExecutionResult {
 impl CourtShadowBridge {
     /// Create new Court-Shadow Registry bridge
     pub async fn new() -> Result<Self> {
-        let bpi_client = Arc::new(BpiLedgerClient::new().await?);
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini()?;
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await?);
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await?);
         
         Ok(Self {
             contract_mappings: Arc::new(RwLock::new(HashMap::new())),

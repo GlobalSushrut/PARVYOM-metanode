@@ -5,8 +5,7 @@
 
 use anyhow::{Result, anyhow};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
-use std::sync::Arc;
+use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use sha2::{Sha256, Digest};
 
@@ -246,7 +245,7 @@ impl BpciAuctionMempool {
             return "0".repeat(64);
         }
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         for tx in transactions {
             hasher.update(&tx.tx_id);
         }

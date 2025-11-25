@@ -167,12 +167,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
             </div>
             <div>
               <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 fontSize: '18px', 
                 fontWeight: '700', 
                 lineHeight: '1.2',
                 color: '#FFFFFF',
                 letterSpacing: '0.5px'
               }}>
+                <span style={{ 
+                  fontSize: '20px', 
+                  color: '#E8B44F',
+                  fontWeight: 'bold'
+                }}>∞</span>
                 PRAVYOM
               </div>
               <div style={{ 
@@ -491,7 +499,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isAuthenticated = fal
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                   {/* Social Media Links */}
                   <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                    <a href="https://github.com/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="GitHub">
+                    <a href="https://github.com/GlobalSushrut/PARVYOM-metanode" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="GitHub">
                       💻
                     </a>
                     <a href="https://twitter.com/pravyom" target="_blank" rel="noopener noreferrer" style={{ color: '#E8B44F', fontSize: '1.5rem', transition: 'color 0.3s ease' }} title="Twitter">

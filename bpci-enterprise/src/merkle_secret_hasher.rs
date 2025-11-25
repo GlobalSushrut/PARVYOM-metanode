@@ -8,7 +8,6 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use anyhow::{Result, anyhow};
-use blake3::Hash;
 use sha2::{Sha256, Digest};
 use chrono::{DateTime, Utc};
 
@@ -120,7 +119,7 @@ impl MerkleSecretHasher {
         let combined_data = format!("{}||{}||{}||{}", token, address, user_id, user_salt);
         
         // Generate primary hash
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(combined_data.as_bytes());
         let primary_hash = format!("{:x}", hasher.finalize());
         
@@ -303,7 +302,7 @@ impl MerkleSecretHasher {
             user_id
         );
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(combined.as_bytes());
         Ok(format!("{:x}", hasher.finalize()))
     }
@@ -312,7 +311,7 @@ impl MerkleSecretHasher {
         let salt_config = self.salt_config.read().await;
         let salted_data = format!("{}||{}", data, salt_config.master_salt);
         
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(salted_data.as_bytes());
         Ok(format!("{:x}", hasher.finalize()))
     }

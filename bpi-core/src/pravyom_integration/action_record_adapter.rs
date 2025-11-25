@@ -391,6 +391,7 @@ impl ActionRecordAdapter {
             crate::immutable_audit_system::AuditRecordType::AttackAttempt => "POLICY",
             crate::immutable_audit_system::AuditRecordType::BugOccurrence => "READ",
             crate::immutable_audit_system::AuditRecordType::SystemAnomaly => "READ",
+            crate::immutable_audit_system::AuditRecordType::AttackDetection => "POLICY",
         }.to_string();
         
         // Extract action name from runtime event (use event_id as action name)

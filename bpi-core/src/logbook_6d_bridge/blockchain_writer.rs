@@ -10,7 +10,7 @@ use uuid::Uuid;
 use sha3::{Digest, Sha3_256};
 
 /// 6D blockchain transaction structure
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct SixDTransaction {
     pub transaction_id: String,
     pub timestamp: u64,
@@ -27,7 +27,7 @@ pub struct SixDTransaction {
 }
 
 /// Types of 6D blockchain transactions
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum TransactionType {
     VMOperation,
     SecurityEvent,
@@ -39,7 +39,7 @@ pub enum TransactionType {
 }
 
 /// 6D dimensional coordinates for transactions
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DimensionalCoordinates {
     pub x: f64, // Spatial dimension 1
     pub y: f64, // Spatial dimension 2
@@ -50,7 +50,7 @@ pub struct DimensionalCoordinates {
 }
 
 /// Transaction data payload
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TransactionData {
     pub operation_hash: String,
     pub input_data_hash: String,
@@ -63,7 +63,7 @@ pub struct TransactionData {
 }
 
 /// Cryptographic proofs for transactions
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CryptographicProofs {
     pub merkle_proof: String,
     pub zero_knowledge_proof: String,
@@ -74,7 +74,7 @@ pub struct CryptographicProofs {
 }
 
 /// 6D blockchain block structure
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct BlockchainBlock {
     pub block_id: String,
     pub block_number: u64,
@@ -89,7 +89,7 @@ pub struct BlockchainBlock {
 }
 
 /// Dimensional invariants for 6D blocks
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DimensionalInvariants {
     pub spatial_invariant: f64,
     pub temporal_invariant: f64,
@@ -100,7 +100,7 @@ pub struct DimensionalInvariants {
 }
 
 /// Consensus data for blocks
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ConsensusData {
     pub consensus_algorithm: String,
     pub validator_signatures: Vec<ValidatorSignature>,
@@ -110,7 +110,7 @@ pub struct ConsensusData {
 }
 
 /// Validator signature for consensus
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ValidatorSignature {
     pub validator_id: String,
     pub signature: String,
@@ -119,7 +119,7 @@ pub struct ValidatorSignature {
 }
 
 /// Blockchain writer statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct WriterStats {
     pub total_transactions_written: u64,
     pub total_blocks_created: u64,
@@ -151,7 +151,7 @@ pub struct SixDBlockchainWriter {
 }
 
 /// Blockchain state information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct BlockchainState {
     pub chain_id: String,
     pub current_block_number: u64,
@@ -163,7 +163,7 @@ pub struct BlockchainState {
 }
 
 /// Consensus status
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ConsensusStatus {
     Active,
     Syncing,
@@ -172,7 +172,7 @@ pub enum ConsensusStatus {
 }
 
 /// Writer configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct WriterConfig {
     pub max_transactions_per_block: u32,
     pub block_creation_interval_seconds: u64,

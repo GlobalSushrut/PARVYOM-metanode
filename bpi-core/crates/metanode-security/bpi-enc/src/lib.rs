@@ -3,7 +3,6 @@
 //! Provides domain-separated hashing and canonical serialization for BPI components.
 
 use blake3::Hasher;
-use sha2::{Sha256, Digest};
 use serde::{Serialize, Deserialize};
 
 /// Encoding error type for BPI components

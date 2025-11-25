@@ -1,15 +1,7 @@
 use anyhow::Result;
 use clap::Subcommand;
 use serde_json::{self};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 use crate::blockchain_helpers::*;
-use crate::registry::{
-    BpciRegistry, NodeRegistration, NodeType, IdentityProof, AuthorityLevel,
-    NodeCapability, NetworkEndpoints, RegistrationRequest, NodeTypeRequest,
-    IdentityRequest, AuthorityRequest, RegistrationService
-};
 
 #[derive(Subcommand)]
 pub enum RegistryCommands {

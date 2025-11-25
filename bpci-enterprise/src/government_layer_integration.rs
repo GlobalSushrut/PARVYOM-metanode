@@ -4,16 +4,15 @@
 //! enterprise system, providing a unified interface for real government operations.
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
-    response::{Json, IntoResponse},
-    routing::{get, post, put, delete},
+    response::Json,
+    routing::{get, post},
     Router,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use tokio::sync::Mutex;
 use tracing::{error, info, warn};
 use uuid::Uuid;
 
@@ -29,24 +28,13 @@ use chrono::{DateTime, Utc};
 
 use crate::government_layer::{
     MultiJurisdictionDeploymentManager, 
-    GovernmentSmartContract, 
-    GovernmentApiAccess,
+    GovernmentSmartContract,
     GovernmentSmartContractExamples,
     GovernmentLayerController,
     EnhancedGovernmentApiRequest, EnhancedGovernmentApiResponse,
-    GovernmentOperation,
-    PriorityLevel,
-    SecurityClassification,
-    AuditRequirements,
-    ResponseFormat,
-    missing_types::{
-        GovernmentOperationStatus,
-        GovernmentOperationType,
-        GovernmentSessionStatus,
-        ServiceStatus,
-    },
+    missing_types::ServiceStatus,
 };
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 
 /// Integrated Government Service for BPCI Enterprise
 #[derive(Debug, Clone)]
@@ -260,7 +248,7 @@ async fn handle_smartcontract_deployment(
         }
     }
     
-    let mut deployment_manager = service.smartcontract_deployment.write().unwrap();
+    let deployment_manager = service.smartcontract_deployment.write().unwrap();
     
     // For now, let's create a simple response without calling the complex method
     // TODO: Implement proper contract deployment
@@ -373,7 +361,7 @@ async fn handle_api_access_setup(
 ) -> Result<Json<ApiAccessSetupResponse>, StatusCode> {
     info!("Setting up government API access for: {}", request.government_id);
     
-    let mut deployment_manager = service.smartcontract_deployment.write().unwrap();
+    let deployment_manager = service.smartcontract_deployment.write().unwrap();
     
     // For now, let's create a simple response without calling the complex method
     // TODO: Implement proper API access setup

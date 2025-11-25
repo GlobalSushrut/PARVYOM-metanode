@@ -3,13 +3,12 @@ use clap::Subcommand;
 use serde_json::{self};
 use axum::{
     extract::Query,
-    http::StatusCode,
     response::Json,
     routing::{get, post},
     Router,
 };
 use tower_http::cors::CorsLayer;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{Arc, OnceLock};
@@ -17,18 +16,16 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::net::TcpListener;
 use tokio::sync::RwLock;
 
-use crate::blockchain_helpers::{get_blockchain_stats, format_uptime, BlockchainStats, get_real_node_info, get_real_blockchain_height, get_real_peer_count};
-use crate::cli::bank_api_handlers::{
-    register_bank_api, initiate_bank_settlement, process_settlement_phase,
-    bank_settlement_status, active_bank_settlements
-};
-use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, MiningSession, BpiNativeRegistry, BpiEndpoints};
+use crate::blockchain_helpers::{get_real_node_info, get_real_peer_count};
+// Bank API handlers - using stamped wallet API controller instead
+// use crate::cli::bank_api_handlers::{
+//     register_bank_api, initiate_bank_settlement, process_settlement_phase,
+//     bank_settlement_status, active_bank_settlements
+// };
+use crate::mining::wallet_registry_bridge::{WalletRegistryMiningBridge, BpiNativeRegistry, BpiEndpoints};
 use crate::autonomous_economy::{RealBpciEconomicIntegration, RealEconomicConfig};
-use crate::registry::{BpciRegistry, NodeType, NodeRegistration, AuthorityLevel, IdentityProof, BpiWalletStamp};
 use crate::stamped_wallet_api_access::{
-    StampedWalletApiController, BankApiRequest, GovernmentApiRequest, 
-    WalletStampVerification, StampType, VerificationStatus,
-    handle_bank_settlement_request, handle_government_regulatory_request,
+    StampedWalletApiController,
     create_stamped_wallet_api_router
 };
 use crypto_primitives::Ed25519KeyPair;
@@ -125,7 +122,7 @@ async fn initialize_global_economic_integration() -> Result<()> {
 // Global server start time for accurate uptime tracking
 static SERVER_START_TIME: OnceLock<SystemTime> = OnceLock::new();
 
-use networking::{P2PNetwork, NetworkNode};
+// use networking::{P2PNetwork, NetworkNode}; // Commented out - types not available
 
 #[derive(Subcommand)]
 pub enum WebCommands {
@@ -588,7 +585,7 @@ async fn start_bpci_web_server(addr: SocketAddr, json: bool) -> Result<()> {
         // Count bank-sponsored nodes and get banking statistics
         let mut bank_nodes = 0;
         let mut active_licenses = 0;
-        let mut compliance_level = "Standard";
+        let compliance_level = "Standard";
         
         // Simulate real bank data from registry (would be actual bank data in production)
         for (_, node_data) in registry_read.validators.iter() {
@@ -813,7 +810,7 @@ async fn start_bpci_web_server(addr: SocketAddr, json: bool) -> Result<()> {
         let mut registered_entities = 0;
         let mut active_licenses = 0;
         let mut regulatory_approvals = Vec::new();
-        let mut compliance_level = "Standard";
+        let compliance_level = "Standard";
         
         // Simulate real jurisdiction data from registry (would be actual regulatory data in production)
         for (_, node_data) in registry_read.validators.iter() {
@@ -1431,11 +1428,12 @@ async fn start_bpci_web_server(addr: SocketAddr, json: bool) -> Result<()> {
         .route("/api/bank/status", get(bank_status))
         .route("/api/bank/services", get(bank_services))
         .route("/api/economy/status", get(economy_status))
-        .route("/api/bank/register", post(register_bank_api))
-        .route("/api/bank/settlement/initiate", post(initiate_bank_settlement))
-        .route("/api/bank/settlement/phase", post(process_settlement_phase))
-        .route("/api/bank/settlement/status", get(bank_settlement_status))
-        .route("/api/bank/settlement/active", get(active_bank_settlements))
+        // Bank API routes - temporarily disabled until bank_api_handlers module is available
+        // .route("/api/bank/register", post(register_bank_api))
+        // .route("/api/bank/settlement/initiate", post(initiate_bank_settlement))
+        // .route("/api/bank/settlement/phase", post(process_settlement_phase))
+        // .route("/api/bank/settlement/status", get(bank_settlement_status))
+        // .route("/api/bank/settlement/active", get(active_bank_settlements))
         .route("/api/economy/services", get(economy_services))
         .route("/api/government/status", get(government_status))
         .route("/api/government/services", get(government_services))
@@ -1544,10 +1542,10 @@ async fn validate_subsystem_health() -> (bool, Vec<String>) {
     }
     
     // Check networking health
-    let network = P2PNetwork::new();
-    if network.peer_count() == 0 {
-        issues.push("No peers connected".to_string());
-    }
+    // let network = P2PNetwork::new(); // Commented out - P2PNetwork type not available
+    // if network.peer_count() == 0 {
+    //     issues.push("No peers connected".to_string());
+    // }
     
     (all_healthy, issues)
 }

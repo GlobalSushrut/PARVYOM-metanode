@@ -1,0 +1,31 @@
+{
+  "role": "System",
+  "description": "Full system access for core OS services and kernel modules",
+  "ring_levels": [0, 1],
+  "capabilities": [
+    "CAP_SYS_ADMIN",
+    "CAP_SYS_MODULE",
+    "CAP_SYS_RAWIO",
+    "CAP_NET_ADMIN",
+    "CAP_DAC_OVERRIDE",
+    "CAP_SETUID",
+    "CAP_SETGID"
+  ],
+  "seccomp_policy": {
+    "default_action": "SCMP_ACT_ALLOW",
+    "blocked_syscalls": [
+      "ptrace",
+      "process_vm_readv",
+      "process_vm_writev"
+    ]
+  },
+  "network_policy": {
+    "allow_all": true,
+    "bind_privileged_ports": true
+  },
+  "filesystem_access": {
+    "read_write": ["/", "/era", "/sys", "/proc"],
+    "read_only": [],
+    "denied": []
+  }
+}

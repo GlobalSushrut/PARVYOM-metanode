@@ -1,0 +1,46 @@
+# BPI Core Basic Configuration Template
+# Copy this template and customize for your environment
+
+[metadata]
+version = "1.0.0"
+created = "2024-11-13"
+description = "BPI Core basic configuration"
+
+[network]
+# Network configuration
+host = "localhost"
+port = 8080
+protocol = "https"
+timeout_seconds = 30
+max_connections = 1000
+
+[security]
+# Security settings
+level = "high"
+quantum_safe = true
+encryption_algorithm = "post-quantum"
+key_rotation_hours = 24
+audit_enabled = true
+
+[storage]
+# Storage configuration
+data_path = "./data"
+backup_path = "./backups"
+backup_enabled = true
+backup_interval_hours = 6
+retention_days = 30
+
+[logging]
+# Logging configuration
+level = "info"
+file_path = "./logs/bpi-core.log"
+max_file_size_mb = 100
+max_files = 10
+console_output = true
+
+[performance]
+# Performance tuning
+worker_threads = 4
+memory_limit_gb = 8
+cache_size_mb = 512
+gc_interval_minutes = 15

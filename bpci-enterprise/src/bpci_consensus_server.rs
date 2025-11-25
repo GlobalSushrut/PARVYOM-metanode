@@ -4,7 +4,7 @@
 //! for testnet deployment. Handles HTTP API endpoints, WebSocket
 //! connections, and real-time consensus monitoring.
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -18,21 +18,17 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use tower_http::cors::CorsLayer;
-use tracing::{info, warn, error};
+use tracing::{info, error};
 
 // Removed: triple_consensus_coordinator (replaced with LCCD revolutionary consensus)
 use crate::bpci_lccd_revolutionary_upgrade::{
-    BpciRevolutionaryConsensus, RevolutionaryConsensusResult, ConsciousnessEnhancement,
-    TranscendenceResult, TemporalProtectionResult, CellularScalingResult, RevolutionaryStatus
-};
-use crate::lccd_mathematical_foundation::{
-    LccdMathematicalFoundation, TriCoeff, CategoryChainNervousSystem,
-    KappaCirculatorySystem, NxTriImmuneSystem
+    BpciRevolutionaryConsensus, RevolutionaryConsensusResult, RevolutionaryStatus
 };
 use crate::auction_mode_manager::{AuctionModeManager, AuctionMode, BundleProposal};
 use crate::bpi_ledger_integration::BpiLedgerClient;
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
+use crate::commute_lock::CommuteLockRuntime;
 
 /// BPCI Consensus Server
 #[derive(Clone)]
@@ -145,8 +141,14 @@ impl BpciConsensusServerState {
     pub async fn new(config: BpciServerConfig) -> Result<Self> {
         info!("Initializing BPCI Consensus Server in {:?} mode", config.server_mode);
         
+        // Initialize CommuteLock runtime and networking
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini()?;
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await?);
+        
         // Initialize BPI ledger client
-        let bpi_ledger_client = Arc::new(BpiLedgerClient::new().await?);
+        let bpi_ledger_client = Arc::new(BpiLedgerClient::new(networking).await?);
         
         // Initialize auction manager with real validator/notary system
         let auction_mode = match &config.server_mode {

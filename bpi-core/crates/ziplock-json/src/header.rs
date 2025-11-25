@@ -1,7 +1,7 @@
 //! ZIPLOCK-JSON file header structures and constants
 
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
-use serde::{Deserialize, Serialize};
+// Removed unused serde imports
 use uuid::Uuid;
 use crate::{ZJL_MAGIC, ZJL_VERSION, ZjlResult, ZjlError};
 

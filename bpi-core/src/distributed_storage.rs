@@ -7,6 +7,8 @@ use tracing::{info, debug, warn, error};
 use sha2::{Sha256, Digest};
 use rand::{Rng, thread_rng};
 use uuid::Uuid;
+use crate::os_security_supervisor::OsSecuritySupervisor;
+use crate::proof_service::ProofService as OsProofService;
 
 /// BPI Core Distributed Container-Block Storage System
 /// Distributes random data with cryptographic proofs across multiple cloud providers
@@ -57,6 +59,14 @@ pub struct BpiDistributedStorage {
     vm_audit_pipeline: VmAuditPipeline,
     multi_cloud_orchestrator: MultiCloudOrchestrator,
     instant_backup_manager: InstantBackupManager,
+    /// Pluggable proof service used to generate cryptographic proofs for
+    /// stored data. The default implementation preserves existing behaviour.
+    proof_service: Arc<dyn StorageProofService + Send + Sync>,
+    /// Optional OS Security Supervisor for unified storage security events
+    security_supervisor: Option<Arc<OsSecuritySupervisor>>,
+    /// Optional OS-level ProofService for generating additional proofs
+    /// (e.g., Bulletproof range proofs) at storage boundaries.
+    os_proof_service: Option<Arc<dyn OsProofService + Send + Sync>>,
 }
 
 #[derive(Debug, Clone)]
@@ -71,6 +81,13 @@ pub struct DistributedStorageConfig {
 
 impl BpiDistributedStorage {
     pub fn new(config: DistributedStorageConfig) -> Self {
+        Self::new_with_supervisor(config, None)
+    }
+
+    pub fn new_with_supervisor(
+        config: DistributedStorageConfig,
+        security_supervisor: Option<Arc<OsSecuritySupervisor>>,
+    ) -> Self {
         Self {
             config: config.clone(),
             container_blocks: Arc::new(RwLock::new(HashMap::new())),
@@ -79,15 +96,44 @@ impl BpiDistributedStorage {
             vm_audit_pipeline: VmAuditPipeline::new(config.clone()),
             multi_cloud_orchestrator: MultiCloudOrchestrator::new(config.clone()),
             instant_backup_manager: InstantBackupManager::new(config.clone()),
+            proof_service: Arc::new(DefaultStorageProofService {}),
+            security_supervisor,
+            os_proof_service: None,
+        }
+    }
+
+    pub fn new_with_services(
+        config: DistributedStorageConfig,
+        security_supervisor: Option<Arc<OsSecuritySupervisor>>,
+        os_proof_service: Option<Arc<dyn OsProofService + Send + Sync>>,
+    ) -> Self {
+        Self {
+            config: config.clone(),
+            container_blocks: Arc::new(RwLock::new(HashMap::new())),
+            data_storage: Arc::new(RwLock::new(HashMap::new())),
+            proof_storage: EncryptedProofStorage::new(config.clone()),
+            vm_audit_pipeline: VmAuditPipeline::new(config.clone()),
+            multi_cloud_orchestrator: MultiCloudOrchestrator::new(config.clone()),
+            instant_backup_manager: InstantBackupManager::new(config.clone()),
+            proof_service: Arc::new(DefaultStorageProofService {}),
+            security_supervisor,
+            os_proof_service,
         }
     }
 
     /// Store data with distributed container-block system
     pub async fn store_data(&self, data: &[u8], metadata: &str) -> Result<String> {
         info!("🚀 BPI Core: Starting distributed storage for {} bytes", data.len());
+
+        // Emit a unified storage security event if a supervisor is attached.
+        if let Some(supervisor) = &self.security_supervisor {
+            supervisor
+                .check_storage_operation("distributed_store", metadata, data.len() as u64)
+                .await;
+        }
         
-        // Step 1: Create random container blocks with proofs
-        let container_block = self.create_container_block(data, metadata).await?;
+        // Step 1: Create container block with cryptographic proofs
+        let mut container_block = self.create_container_block(data, metadata).await?;
         
         // Step 2: Store encrypted proofs with ENC
         let proof_id = self.proof_storage.store_encrypted_proof(&container_block).await?;
@@ -95,8 +141,9 @@ impl BpiDistributedStorage {
         // Step 3: VM audit the proof and data flow
         let vm_audit_result = self.vm_audit_pipeline.audit_storage_operation(&container_block, &proof_id).await?;
         
-        // Step 4: Distribute across 2-10 cloud providers
-        let distribution_result = self.multi_cloud_orchestrator.distribute_blocks(&container_block).await?;
+        // Step 4: Distribute across multi-cloud providers and record layout
+        let locations = self.multi_cloud_orchestrator.distribute_blocks(&container_block).await?;
+        container_block.distribution_map = locations;
         
         // Step 5: Setup instant backup pipeline
         self.instant_backup_manager.setup_backup_monitoring(&container_block.block_id).await?;
@@ -108,6 +155,12 @@ impl BpiDistributedStorage {
         // Store in BPI Core registry (only VM knows complete mapping)
         let mut blocks = self.container_blocks.write().await;
         blocks.insert(container_block.block_id.clone(), container_block.clone());
+
+        if let Some(os_proof_service) = &self.os_proof_service {
+            if let Err(e) = os_proof_service.generate_bulletproof_range(container_block.size_bytes) {
+                warn!("Failed to generate Bulletproof range proof for block {}: {:?}", container_block.block_id, e);
+            }
+        }
         
         info!("✅ BPI Core: Data stored successfully with block ID {}", container_block.block_id);
         Ok(container_block.block_id)
@@ -144,6 +197,12 @@ impl BpiDistributedStorage {
         Ok(data)
     }
 
+    /// Get a stored container block by ID (for inspection and infra tests)
+    pub async fn get_container_block(&self, block_id: &str) -> Result<Option<ContainerBlock>> {
+        let blocks = self.container_blocks.read().await;
+        Ok(blocks.get(block_id).cloned())
+    }
+
     /// Create container block with random distribution
     async fn create_container_block(&self, data: &[u8], metadata: &str) -> Result<ContainerBlock> {
         let block_id = Uuid::new_v4().to_string();
@@ -174,18 +233,7 @@ impl BpiDistributedStorage {
     }
 
     async fn generate_cryptographic_proof(&self, data: &[u8], data_hash: &str) -> Result<CryptographicProof> {
-        // Generate military-grade proof with post-quantum elements
-        let mut hasher = Sha256::new();
-        hasher.update(b"BPI_CORE_PROOF:");
-        hasher.update(data);
-        hasher.update(data_hash.as_bytes());
-        
-        Ok(CryptographicProof {
-            proof_type: "BPI_CORE_MILITARY".to_string(),
-            data_hash: data_hash.to_string(),
-            signature: format!("{:x}", hasher.finalize()),
-            timestamp: chrono::Utc::now().timestamp() as u64,
-        })
+        self.proof_service.generate_proof(data, data_hash)
     }
 
     fn generate_proof_hash(&self, proof: &CryptographicProof) -> String {
@@ -226,6 +274,33 @@ pub struct CryptographicProof {
     pub data_hash: String,
     pub signature: String,
     pub timestamp: u64,
+}
+
+/// Minimal proof service abstraction used by distributed storage. This will be
+/// generalized into a broader OS-level ProofService in later phases.
+pub trait StorageProofService {
+    fn generate_proof(&self, data: &[u8], data_hash: &str) -> Result<CryptographicProof>;
+}
+
+/// Default in-crate implementation of StorageProofService that preserves the
+/// existing cryptographic proof format and hashing scheme.
+pub struct DefaultStorageProofService {}
+
+impl StorageProofService for DefaultStorageProofService {
+    fn generate_proof(&self, data: &[u8], data_hash: &str) -> Result<CryptographicProof> {
+        // Generate military-grade proof with post-quantum elements
+        let mut hasher = Sha256::new();
+        hasher.update(b"BPI_CORE_PROOF:");
+        hasher.update(data);
+        hasher.update(data_hash.as_bytes());
+
+        Ok(CryptographicProof {
+            proof_type: "BPI_CORE_MILITARY".to_string(),
+            data_hash: data_hash.to_string(),
+            signature: format!("{:x}", hasher.finalize()),
+            timestamp: chrono::Utc::now().timestamp() as u64,
+        })
+    }
 }
 
 impl EncryptedProofStorage {

@@ -4,21 +4,22 @@
 //! with military-grade security and post-quantum cryptography.
 
 use anyhow::{Result, anyhow};
-use std::process;
+use std::{env, process};
 use tracing::{info, warn, error};
 use tokio;
 
-mod hardware_detection;
-mod filesystem_engine;
-mod security_hardening;
-mod atomic_updates;
-mod bpi_integration;
-
-use hardware_detection::HardwareDetectionEngine;
-use filesystem_engine::FilesystemImmutabilityEngine;
-use security_hardening::SecurityHardeningEngine;
-use atomic_updates::AtomicUpdateSystem;
-use bpi_integration::NxosDrxBpiIntegration;
+use bpi_immutable_os::hardware_detection::HardwareDetectionEngine;
+use bpi_immutable_os::filesystem_engine::FilesystemImmutabilityEngine;
+use bpi_immutable_os::security_hardening::SecurityHardeningEngine;
+use bpi_immutable_os::atomic_updates::AtomicUpdateSystem;
+use bpi_immutable_os::bpi_integration::NxosDrxBpiIntegration;
+use bpi_immutable_os::bootable_ledger::{
+    BootableLedgerOS,
+    BootableLedgerConfig,
+    LedgerNetworkConfig,
+    LedgerConsensusConfig,
+    LedgerStorageConfig,
+};
 
 /// BPI Immutable OS Installer - Main orchestrator
 #[derive(Debug)]
@@ -164,6 +165,39 @@ fn display_banner() {
     println!();
 }
 
+/// Run immutable OS boot sequence: bring up 6D ledger on top of Linux
+async fn run_immutable_boot() -> Result<()> {
+    info!("Starting BPI Immutable OS boot sequence (6D ledger on top of Linux)");
+
+    let hardware_engine = HardwareDetectionEngine::new().await?;
+    let hardware_profile = hardware_engine.detect_hardware().await?;
+
+    // Default 6D ledger configuration for OS-level boot
+    let ledger_config = BootableLedgerConfig {
+        ledger_id: "bpi-core-6d".to_string(),
+        network: LedgerNetworkConfig {
+            p2p_port: 37373,
+            rpc_port: 37474,
+            bootstrap_nodes: Vec::new(),
+        },
+        consensus: LedgerConsensusConfig {
+            min_validators: 1,
+            block_time_ms: 1000,
+            finality_threshold: 0.67,
+        },
+        storage: LedgerStorageConfig {
+            era_root: std::path::PathBuf::from("/era"),
+            blockchain_data_path: std::path::PathBuf::from("/era/mutable/var/bpi/ledger"),
+            max_storage_gb: 512,
+        },
+    };
+
+    let mut bootable = BootableLedgerOS::new(hardware_profile, ledger_config).await?;
+    bootable.boot().await?;
+
+    Ok(())
+}
+
 /// Display system information
 async fn display_system_info() {
     let sys = sysinfo::System::new_all();
@@ -186,6 +220,22 @@ async fn main() -> Result<()> {
 
     // Display banner
     display_banner();
+
+    // Check if running in boot mode (OS already installed, just bring 6D ledger online)
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 1 && args[1] == "--boot" {
+        if let Err(e) = check_root_permissions() {
+            eprintln!("{}", e);
+            process::exit(1);
+        }
+
+        if let Err(e) = run_immutable_boot().await {
+            error!("Immutable boot sequence failed: {}", e);
+            process::exit(1);
+        }
+
+        return Ok(());
+    }
     
     // Check root permissions
     if let Err(e) = check_root_permissions() {

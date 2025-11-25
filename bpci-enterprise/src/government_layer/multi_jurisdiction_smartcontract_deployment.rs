@@ -25,9 +25,8 @@ use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use uuid::Uuid;
-use rust_decimal::Decimal;
 use anyhow::{Result, anyhow};
-use tracing::{info, warn, error, debug};
+use tracing::info;
 
 // Import types from missing_types to resolve scope issues after removing conflicting stub definitions
 use crate::government_layer::missing_types::{

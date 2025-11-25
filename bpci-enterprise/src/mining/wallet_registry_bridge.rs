@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::RwLock;
-use tracing::{info, warn, error, debug};
+use tracing::{info, warn, debug};
 use uuid::Uuid;
 
 // use crate::registry::{BpciRegistry, NodeRegistration, NodeStatus}; // Temporarily commented, VerificationLevel};
@@ -12,16 +12,10 @@ use uuid::Uuid;
 // use crate::mining::MiningState; // Temporarily commented
 
 // Real BPI Core Integration - Now with Fixed Dependencies
-use crypto_primitives::{Ed25519KeyPair, Hash, HashAlgorithm, hash_data};
-use bpi_enc::{domain_hash, Hash as BpiHash, CanonicalCbor};
-use bpi_blsagg::{PublicKey as BlsPublicKey, Signature as BlsSignature};
-use bpi_validator_set::{ValidatorSet, ValidatorInfo};
+use crypto_primitives::Ed25519KeyPair;
 // use bpi_consensus::BlockHeader; // Temporarily commented for compilationnsusError, BlockHeader};
-use bpi_merkle::{MerkleTree, MerkleProof};
 
 // Import node types
-use crate::mining::node_types::{self};
-use crate::mining::node_types::authority;
 use crate::registry::node_types::VerificationType as RegistryVerificationType;
 
 // Define missing wallet types for BPCI integration

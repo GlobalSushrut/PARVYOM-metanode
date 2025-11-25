@@ -1,0 +1,8 @@
+/home/umesh/metanode/backup_md_files/pravyom-complete/bpci-enterprise/bpi-advanced-downloader/target/debug/deps/tauri_runtime_wry-7925b2e912b374ec.d: /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs
+
+/home/umesh/metanode/backup_md_files/pravyom-complete/bpci-enterprise/bpi-advanced-downloader/target/debug/deps/libtauri_runtime_wry-7925b2e912b374ec.rmeta: /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs
+
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/lib.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/webview.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/global_shortcut.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-0.14.11/src/clipboard.rs:

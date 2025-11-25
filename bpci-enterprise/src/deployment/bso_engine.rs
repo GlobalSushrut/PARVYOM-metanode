@@ -4,7 +4,7 @@ use tokio::sync::RwLock;
 use chrono::{DateTime, Utc};
 use tracing::{info, warn, error};
 
-use super::makefilelock::{MakefileLock, MakefileLockError, DeploymentHandle, SecurityReport};
+use super::makefilelock::{MakefileLock, MakefileLockError, DeploymentHandle};
 
 /// BSO (Binary Saturated OSI) Deployment Engine
 /// Provides self-replicating deployment with cellular growth algorithms

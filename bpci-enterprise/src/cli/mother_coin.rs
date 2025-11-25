@@ -3,9 +3,7 @@ use serde_json;
 use anyhow::Result;
 use rust_decimal::Decimal;
 
-use crate::autonomous_economy::mother_coin_distribution::{
-    MotherCoinDistributionEngine, DistributionTier, ParticipantType
-};
+use crate::autonomous_economy::mother_coin_distribution::MotherCoinDistributionEngine;
 
 /// Mother Coin (GEN) Distribution CLI Commands
 /// Target: Raise $1M safely while maintaining decentralization

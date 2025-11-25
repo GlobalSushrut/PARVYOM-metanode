@@ -243,8 +243,11 @@ impl ForensicFirewall {
                 user_agent: "unknown".to_string(),
                 resource_accessed: "firewall".to_string(),
                 action_performed: "threat_detection".to_string(),
+                resource_usage: std::collections::HashMap::new(),
+                location: None,
                 success: true,
                 metadata: std::collections::HashMap::new(),
+                duration_ms: 0,
             };
             let behavioral_result = self.behavioral_analyzer
                 .analyze_user_behavior("unknown_user", &user_activity)
@@ -304,8 +307,11 @@ impl ForensicFirewall {
                     user_agent: "BPI-Core".to_string(),
                     resource_accessed: "firewall".to_string(),
                     action_performed: "threat_detection".to_string(),
+                    resource_usage: std::collections::HashMap::new(),
+                    location: None,
                     success: true,
                     metadata: std::collections::HashMap::new(),
+                    duration_ms: 0,
                 },
                 source_reputation: threat_context.source_reputation,
                 attack_complexity: threat_context.attack_complexity,
@@ -346,9 +352,9 @@ impl ForensicFirewall {
         // Record final audit event
         if self.config.enable_real_time_audit {
             let final_audit_id = self.audit_bridge.record_security_event(
-                crate::forensic_firewall::audit_bridge::ForensicEventType::PolicyEnforcementAction,
+                crate::forensic_firewall::shared_types::ForensicEventType::PolicyEnforcementAction,
                 source_component,
-                crate::forensic_firewall::audit_bridge::ForensicSeverity::Info,
+                crate::forensic_firewall::shared_types::ForensicSeverity::Info,
                 format!("Forensic firewall processing completed: {}", processing_id),
                 None,
                 result.final_decision.clone(),
@@ -374,8 +380,27 @@ impl ForensicFirewall {
     ) -> Result<()> {
         use tokio::fs;
         
-        let mut dir = fs::read_dir(contracts_path).await?;
         let mut loaded_count = 0;
+
+        // Gracefully handle missing contracts directory: in early deployments or
+        // test environments the security contracts may not be present yet. In
+        // that case we simply start with zero CUE contracts instead of
+        // aborting firewall initialization.
+        let read_dir_result = fs::read_dir(contracts_path).await;
+        let mut dir = match read_dir_result {
+            Ok(d) => d,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                tracing::warn!(
+                    "⚠️ Security contracts directory not found, starting without CUE contracts: {} ({})",
+                    contracts_path,
+                    e,
+                );
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
         
         while let Some(entry) = dir.next_entry().await? {
             let path = entry.path();

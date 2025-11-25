@@ -1,0 +1,166 @@
+BPI CORE FULL STACK DEMO REPORT
+Run ID: 82beaad2-1f6e-4a2f-bbeb-1d6dddfd7cfa
+Started at: 2025-11-25T06:44:22.381750317+00:00
+
+[Security Supervisor]
+  audit_root: /tmp/bpi_full_demo_82beaad2-1f6e-4a2f-bbeb-1d6dddfd7cfa
+
+[Storage + CDN]
+  content_id: 1a7b9d81-0d1f-400a-abbc-429f4dd0baf8
+  edge_nodes_count: 0
+  cache_hit_rate: 0.000
+  average_latency_ms: 15
+  cost_savings_percent: 45.0
+  total_content_served: 0
+  bandwidth_saved_gb: 0.000
+
+[Distributed Storage Layout]
+  block_id: 1a7b9d81-0d1f-400a-abbc-429f4dd0baf8
+  data_hash: 3bc89574ddf97c23f1c44395c583e1051d31657076cd3342c1096e472135f868
+  size_bytes: 40
+  distribution_map_len: 2
+    - provider=AWS region=us-east-1 encrypted_path=/bpi/blocks/aws/1a7b9d81-0d1f-400a-abbc-429f4dd0baf8 backups=0
+    - provider=OVH region=default encrypted_path=/bpi/blocks/ovh/1a7b9d81-0d1f-400a-abbc-429f4dd0baf8 backups=0
+
+[AgiDigitalNation Storage]
+  app_id: f70266d5-3b84-4ae9-a6ff-d7ed4ad1c4d5
+  citizen_id: c6acc7ab-bf47-431a-9bef-f82e95c53513
+  storage_id: c6fd803e-92ed-4b10-a239-517b9959f808
+  quantum_storage_id: 1316a003-123b-47eb-84fb-852c44f83f48
+  persistence_id: 57583323-7a04-4453-8f10-a597b347ccb9
+  success: true
+  verified: true
+  coherence_level: 0.950
+  entanglement_strength: 0.880
+  integrity_hash: integrity_hash_18865830-438b-4084-9d4d-5c4257702ff9
+  retention_years: 100
+  archival_strategy: QuantumArchival
+
+[Security + SOAR]
+  security_event_id: ev_soar_1
+  incident_type: UnauthorizedAccess
+  severity: High
+  confidence: 1.000
+  chosen_playbook: pb_unauth_access
+[Deception]
+  honeyfile_id: 7b75e950-9b5f-45f5-9402-7eaac1486626
+  honeyfile_path: /tmp/bpi_full_demo_honey/confidential_data.xlsx
+  interaction_id: 7f0850fd-f568-4df6-bbbb-d75669111132
+  alert_id: ab90f7b4-bc26-4205-9511-f7e49e68fc78
+  severity: High
+  description: Suspicious interaction with deception asset
+  recommended_actions:
+    - Investigate source
+    - Block IP
+
+[6D Blockchain]
+  last_block_hash: block_hash_3f745350-557f-4e18-a35c-423633842fa3_integrity_hash_demo1764053071
+  current_block_number: 1
+  total_transactions: 1
+  chain_length: 1
+  writer_total_blocks_created: 1
+  writer_total_transactions_written: 1
+
+[Immutable OS Bridge]
+  - bpi_service=vm_server os_service_type=VMServer port=7777 integration_status=Initializing health_status=Unknown
+  - bpi_service=zklock_mobile os_service_type=ZKLockMobile port=8081 integration_status=Initializing health_status=Unknown
+  - bpi_service=shadow_registry os_service_type=ShadowRegistry port=8080 integration_status=Initializing health_status=Unknown
+  - bpi_service=http_cage os_service_type=HttpCage port=8888 integration_status=Initializing health_status=Unknown
+  filesystem_namespace_mounted: false
+  vpod_network_active: false
+  integration_status: Failed
+  total_services_integrated: 0
+
+[Security Audit Metrics]
+  total_security_events: 2
+  audit_records_created: 2
+  forensic_evidence_collected: 0
+  compliance_violations: 0
+  threat_detection_accuracy: 1.000
+  false_positive_rate: 0.000
+  events_by_component:
+    - integrated: 2
+  events_by_severity:
+    - medium: 2
+
+[IPFS++ Storage]
+  ipfs_address: ipfs++://8e81742c29dccfd52eda5e6ff90114334f8c02955f66456c6adabd5fbe4219e1
+  payload_bytes: 218
+  storage_tier: Hot
+  replication_factor: 3
+  encryption_enabled: true
+
+[Shadow Registry Web2 Bridge]
+  bridge_id: f8cd9ae9-7745-40f1-872f-000c2d2fef06
+  web2_py_client_user: py-user-123
+  identity_mapping_id: f9a4ba20-b7da-4baa-9edd-e436189f164d
+  active_bridges: 1
+  registry_entries: 1
+  identity_mappings: 1
+  active_threats: 0
+  audit_logs: 3
+  status: operational
+  last_updated: 2025-11-25T06:44:31.138732128+00:00
+  sample_web2_request_prefix: PY_APP_REQUEST /bpi-bridge HTTP/1.1
+User-Agent: py-demo-client/0.1
+Host: demo.pyapp.local
+
+import requests
+resp = reques
+  processed_web2_response_prefix: processed:PY_APP_REQUEST /bpi-bridge HTTP/1.1
+User-Agent: py-demo-client/0.1
+Host: demo.pyapp.local
+
+import requests
+res
+
+[4D Database Bridge]
+  average_query_time_ms: 1.500
+  queries_per_second: 1000.0
+  cache_hit_ratio: 0.850
+  connection_pool_utilization: 0.700
+  perf_last_updated: 2025-11-25T06:44:31.162230082+00:00
+  health_status: healthy
+  health_uptime_seconds: 3600
+  health_active_connections: 5
+  health_last_check: 2025-11-25T06:44:31.162231881+00:00
+
+[Resource Manager]
+  allocation_id: d426f120-e371-4ec1-9f8c-dada21888cb1
+  process_id: full_demo_vm_1
+  cpu_cores: 2
+  memory_mb: 2048
+  storage_gb: 10
+  network_bandwidth_mbps: 500
+  quantum_access_level: Advanced
+  utilization_before_overall: 0.071
+  utilization_after_overall: 0.195
+  utilization_emergency_overall: 0.195
+  health_check_healthy: true
+
+[Blockchain OS Kernel + Hyperbolic Mesh]
+  kernel_id: e9257b19-7eec-479e-b85c-6c5275695811
+  orchestration_mode: Autonomous
+  security_level: Maximum
+  total_processes: 0
+  active_processes: 0
+  hyperbolic_poincare_nodes: 1
+  hyperbolic_klein_nodes: 0
+
+[Summary]
+  run_id: 82beaad2-1f6e-4a2f-bbeb-1d6dddfd7cfa
+  started_at: 2025-11-25T06:44:22.381750317+00:00
+  finished_at: 2025-11-25T06:44:31.355664469+00:00
+  duration_seconds: 8
+  components_exercised:
+    - OsSecuritySupervisor (kernel boot + storage ops)
+    - BpiDistributedStorage + EnhancedCdnStorage
+    - AgiDigitalNationStorage (citizen record)
+    - SOAREngine (incident classification + playbook)
+    - DeceptionEngine (honeyfile trigger)
+    - SixDBlockchainWriter (6D transaction + block)
+    - BpiImmutableOSIntegration (endpoint mapping)
+    - IPFS++ Engine (web3 payload storage)
+    - ShadowRegistryBridge (Web2 ↔ Web3.5 identity + audit)
+    - FourDDatabaseBridge (4D query performance + health)
+  DEMO_STATUS: OK

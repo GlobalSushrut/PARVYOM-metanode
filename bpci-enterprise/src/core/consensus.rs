@@ -45,7 +45,7 @@ pub struct Proposal {
 impl Proposal {
     pub fn new(proposer: NodeId, round: u64, block_height: BlockHeight, data: Vec<u8>) -> Self {
         let timestamp = Timestamp::now();
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&data);
         hasher.update(proposer.as_str().as_bytes());
         hasher.update(&round.to_le_bytes());
@@ -64,7 +64,7 @@ impl Proposal {
     }
     
     pub fn verify(&self) -> bool {
-        let mut hasher = Sha256::new();
+        let mut hasher = <Sha256 as Digest>::new();
         hasher.update(&self.data);
         hasher.update(self.proposer.as_str().as_bytes());
         hasher.update(&self.round.to_le_bytes());

@@ -3,15 +3,14 @@
 //! 100x More Advanced Than MongoDB - The Ultimate Database Query System
 //! Features: Quantum-Native Operations, AI-Powered Optimization, 4D Spatial-Temporal Algebra
 
-use serde::{Serialize, Deserialize};
 use std::collections::{HashMap, BTreeMap, VecDeque};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use uuid::Uuid;
 use std::time::Instant;
 
-use super::{FourDConfig, TileManager, HashGraph};
+use super::{TileManager, HashGraph};
 use serde_json::Value as JsonValue;
 
 /// MongoDB-compatible document type for revolutionary 4D database
@@ -595,7 +594,7 @@ impl QueryEngine {
         let hash_graph = self.hash_graph.read().await;
         
         // Find tiles based on 4D constraints
-        let mut candidate_tiles = Vec::new();
+        let candidate_tiles = Vec::new();
         
         // R-dimension filtering (Row/Entity range)
         if let Some((r_min, r_max)) = query.r_constraints {

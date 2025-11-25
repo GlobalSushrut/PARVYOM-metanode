@@ -5,7 +5,6 @@ use std::collections::HashMap;
 // Real cryptographic imports for identity management
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use sha2::{Sha256, Digest};
-use rand::rngs::OsRng;
 use hex;
 use tracing::{info, error, warn};
 

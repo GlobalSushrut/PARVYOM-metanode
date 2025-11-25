@@ -4,7 +4,8 @@
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use crate::cbor_pipeline_foundation::CborSerializable;
 use anyhow::Result;
 use uuid::Uuid;
 
@@ -21,7 +22,7 @@ pub enum ProcessPriority {
 }
 
 /// Execution queue for scheduled processes
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionQueue {
     pub priority: ProcessPriority,
     pub processes: VecDeque<ScheduledProcess>,
@@ -30,7 +31,7 @@ pub struct ExecutionQueue {
 }
 
 /// Scheduled process information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScheduledProcess {
     pub process_id: String,
     pub priority: ProcessPriority,
@@ -41,7 +42,7 @@ pub struct ScheduledProcess {
 }
 
 /// Resource requirements for process execution
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceRequirements {
     pub cpu_cores: u32,
     pub memory_mb: u64,
@@ -52,7 +53,7 @@ pub struct ResourceRequirements {
 }
 
 /// Execution context for processes
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionContext {
     pub execution_environment: ExecutionEnvironment,
     pub isolation_requirements: IsolationRequirements,
@@ -62,6 +63,7 @@ pub struct ExecutionContext {
 
 /// Execution environment types
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum ExecutionEnvironment {
     Native,           // Native system execution
     VM,              // Virtual machine execution
@@ -72,6 +74,7 @@ pub enum ExecutionEnvironment {
 
 /// Isolation requirements for process execution
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum IsolationRequirements {
     None,            // No isolation
     Process,         // Process-level isolation
@@ -82,6 +85,7 @@ pub enum IsolationRequirements {
 
 /// Monitoring levels for process execution
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq)]
 pub enum MonitoringLevel {
     None,            // No monitoring
     Basic,           // Basic resource monitoring
@@ -110,7 +114,7 @@ pub struct SmartContractScheduler {
 }
 
 /// Scheduler configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SchedulerConfig {
     pub max_concurrent_processes: u32,
     pub time_slice_ms: u64,
@@ -120,8 +124,17 @@ pub struct SchedulerConfig {
     pub quantum_scheduling: bool,
 }
 
+/// Blockchain transaction for scheduling
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BlockchainTransaction {
+    pub transaction_id: String,
+    pub priority: ProcessPriority,
+    pub execution_time_ms: u64,
+    pub resource_requirements: ResourceRequirements,
+}
+
 /// Scheduler statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SchedulerStats {
     pub total_scheduled: u64,
     pub total_executed: u64,
@@ -156,6 +169,14 @@ impl Default for SchedulerStats {
         }
     }
 }
+
+// CBOR Serializable implementations for scheduler structs
+impl CborSerializable for ExecutionQueue {}
+impl CborSerializable for ScheduledProcess {}
+impl CborSerializable for ResourceRequirements {}
+impl CborSerializable for ExecutionContext {}
+impl CborSerializable for SchedulerConfig {}
+impl CborSerializable for SchedulerStats {}
 
 impl SmartContractScheduler {
     /// Create a new smart contract scheduler

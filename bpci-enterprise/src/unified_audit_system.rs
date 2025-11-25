@@ -3,15 +3,16 @@
 //! Cross-system audit trails with privacy preservation for Court, Shadow Registry, and BPI Mesh
 
 use anyhow::Result;
-use anyhow::anyhow;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use tracing::{info, warn, error, debug};
-use crate::bpi_ledger_integration::{BpiLedgerClient, LedgerConnectionType, ProofType};
+use tracing::{info, error};
+use crate::bpi_ledger_integration::{BpiLedgerClient, ProofType};
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
+use crate::commute_lock::CommuteLockRuntime;
 
 /// Unified audit system for cross-system integration
 #[derive(Debug)]
@@ -175,7 +176,11 @@ pub struct ComplianceViolation {
 impl UnifiedAuditSystem {
     /// Create new unified audit system
     pub async fn new(config: UnifiedAuditConfig) -> Result<Self> {
-        let bpi_client = Arc::new(BpiLedgerClient::new().await?);
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini()?;
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await?);
+        let bpi_client = Arc::new(BpiLedgerClient::new(networking).await?);
         
         Ok(Self {
             config,

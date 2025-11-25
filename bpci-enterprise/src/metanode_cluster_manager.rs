@@ -10,10 +10,12 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 use uuid::Uuid;
 
-use crate::smartcontract_policy_agreement::{PolicyAgreementManager, JurisdictionPolicy, EnforcementLevel};
+use crate::smartcontract_policy_agreement::{PolicyAgreementManager, EnforcementLevel};
+use crate::dynaroute_integration::UnifiedNetworkingLayer;
+use crate::commute_lock::CommuteLockRuntime;
 
 /// MetanodeClusterManager - Central coordination for revolutionary orchestration
 #[derive(Debug)]
@@ -440,7 +442,11 @@ impl MetanodeClusterManager {
         let (event_tx, event_rx) = mpsc::unbounded_channel();
         
         // Initialize BPI audit bridge
-        let bpi_client = Arc::new(crate::bpi_ledger_integration::BpiLedgerClient::new().await?);
+        let parser = crate::config::env_ini_parser::EnvIniParser::new("config");
+        let env_config = parser.parse_env_ini()?;
+        let commute_runtime = Arc::new(CommuteLockRuntime::new(&env_config)?);
+        let networking = Arc::new(UnifiedNetworkingLayer::new_virtual(commute_runtime).await?);
+        let bpi_client = Arc::new(crate::bpi_ledger_integration::BpiLedgerClient::new(networking).await?);
         let (audit_tx, _audit_rx) = mpsc::unbounded_channel();
         
         let audit_bridge = Arc::new(BpiAuditBridge {

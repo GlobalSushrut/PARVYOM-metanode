@@ -23,7 +23,6 @@ use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use uuid::Uuid;
-use rust_decimal::Decimal;
 
 // Import multi-jurisdiction deployment system
 pub use multi_jurisdiction_smartcontract_deployment::*;

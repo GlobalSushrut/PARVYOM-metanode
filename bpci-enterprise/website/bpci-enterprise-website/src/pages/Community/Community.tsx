@@ -299,7 +299,7 @@ const Community: React.FC = () => {
                       padding: '0 2rem',
                       fontSize: '1rem'
                     }}
-                    onClick={() => window.open('https://github.com/pravyom', '_blank')}
+                    onClick={() => window.open('https://github.com/GlobalSushrut/PARVYOM-metanode', '_blank')}
                   >
                     View on GitHub
                   </Button>

@@ -3,12 +3,12 @@
 //! Complete integration of BSO kernel + vPod infrastructure + K8s-like orchestration
 //! for real system deployment and service management.
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
-use tokio::sync::{RwLock, Mutex};
+use std::time::Duration;
+use tokio::sync::RwLock;
 use tokio::process::Command;
 use tokio::io::AsyncReadExt;
 use tracing::{info, warn, error, debug};
@@ -18,8 +18,6 @@ use reqwest;
 
 // Import BSO kernel components (using actual available modules)
 use crate::deployment::next_gen_bso_kernel::NextGenBsoKernel;
-use crate::deployment::bso_engine::BsoDeploymentEngine;
-use crate::deployment::ico_framework::IcoFramework;
 
 // Import vPod components (using actual available modules)
 use crate::vpod::vpod_node::VPodNode;
@@ -1600,6 +1598,7 @@ mod tests {
             cpu_cores: 1.0,
             storage_gb: 10,
             network_bandwidth: "100Mbps".to_string(),
+            replicas: 1,
         };
         
         let result = orchestrator.deploy_service(

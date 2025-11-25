@@ -15,9 +15,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService/TermsOfService';
 import Legal from './pages/Legal/Legal';
 import Research from './pages/Research/Research';
-import UnifiedAuthContainer from './components/Auth/UnifiedAuthContainer';
 import PravyomAuthUI from './components/Auth/PravyomAuthUI';
-import { useUnifiedAuth } from './hooks/useUnifiedAuth';
 import RegistryDashboard from './pages/RegistryDashboard';
 import { WalletManager } from './components/Wallet/WalletManager';
 import MojoDashboard from './pages/MojoDashboard';
@@ -56,15 +54,14 @@ const theme = {
 };
 
 function App() {
-  const { isAuthenticated, user } = useUnifiedAuth();
   const [legacyAuth, setLegacyAuth] = useState(false);
 
   const handleAuthSuccess = (user?: any) => {
     setLegacyAuth(true);
   };
 
-  // Use unified auth state or fallback to legacy auth
-  const authState = isAuthenticated || legacyAuth;
+  // Use legacy auth for now
+  const authState = legacyAuth;
 
   return (
     <ConfigProvider theme={theme}>
@@ -77,19 +74,19 @@ function App() {
             <Route path="/login" element={<PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/auth" element={<PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/basic-dashboard" element={authState ? <BasicDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/dashboard" element={isAuthenticated ? <SystemDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/registry" element={isAuthenticated ? <RegistryDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/wallet" element={isAuthenticated ? <Wallet /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/wallet/transactions" element={isAuthenticated ? <Transactions /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/wallet/settings" element={isAuthenticated ? <WalletSettings /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/profile" element={isAuthenticated ? <Profile /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/settings" element={isAuthenticated ? <Settings /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/security" element={isAuthenticated ? <Security /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
-            <Route path="/mojo-dashboard" element={isAuthenticated ? <MojoDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/dashboard" element={authState ? <SystemDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/registry" element={authState ? <RegistryDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/wallet" element={authState ? <Wallet /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/wallet/transactions" element={authState ? <Transactions /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/wallet/settings" element={authState ? <WalletSettings /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/profile" element={authState ? <Profile /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/settings" element={authState ? <Settings /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/security" element={authState ? <Security /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/mojo-dashboard" element={authState ? <MojoDashboard /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/enterprise" element={<Enterprise />} />
             <Route path="/community" element={<Community />} />
             <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/create" element={isAuthenticated ? <BlogCreate /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/blog/create" element={authState ? <BlogCreate /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/get-started" element={<GetStarted />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -97,7 +94,7 @@ function App() {
             <Route path="/legal" element={<Legal />} />
             <Route path="/research" element={<Research />} />
             <Route path="/proof" element={<ProofPage />} />
-            <Route path="/documentation" element={isAuthenticated ? <DocumentationManager /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
+            <Route path="/documentation" element={authState ? <DocumentationManager /> : <PravyomAuthUI onAuthSuccess={handleAuthSuccess} />} />
             <Route path="/test-otp" element={<TestOTP />} />
           </Routes>
         </MainLayout>

@@ -1,0 +1,13 @@
+/home/umesh/metanode/backup_md_files/pravyom-complete/bpci-enterprise/bpi-advanced-downloader/target/debug/deps/nix-47eb2438bcda1715.d: /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/lib.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/macros.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/errno.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/fcntl.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/mod.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/signal.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/sysinfo.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/time.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/unistd.rs
+
+/home/umesh/metanode/backup_md_files/pravyom-complete/bpci-enterprise/bpi-advanced-downloader/target/debug/deps/libnix-47eb2438bcda1715.rmeta: /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/lib.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/macros.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/errno.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/fcntl.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/mod.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/signal.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/sysinfo.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/time.rs /home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/unistd.rs
+
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/lib.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/macros.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/errno.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/fcntl.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/mod.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/signal.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/sysinfo.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/sys/time.rs:
+/home/umesh/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.27.1/src/unistd.rs:

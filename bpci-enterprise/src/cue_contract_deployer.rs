@@ -8,7 +8,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
-use tracing::{debug, info, warn, error};
+use tracing::{info, warn};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 

@@ -9,7 +9,8 @@ use anyhow::Result;
 use crate::forensic_firewall::cue_engine::{CueRuleEngine, SecurityDecision, SecurityAction};
 use crate::forensic_firewall::behavioral_analysis::{BehavioralAnalyzer, BehavioralAnalysisResult};
 use crate::forensic_firewall::threat_intel::{ThreatIntelligence, ThreatClassification};
-use crate::forensic_firewall::audit_bridge::{ForensicAuditBridge, ForensicEventType, ForensicSeverity};
+use crate::forensic_firewall::audit_bridge::ForensicAuditBridge;
+use crate::forensic_firewall::shared_types::{ForensicEventType, ForensicSeverity};
 use crate::immutable_audit_system::ComponentType;
 
 /// Dynamic threat response system for real-time security orchestration

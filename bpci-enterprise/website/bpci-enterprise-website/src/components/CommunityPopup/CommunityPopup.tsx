@@ -61,7 +61,7 @@ const CommunityPopup: React.FC<CommunityPopupProps> = ({ visible, onClose }) => 
   // Social media links (placeholders for now)
   const socialLinks = [
     { icon: <TwitterOutlined />, name: 'Twitter', url: 'https://twitter.com/bpci_enterprise', color: '#1DA1F2' },
-    { icon: <GithubOutlined />, name: 'GitHub', url: 'https://github.com/bpci-enterprise', color: '#333' },
+    { icon: <GithubOutlined />, name: 'GitHub', url: 'https://github.com/GlobalSushrut/PARVYOM-metanode', color: '#333' },
     { icon: <LinkedinOutlined />, name: 'LinkedIn', url: 'https://linkedin.com/company/bpci', color: '#0077B5' },
     { icon: <YoutubeOutlined />, name: 'YouTube', url: 'https://youtube.com/@bpci', color: '#FF0000' },
     { icon: <RedditOutlined />, name: 'Reddit', url: 'https://reddit.com/r/bpci', color: '#FF4500' },

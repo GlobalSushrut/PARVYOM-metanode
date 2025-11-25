@@ -7,10 +7,9 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use std::net::IpAddr;
 
 // Import our separate modules
 use crate::token_address_manager::{

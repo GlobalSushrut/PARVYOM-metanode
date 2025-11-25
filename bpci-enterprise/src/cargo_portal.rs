@@ -1,10 +1,9 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
-use tracing::{info, warn, error};
-use chrono::{DateTime, Utc};
+use tracing::info;
 
 /// Cargo Portal Configuration - Like Cargo.toml but for entire OS + SDK
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -524,7 +523,7 @@ impl CargoPortalValidator {
     
     pub async fn validate(&self, cargo_portal: &CargoPortal) -> Result<ValidationResult> {
         let mut errors = Vec::new();
-        let mut warnings = Vec::new();
+        let warnings = Vec::new();
         
         // Run all validation rules
         for rule in &self.rules {

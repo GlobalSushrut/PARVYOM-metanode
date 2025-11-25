@@ -9,14 +9,13 @@
 use super::government_smartcontract_examples::GovernmentSmartContractExamples;
 use crate::government_layer::multi_jurisdiction_smartcontract_deployment::{
     MultiJurisdictionDeploymentManager, GovernmentSmartContract, JurisdictionScope,
-    RegulatoryFramework, DeploymentConfig, GovernmentApiAccess, ComplianceStandard,
+    RegulatoryFramework, GovernmentApiAccess, ComplianceStandard,
     ReportingRequirement, PenaltyStructure, ContractStatus, ExecutionRules,
     ComplianceRequirement, WalletStampType, ResourceLimits, AuditRequirements,
     BpciIntegration, BpciIntegrationType, BpciService, StampedWalletRequirements,
     RateLimits, StampVerification, SessionConfiguration, AuthenticationRequirements,
     ComplianceCoordination
 };
-use crate::registry::node_types::SecurityClearance;
 use crate::government_layer::missing_types::{
     EnforcementMechanism, ApplicableLaw, GovernmentAuthorityLevel,
     VerificationLevel, RenewalRequirements, ExecutionFrequency
@@ -262,7 +261,7 @@ impl UniversalJurisdictionTestSuite {
     pub async fn test_cross_jurisdiction_coordination() -> Result<(), anyhow::Error> {
         println!("🤝 TEST 5: Cross-Jurisdiction Coordination");
         
-        let mut deployment_manager = MultiJurisdictionDeploymentManager::new();
+        let deployment_manager = MultiJurisdictionDeploymentManager::new();
         
         // Test coordination between different types of jurisdictions
         let coordination_tests = vec![
@@ -356,7 +355,7 @@ impl UniversalJurisdictionTestSuite {
     pub async fn test_government_api_access() -> Result<(), anyhow::Error> {
         println!("🔍 TEST: Government API Access Validation");
         
-        let mut deployment_manager = MultiJurisdictionDeploymentManager::new();
+        let deployment_manager = MultiJurisdictionDeploymentManager::new();
         
         // Test API access for various government types
         let api_tests = vec![

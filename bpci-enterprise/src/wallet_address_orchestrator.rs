@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn, error};
+use tracing::info;
 use chrono::{DateTime, Utc};
 
 use crate::unified_manager::component_manager::{UnifiedComponentManager, ComponentStatus};

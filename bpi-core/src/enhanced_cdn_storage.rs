@@ -8,6 +8,7 @@ use sha2::{Sha256, Digest};
 use rand::{Rng, thread_rng};
 use uuid::Uuid;
 use crate::distributed_storage::{BpiDistributedStorage, CloudProvider, ContainerBlock, DistributedStorageConfig};
+use crate::os_security_supervisor::OsSecuritySupervisor;
 
 /// Enhanced CDN Storage System - 10x Faster than Traditional CDNs
 /// Programmable via CUE Storage Logic with Transversal CDN Network (CDNT)
@@ -19,6 +20,8 @@ pub struct EnhancedCdnStorage {
     pub edge_cache_manager: EdgeCacheManager,
     pub content_optimizer: ContentOptimizer,
     pub cost_optimizer: CostOptimizer,
+    /// Optional OS Security Supervisor for unified storage/network events
+    pub security_supervisor: Option<Arc<OsSecuritySupervisor>>,
 }
 
 /// CUE Storage Engine - Programmable Storage Logic
@@ -139,6 +142,13 @@ pub enum NodeStatus {
 
 impl EnhancedCdnStorage {
     pub fn new(base_storage: BpiDistributedStorage) -> Self {
+        Self::new_with_supervisor(base_storage, None)
+    }
+
+    pub fn new_with_supervisor(
+        base_storage: BpiDistributedStorage,
+        security_supervisor: Option<Arc<OsSecuritySupervisor>>,
+    ) -> Self {
         Self {
             base_storage,
             cue_storage_engine: CueStorageEngine::new(),
@@ -146,12 +156,20 @@ impl EnhancedCdnStorage {
             edge_cache_manager: EdgeCacheManager::new(),
             content_optimizer: ContentOptimizer::new(),
             cost_optimizer: CostOptimizer::new(),
+            security_supervisor,
         }
     }
 
     /// Store big data (images, videos, documents) with programmable CUE logic
     pub async fn store_big_data(&self, data: &[u8], content_type: ContentType, metadata: &str) -> Result<String> {
         info!("🚀 Enhanced CDN: Storing {} bytes of {:?} content", data.len(), content_type);
+
+        // Emit a unified storage security event if a supervisor is attached.
+        if let Some(supervisor) = &self.security_supervisor {
+            supervisor
+                .check_storage_operation("cdn_store", metadata, data.len() as u64)
+                .await;
+        }
         
         // Step 1: Determine optimal storage policy via CUE logic
         let storage_policy = self.cue_storage_engine.determine_storage_policy(&content_type, data.len()).await?;

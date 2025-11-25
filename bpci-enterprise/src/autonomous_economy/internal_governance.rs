@@ -12,7 +12,6 @@ use rust_decimal::Decimal;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use uuid::Uuid;
-use anyhow::{Result, anyhow};
 
 /// Internal Distribution Engine - 75%/25% split
 #[derive(Debug, Clone, Serialize, Deserialize)]

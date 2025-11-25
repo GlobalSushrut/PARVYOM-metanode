@@ -45,7 +45,7 @@ const Contact: React.FC = () => {
     } catch (error) {
       console.error('Error sending message:', error);
       message.error({
-        content: 'Failed to send message. Please try again or contact us directly at contact@parvyom.com',
+        content: 'Failed to send message. Please try again or contact us directly at umesh@pravyom.com',
         duration: 6,
         style: {
           marginTop: '20vh',
@@ -347,29 +347,19 @@ const Contact: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <MailOutlined style={{ color: '#10b981', fontSize: '18px' }} />
                     <div>
-                      <Text style={{ color: '#e2e8f0', fontSize: '14px', display: 'block' }}>Email</Text>
+                      <Text style={{ color: '#e2e8f0', fontSize: '14px', display: 'block' }}>Contact Email</Text>
                       <Text style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>
-                        contact@parvyom.com
+                        umesh@pravyom.com
                       </Text>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <BankOutlined style={{ color: '#10b981', fontSize: '18px' }} />
+                    <MessageOutlined style={{ color: '#10b981', fontSize: '18px' }} />
                     <div>
-                      <Text style={{ color: '#e2e8f0', fontSize: '14px', display: 'block' }}>Enterprise</Text>
+                      <Text style={{ color: '#e2e8f0', fontSize: '14px', display: 'block' }}>All Inquiries</Text>
                       <Text style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>
-                        enterprise@parvyom.com
-                      </Text>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <ExperimentOutlined style={{ color: '#10b981', fontSize: '18px' }} />
-                    <div>
-                      <Text style={{ color: '#e2e8f0', fontSize: '14px', display: 'block' }}>Research</Text>
-                      <Text style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>
-                        research@parvyom.com
+                        Enterprise, Research, Community & Support
                       </Text>
                     </div>
                   </div>

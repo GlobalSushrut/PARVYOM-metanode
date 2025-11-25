@@ -276,12 +276,66 @@ impl Default for HealthChecker {
     }
 }
 
+/// Check VM server health with real TCP connection test
+pub async fn check_vm_server_health() -> Result<ServiceHealth> {
+    use tokio::time::{timeout, Duration};
+    use std::time::Instant;
+    
+    let start = Instant::now();
+    let vm_port = 7777;
+    
+    // Try to connect to VM server with timeout
+    let result = timeout(
+        Duration::from_secs(5),
+        tokio::net::TcpStream::connect(format!("127.0.0.1:{}", vm_port))
+    ).await;
+    
+    let response_time_ms = start.elapsed().as_millis() as u64;
+    
+    match result {
+        Ok(Ok(_stream)) => {
+            Ok(ServiceHealth {
+                status: "healthy".to_string(),
+                response_time_ms,
+                last_check: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+                error_message: None,
+                suggestions: Vec::new(),
+            })
+        }
+        Ok(Err(e)) => {
+            Ok(ServiceHealth {
+                status: "unhealthy".to_string(),
+                response_time_ms,
+                last_check: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+                error_message: Some(format!("Connection failed: {}", e)),
+                suggestions: vec![
+                    "Check if VM server is running".to_string(),
+                    "Verify port 7777 is not blocked".to_string(),
+                    "Run: cargo run --bin vm_server".to_string(),
+                ],
+            })
+        }
+        Err(_) => {
+            Ok(ServiceHealth {
+                status: "timeout".to_string(),
+                response_time_ms,
+                last_check: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+                error_message: Some("Connection timeout after 5s".to_string()),
+                suggestions: vec![
+                    "VM server may be overloaded".to_string(),
+                    "Check system resources".to_string(),
+                ],
+            })
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_health_checker_creation() {
+    async fn test_health_check() {
         let checker = HealthChecker::new();
         let health = checker.check_health().await.unwrap();
         assert!(!health.status.is_empty());

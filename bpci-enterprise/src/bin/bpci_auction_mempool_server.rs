@@ -222,8 +222,8 @@ impl BpciAuctionMempoolServer {
                 "deployment": env::var("DEPLOYMENT_TYPE").unwrap_or_else(|_| "BSO-K8 orchestrator".to_string()),
                 "instance": env::var("INSTANCE_NAME").unwrap_or_else(|_| "bpci-auction-mempool".to_string()),
                 "network_binding": env::var("NETWORK_BINDING").unwrap_or_else(|_| "0.0.0.0 (external access)".to_string()),
-                "consensus_server": env::var("CONSENSUS_SERVER_URL").unwrap_or_else(|_| "http://localhost:9001".to_string()),
-                "blockchain_server": env::var("BLOCKCHAIN_SERVER_URL").unwrap_or_else(|_| "http://localhost:8080".to_string())
+                "consensus_server": env::var("BPCI_CONSENSUS_SERVER_URL").unwrap_or_else(|_| "unset (configure BPCI_CONSENSUS_SERVER_URL)".to_string()),
+                "blockchain_server": env::var("BPCI_BLOCKCHAIN_SERVER_URL").unwrap_or_else(|_| "unset (configure BPCI_BLOCKCHAIN_SERVER_URL)".to_string())
             },
             "architecture": {
                 "features": [
